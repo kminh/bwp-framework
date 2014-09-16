@@ -4,8 +4,8 @@
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
-class BWP_FRAMEWORK_IMPROVED {
-
+class BWP_FRAMEWORK_IMPROVED
+{
 	/**
 	 * Database related data
 	 */
@@ -218,8 +218,12 @@ class BWP_FRAMEWORK_IMPROVED {
 
 	public function show_donation()
 	{
-		$showable = apply_filters('bwp_donation_showable', true);
-		$ad_showable = apply_filters('bwp_ad_showable', true);
+		$info_showable     = apply_filters('bwp_info_showable', true);
+		$donation_showable = apply_filters('bwp_donation_showable', true);
+		$ad_showable       = apply_filters('bwp_ad_showable', true);
+
+		if (true == $info_showable || (self::is_multisite() && is_super_admin()))
+		{
 ?>
 <div id="bwp-info-place">
 <div id="bwp-donation" style="margin-bottom: 0px;">
@@ -229,7 +233,7 @@ class BWP_FRAMEWORK_IMPROVED {
 </small>
 <br />
 <?php
-		if (true == $showable || ($this->is_multisite() && is_super_admin()))
+		if (true == $donation_showable || (self::is_multisite() && is_super_admin()))
 		{
 ?>
 <small><?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->plugin_dkey); ?></small>
@@ -246,7 +250,7 @@ class BWP_FRAMEWORK_IMPROVED {
 <input type="hidden" name="return" value="http://betterwp.net">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
-<input type="hidden" name="item_name" value="<?php echo __('Donate to ' . $this->plugin_title, $this->plugin_dkey); ?>" />
+<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->plugin_dkey), $this->plugin_title); ?>" />
 <select name="amount">
 	<option value="5.00"><?php _e('One cup $5.00', $this->plugin_dkey); ?></option>
 	<option value="10.00"><?php _e('Two cups $10.00', $this->plugin_dkey); ?></option>
@@ -280,7 +284,7 @@ class BWP_FRAMEWORK_IMPROVED {
 <div id="bwp-ads">
 	<p><strong><?php _e('This Plugin is Proudly Sponsored By', $this->plugin_dkey); ?></strong></p>
 	<div style="width: 250px; margin: 0 auto;">
-		<a href="http://managewp.com/?utm_source=<?php echo $this->plugin_key; ?>&amp;utm_medium=Banner&amp;utm_content=mwp250_2&amp;utm_campaign=Plugins">
+		<a href="http://bit.ly/<?php echo $this->plugin_dkey; ?>-mwp" target="_blank">
 			<img src="<?php echo $this->plugin_wp_url . 'includes/bwp-option-page/images/ad_250x250.png'; ?>" />
 		</a>
 	</div>
@@ -290,6 +294,7 @@ class BWP_FRAMEWORK_IMPROVED {
 ?>
 </div>
 <?php
+		}
 	}
 
 	public function show_version()
@@ -421,7 +426,7 @@ class BWP_FRAMEWORK_IMPROVED {
 				$options = array_merge($options, $db_option);
 			unset($db_option);
 			// Also check for global options if in Multi-site
-			if ($this->is_multisite())
+			if (self::is_multisite())
 			{
 				$db_option = get_site_option($option);
 				if ($db_option && is_array($db_option))
@@ -563,9 +568,10 @@ class BWP_FRAMEWORK_IMPROVED {
 			wp_enqueue_style(
 				'bwp-option-page',
 				$this->plugin_wp_url . 'includes/bwp-option-page/css/bwp-option-page.css',
-				array(),
+				self::is_multisite() || class_exists('JCP_UseGoogleLibraries') ? array('wp-admin') : array(),
 				'1.1.0'
 			);
+
 			wp_enqueue_script(
 				'bwp-paypal-js',
 				$this->plugin_wp_url . 'includes/bwp-option-page/js/paypal.js',
@@ -697,7 +703,7 @@ class BWP_FRAMEWORK_IMPROVED {
 		return false;
 	}
 
-	protected static function is_normal_admin()
+	public static function is_normal_admin()
 	{
 		if (self::is_multisite() && !is_super_admin())
 			return true;
@@ -721,6 +727,7 @@ class BWP_FRAMEWORK_IMPROVED {
 		) {
 			return true;
 		}
+
 		return false;
 	}
 }
