@@ -150,7 +150,7 @@ class BWP_OPTION_PAGE
 		$ids   = array();
 		$names = (array) $names;
 
-		foreach ($this->form_item_names as $key => $name)
+		foreach ($form['item_names'] as $key => $name)
 		{
 			if (in_array($name, $names))
 				$ids[] = $key;

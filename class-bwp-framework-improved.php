@@ -192,6 +192,11 @@ class BWP_FRAMEWORK_IMPROVED
 		}
 	}
 
+	protected function get_current_wp_version()
+	{
+		return get_bloginfo('version');
+	}
+
 	protected function check_required_versions()
 	{
 		if (version_compare(PHP_VERSION, $this->php_ver, '<')
@@ -210,7 +215,7 @@ class BWP_FRAMEWORK_IMPROVED
 		echo '<div class="error"><p>' . sprintf(
 			__('%s requires WordPress <strong>%s</strong> or higher '
 			. 'and PHP <strong>%s</strong> or higher. '
-			. 'The plugin will not protected function until you update your software. '
+			. 'The plugin will not function until you update your software. '
 			. 'Please deactivate this plugin.', $this->plugin_dkey),
 			$this->plugin_title, $this->wp_ver, $this->php_ver)
 		. '</p></div>';
