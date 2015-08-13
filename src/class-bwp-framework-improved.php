@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2014 Khang Minh <betterwp.net>
+ * Copyright (c) 2015 Khang Minh <contact@betterwp.net>
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
@@ -264,7 +264,7 @@ class BWP_FRAMEWORK_IMPROVED
 	<option value="100.00"><?php _e('... or any amount!', $this->plugin_dkey); ?></option>
 </select>
 <span class="paypal-alternate-input" style="display: none;"><!-- --></span>
-<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'includes/bwp-option-page/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
+<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </p>
 </form>
@@ -290,7 +290,7 @@ class BWP_FRAMEWORK_IMPROVED
 	<p><strong><?php _e('This Plugin is Proudly Sponsored By', $this->plugin_dkey); ?></strong></p>
 	<div style="width: 250px; margin: 0 auto;">
 		<a href="http://bit.ly/<?php echo $this->plugin_dkey; ?>-mwp" target="_blank">
-			<img src="<?php echo $this->plugin_wp_url . 'includes/bwp-option-page/images/ad_250x250.png'; ?>" />
+			<img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/images/ad_250x250.png'; ?>" />
 		</a>
 	</div>
 </div>
@@ -565,21 +565,17 @@ class BWP_FRAMEWORK_IMPROVED
 			// Build tabs
 			$this->build_tabs();
 
-			// Load option page builder
-			if (!class_exists('BWP_OPTION_PAGE'))
-				require_once dirname(__FILE__) . '/bwp-option-page/bwp-option-page.php';
-
 			// Enqueue style sheets and scripts for the option page
 			wp_enqueue_style(
 				'bwp-option-page',
-				$this->plugin_wp_url . 'includes/bwp-option-page/css/bwp-option-page.css',
+				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/css/bwp-option-page.css',
 				self::is_multisite() || class_exists('JCP_UseGoogleLibraries') ? array('wp-admin') : array(),
 				'1.1.0'
 			);
 
 			wp_enqueue_script(
 				'bwp-paypal-js',
-				$this->plugin_wp_url . 'includes/bwp-option-page/js/paypal.js',
+				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/js/paypal.js',
 				array('jquery')
 			);
 		}
