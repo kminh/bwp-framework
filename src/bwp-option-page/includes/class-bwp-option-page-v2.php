@@ -4,94 +4,107 @@
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
-class BWP_OPTION_PAGE
+class BWP_OPTION_PAGE_V2
 {
+	/**
+	 * The plugin that initializes this option page instance
+	 *
+	 * @var BWP_FRAMEWORK_V2
+	 */
+	public $plugin;
+
 	/**
 	 * The form
 	 */
-	var $form;
+	public $form;
 
 	/**
 	 * The form name
 	 */
-	var $form_name;
+	public $form_name;
 
 	/**
 	 * Tabs to build
 	 */
-	var $form_tabs;
+	public $form_tabs;
 
 	/**
 	 * Current tab
 	 */
-	var $current_tab;
+	public $current_tab;
 
 	/**
 	 * This holds the form items, determining the position
 	 */
-	var $form_items = array();
+	public $form_items = array();
 
 	/**
 	 * This holds the name for each items (an item can have more than one fields)
 	 */
-	var $form_item_names = array();
+	public $form_item_names = array();
 
 	/**
 	 * This holds the form label
 	 */
-	var $form_item_labels = array();
+	public $form_item_labels = array();
 
 	/**
 	 * This holds the form option aka data
 	 */
-	var $form_options = array(), $site_options = array();
+	public $form_options = array();
+	public $site_options = array();
 
 	/**
-	 * Other things
+	 * Text domain
 	 */
-	var $domain;
+	public $domain;
 
 	/**
 	 * Constructor
 	 */
-	function __construct($form_name = 'bwp_option_page', $site_options = array(), $domain = '')
+	public function __construct($form_name = 'bwp_option_page', BWP_FRAMEWORK_V2 $plugin)
 	{
 		$this->form_name    = $form_name;
-		$this->site_options = $site_options;
-		$this->domain       = $domain;
+		$this->site_options = $plugin->site_options;
+		$this->domain       = $plugin->domain;
+
+		$this->plugin = $plugin;
 	}
 
 	/**
 	 * Init the class
 	 *
-	 * @param	array	$form	The form array that contains everything we need to build the form
-	 * @param	array	$options	The data array that contains all data fetched from db or by default
-	 * @param	string	$form_name	The name of the form, change this if you have more than one forms on a page
+	 * @param array $form             form data to build the form for the current option page
+	 * @param array $form_option_keys contains all option keys that should be handled by the current option page form
 	 */
-	function init($form = array(), $options = array(), $form_tabs = array())
+	public function init($form = array(), $form_option_keys = array())
 	{
 		$this->form_items       = $form['items'];
 		$this->form_item_names  = $form['item_names'];
 		$this->form_item_labels = $form['item_labels'];
 		$this->form             = $form;
-		$this->form_options     = $options;
-		$this->form_tabs        = $form_tabs;
+		$this->form_options     = $this->plugin->get_options_by_keys($form_option_keys);
+		$this->form_tabs        = $this->plugin->form_tabs;
+
+		$this->form['formats'] = isset($this->form['formats'])
+			? $this->form['formats']
+			: array();
 
 		if (sizeof($this->form_tabs) == 0)
 			$this->form_tabs = array(__('Plugin Configurations', 'bwp-option-page'));
 	}
 
-	function get_form_name()
+	public function get_form_name()
 	{
 		return $this->form_name;
 	}
 
-	function set_current_tab($current_tab = 0)
+	public function set_current_tab($current_tab = 0)
 	{
 		$this->current_tab = $current_tab;
 	}
 
-	function get_options($options = array(), $options_default = array())
+	public function get_options($options = array(), $options_default = array())
 	{
 		foreach ($options_default as $key => $option)
 		{
@@ -102,7 +115,7 @@ class BWP_OPTION_PAGE
 		return $options_default;
 	}
 
-	function get_db_options($name = '', $options = array())
+	public function get_db_options($name = '', $options = array())
 	{
 		$db_options = get_option($name);
 
@@ -130,8 +143,10 @@ class BWP_OPTION_PAGE
 		return $options;
 	}
 
-	function format_field($key, $option_formats)
+	public function format_field($key)
 	{
+		$option_formats = $this->form['formats'];
+
 		if (!empty($option_formats[$key]))
 		{
 			if ('int' == $option_formats[$key])
@@ -145,7 +160,7 @@ class BWP_OPTION_PAGE
 			$_POST[$key] = strip_tags($_POST[$key]);
 	}
 
-	function kill_html_fields(&$form, $names)
+	public function kill_html_fields(&$form, $names)
 	{
 		$ids   = array();
 		$names = (array) $names;
@@ -172,7 +187,7 @@ class BWP_OPTION_PAGE
 	/**
 	 * Generate HTML field
 	 */
-	function generate_html_field($type = '', $data = array(), $name = '', $in_section = false)
+	public function generate_html_field($type = '', $data = array(), $name = '', $in_section = false)
 	{
 		$pre_html_field  = '';
 		$post_html_field = '';
@@ -416,7 +431,7 @@ class BWP_OPTION_PAGE
 	 *
 	 * @params	they explain themselves
 	 */
-	function generate_html_fields($type, $name)
+	public function generate_html_fields($type, $name)
 	{
 		$item_label  = '';
 		$return_html = '';
@@ -521,7 +536,7 @@ class BWP_OPTION_PAGE
 	 *
 	 * @see Constructor
 	 */
-	function generate_html_form()
+	public function generate_html_form()
 	{
 		$return_str = '<div class="wrap" style="padding-bottom: 20px;">' . "\n";
 
@@ -583,21 +598,8 @@ class BWP_OPTION_PAGE
 					? $this->form_item_names[$key]
 					: '';
 
-				if (isset($this->form['env'])
-					&& !BWP_FRAMEWORK_IMPROVED::is_multisite()
-					&& array_key_exists($name, $this->form['env'])
-					&& $this->form['env'][$name] == 'multisite')
-				{
-					// hide multisite field if not in multisite environment
-					continue;
-				}
-
-				if (isset($this->form['role'])
-					&& BWP_FRAMEWORK_IMPROVED::is_normal_admin()
-					&& array_key_exists($name, $this->form['role'])
-					&& $this->form['role'][$name] == 'superadmin')
-				{
-					// hide superadmin-only fields if user is normal admin
+				// this form item should not be shown
+				if ($this->is_form_item_hidden($name)) {
 					continue;
 				}
 
@@ -626,5 +628,81 @@ class BWP_OPTION_PAGE
 		$return_str .= '</div>' . "\n";
 
 		echo $return_str;
+	}
+
+	public function submit_html_form()
+	{
+		// basic security check
+		check_admin_referer($this->form_name);
+
+		$options = $this->form_options;
+		$option_formats = $this->form['formats'];
+
+		foreach ($options as $name => &$option)
+		{
+			// if this form item is hidden, it should not be handled here
+			if ($this->is_form_item_hidden($name)) {
+				continue;
+			}
+
+			if (isset($_POST[$name]))
+			{
+				// make sure options are in expected formats
+				$this->format_field($name);
+				$option = trim(stripslashes($_POST[$name]));
+			}
+
+			if (!isset($_POST[$name])
+				&& !isset($this->form['input'][$name]['disabled'])
+			) {
+				// checkbox, exclude disabled input
+				$option = '';
+			}
+			elseif (isset($option_formats[$name])
+				&& 'int' == $option_formats[$name]
+				&& ('' === $_POST[$name] || 0 > $_POST[$name])
+			) {
+				// expect integer but received empty string or negative
+				// integer, revert to default value
+				$option = $this->plugin->options_default[$name];
+			}
+		}
+
+		// update per-blog options
+		update_option($this->form_name, $options);
+
+		// Update site options if is super admin and is on main site
+		if (!BWP_FRAMEWORK_V2::is_normal_admin())
+			update_site_option($this->form_name, $options);
+
+		// refresh the options for the form as well as the plugin's options
+		$this->form_options    = array_merge($this->form_options, $options);
+		$this->plugin->options = array_merge($this->plugin->options, $options);
+
+		// Update options successfully
+		$this->plugin->add_notice(__('All options have been saved.', $this->domain));
+	}
+
+	protected function is_form_item_hidden($name)
+	{
+		if (isset($this->form['env'])
+			&& !BWP_FRAMEWORK_V2::is_multisite()
+			&& array_key_exists($name, $this->form['env'])
+			&& $this->form['env'][$name] == 'multisite')
+		{
+			// hide multisite field if not in multisite environment
+			return true;
+		}
+
+		if (isset($this->form['role'])
+			&& BWP_FRAMEWORK_V2::is_normal_admin()
+			&& array_key_exists($name, $this->form['role'])
+			&& $this->form['role'][$name] == 'superadmin')
+		{
+			// hide superadmin-only fields if user is normal admin
+			return true;
+		}
+
+		return false;
 	}
 }

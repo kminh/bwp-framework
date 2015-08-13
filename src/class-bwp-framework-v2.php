@@ -4,116 +4,132 @@
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
-class BWP_FRAMEWORK_IMPROVED
+class BWP_FRAMEWORK_V2
 {
 	/**
 	 * Database related data
 	 */
-	var $options = array();
+	public $options = array();
 
 	/**
 	 * Default data
 	 */
-	var $options_default = array(), $site_options = array();
+	public $options_default = array();
+
+	/**
+	 * Global options
+	 */
+	public $site_options = array();
 
 	/**
 	 * Hold db option keys
 	 */
-	var $option_keys = array();
+	public $option_keys = array();
 
 	/**
 	 * Hold extra option keys
 	 */
-	var $extra_option_keys = array();
+	public $extra_option_keys = array();
 
 	/**
 	 * Hold old option pages
 	 */
-	var $option_pages = array();
+	public $option_pages = array();
 
 	/**
 	 * Key to identify plugin
 	 */
-	var $plugin_key;
+	public $plugin_key;
 
 	/**
 	 * Constant Key to identify plugin
 	 */
-	var $plugin_ckey;
+	public $plugin_ckey;
 
 	/**
 	 * Domain Key to identify plugin
 	 */
-	var $plugin_dkey;
+	public $plugin_dkey;
 
 	/**
 	 * Title of the plugin
 	 */
-	var $plugin_title;
+	public $plugin_title;
 
 	/**
 	 * Homepage of the plugin
 	 */
-	var $plugin_url;
+	public $plugin_url;
 
 	/**
 	 * Urls to various parts of homepage or other places
 	 *
 	 * Expect to have a format of array('relative' => bool, 'url' => url)
 	 */
-	var $urls = array();
+	public $urls = array();
 
 	/**
 	 * Plugin file
 	 */
-	var $plugin_file;
+	public $plugin_file;
 
 	/**
 	 * Plugin folder
 	 */
-	var $plugin_folder;
+	public $plugin_folder;
 
 	/**
 	 * Plugin WP url
 	 */
-	var $plugin_wp_url;
+	public $plugin_wp_url;
 
 	/**
 	 * Version of the plugin
 	 */
-	var $plugin_ver = '';
+	public $plugin_ver = '';
 
 	/**
 	 * Message shown to user (Warning, Notes, etc.)
 	 */
-	var $notices = array(), $notice_shown = false;
+	public $notices = array();
+	public $notice_shown = false;
 
 	/**
 	 * Error shown to user
 	 */
-	var $errors = array(), $error_shown = false;
+	public $errors = array();
+	public $error_shown = false;
 
 	/**
 	 * Capabilities to manage this plugin
 	 */
-	var $plugin_cap = 'manage_options';
+	public $plugin_cap = 'manage_options';
 
 	/**
 	 * Whether or not to create filter for media paths
 	 */
-	var $need_media_filters;
+	public $need_media_filters;
 
 	/**
 	 * Form tabs to build
 	 */
-	var $form_tabs = array();
+	public $form_tabs = array();
 
 	/**
-	 * Other things
+	 * Version constraints
 	 */
-	var $wp_ver = '3.0';
-	var $php_ver = '5';
-	var $domain = '';
+	public $wp_ver  = '3.0';
+	public $php_ver = '5.3.2';
+
+	/**
+	 * Number of framework revisions
+	 */
+	public $revision = 138;
+
+	/**
+	 * Text domain
+	 */
+	public $domain = '';
 
 	/**
 	 * Other special variables
@@ -427,10 +443,24 @@ class BWP_FRAMEWORK_IMPROVED
 		foreach ($this->option_keys as $option)
 		{
 			$db_option = get_option($option);
-			if ($db_option && is_array($db_option))
-				$options = array_merge($options, $db_option);
+			$db_option = $db_option && is_array($db_option)
+				? $db_option
+				: array();
+
+			// check for obsolete keys and remove them from db
+			if ($obsolete_keys = array_diff_key($db_option, $this->options_default))
+			{
+				foreach ($obsolete_keys as $obsolete_key) {
+					unset($db_option[$obsolete_key]);
+				}
+
+				update_option($option, $db_option);
+			}
+
+			$options = array_merge($options, $db_option);
 			unset($db_option);
-			// Also check for global options if in Multi-site
+
+			// also check for global options if in Multi-site
 			if (self::is_multisite())
 			{
 				$db_option = get_site_option($option);
@@ -447,6 +477,24 @@ class BWP_FRAMEWORK_IMPROVED
 			}
 		}
 		$this->options = $options;
+	}
+
+	/**
+	 * Get current options by their keys
+	 *
+	 * @param array $option_keys
+	 */
+	public function get_options_by_keys(array $option_keys)
+	{
+		$options = array();
+
+		foreach ($option_keys as $key) {
+			if (array_key_exists($key, $this->options)) {
+				$options[$key] = $this->options[$key];
+			}
+		}
+
+		return $options;
 	}
 
 	protected function pre_init_properties()
@@ -562,10 +610,10 @@ class BWP_FRAMEWORK_IMPROVED
 
 		if ($this->is_admin_page())
 		{
-			// Build tabs
+			// build tabs
 			$this->build_tabs();
 
-			// Enqueue style sheets and scripts for the option page
+			// enqueue style sheets and scripts for the option page
 			wp_enqueue_style(
 				'bwp-option-page',
 				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/css/bwp-option-page.css',
@@ -618,7 +666,7 @@ class BWP_FRAMEWORK_IMPROVED
 		/* intentionally left blank */
 	}
 
-	protected function add_notice($notice)
+	public function add_notice($notice)
 	{
 		if (!in_array($notice, $this->notices))
 		{
@@ -639,7 +687,7 @@ class BWP_FRAMEWORK_IMPROVED
 		}
 	}
 
-	protected function add_error($error)
+	public function add_error($error)
 	{
 		if (!in_array($error, $this->errors))
 		{
