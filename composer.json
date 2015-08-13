@@ -1,0 +1,25 @@
+{
+    "name": "kminh/bwp-framework",
+    "description": "Base codes for BWP WordPress Plugins",
+    "homepage": "http://betterwp.net",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Khang Minh",
+            "email": "kminhfoss@gmail.com"
+        }
+    ],
+    "require": {
+        "php": "~5.1"
+    },
+    "autoload": {
+        "classmap": [
+            "src/"
+        ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
