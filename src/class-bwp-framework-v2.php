@@ -32,9 +32,16 @@ class BWP_FRAMEWORK_V2
 	public $extra_option_keys = array();
 
 	/**
-	 * Hold old option pages
+	 * Hold option pages
 	 */
 	public $option_pages = array();
+
+	/**
+	 * The current option page instance
+	 *
+	 * @var BWP_OPTION_PAGE_V2
+	 */
+	public $curren_option_page;
 
 	/**
 	 * Key to identify plugin
@@ -347,7 +354,8 @@ class BWP_FRAMEWORK_V2
 		add_action('init', array($this, 'init'));
 
 		// register backend hooks
-		add_action('admin_menu', array($this, 'init_admin'), 1);
+		add_action('admin_init', array($this, 'init_admin'), 1);
+		add_action('admin_menu', array($this, 'init_admin_menu'), 1);
 	}
 
 	public function init()
@@ -580,8 +588,18 @@ class BWP_FRAMEWORK_V2
 		}
 	}
 
-	public function get_admin_page($page)
+	protected function get_current_admin_page()
 	{
+		if ($this->is_admin_page()) {
+			return wp_unslash($_GET['page']);
+		}
+
+		return '';
+	}
+
+	public function get_admin_page_url($page = '')
+	{
+		$page = $page ?: $this->get_current_admin_page();
 		$option_script = !$this->_menu_under_settings && !$this->_simple_menu
 			? 'admin.php'
 			: 'options-general.php';
@@ -595,7 +613,7 @@ class BWP_FRAMEWORK_V2
 
 		if (false !== strpos(plugin_basename($this->plugin_file), $file))
 		{
-			$links[] = '<a href="' . $this->get_admin_page($option_keys[0]) . '">'
+			$links[] = '<a href="' . $this->get_admin_page_url($option_keys[0]) . '">'
 				. __('Settings') . '</a>';
 		}
 
@@ -603,6 +621,37 @@ class BWP_FRAMEWORK_V2
 	}
 
 	public function init_admin()
+	{
+		if ($this->is_admin_page())
+		{
+			$this->curren_option_page = new BWP_OPTION_PAGE_V2(
+				$this->get_current_admin_page(), $this
+			);
+
+			$this->build_option_page();
+
+			// submit the form on the current option page when needed
+			if (isset($_POST['submit_' . $this->curren_option_page->get_form_name()]))
+			{
+				$submitted = $this->curren_option_page->submit_html_form();
+
+				// form submitted successfully
+				if ($submitted)
+				{
+					// redirect to current page to invalidate POST data with
+					// proper messages
+					wp_safe_redirect(add_query_arg('flash', 'options-saved', $this->get_admin_page_url()));
+					exit;
+				}
+			}
+
+			// show flash messages if needed
+			if (!empty($_GET['flash']) && $_GET['flash'] == 'options-saved')
+				$this->add_notice(__('All options have been saved.', $this->domain));
+		}
+	}
+
+	public function init_admin_menu()
 	{
 		$this->_menu_under_settings = apply_filters('bwp_menus_under_settings', false);
 
@@ -658,12 +707,15 @@ class BWP_FRAMEWORK_V2
 
 	/**
 	 * Build the option pages
-	 *
-	 * Utilizes BWP Option Page Builder (@see BWP_OPTION_PAGE)
 	 */
-	protected function build_option_pages()
+	protected function build_option_page()
 	{
 		/* intentionally left blank */
+	}
+
+	public function show_option_page()
+	{
+		/* filled by plugin */
 	}
 
 	public function add_notice($notice)

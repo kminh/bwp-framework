@@ -73,7 +73,7 @@ h2 .nav-tab{padding:6px 15px 6px;}
 	display: block;
 	float: left;
 	width: 200px;
-	margin: 3px 0 1em 0;
+	margin: 5px 0 1em 0;
 }
 
 .type-checkbox {
@@ -85,7 +85,7 @@ p.bwp-option-page-inputs {
 	padding: 0;
 }
 
-.bwp-option-page-inputs input {
+.bwp-option-page-inputs input[type="text"], .bwp-option-page-inputs select {
 	margin: 0 0 5px 0;
 }
 
@@ -94,7 +94,7 @@ p.bwp-option-page-inputs {
 }
 
 .bwp-option-page-inputs select {
-	margin: 1px 0 0 0;
+	/* margin: 1px 0 0 0; */
 }
 
 .bwp-option-page-inputs input[type="checkbox"] {

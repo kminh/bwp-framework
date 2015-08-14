@@ -679,8 +679,7 @@ class BWP_OPTION_PAGE_V2
 		$this->form_options    = array_merge($this->form_options, $options);
 		$this->plugin->options = array_merge($this->plugin->options, $options);
 
-		// Update options successfully
-		$this->plugin->add_notice(__('All options have been saved.', $this->domain));
+		return true;
 	}
 
 	protected function is_form_item_hidden($name)
