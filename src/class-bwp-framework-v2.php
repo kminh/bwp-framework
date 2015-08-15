@@ -131,7 +131,7 @@ class BWP_FRAMEWORK_V2
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 138;
+	public $revision = 141;
 
 	/**
 	 * Text domain
@@ -312,8 +312,8 @@ class BWP_FRAMEWORK_V2
 <div id="bwp-ads">
 	<p><strong><?php _e('This Plugin is Proudly Sponsored By', $this->plugin_dkey); ?></strong></p>
 	<div style="width: 250px; margin: 0 auto;">
-		<a href="http://bit.ly/<?php echo $this->plugin_dkey; ?>-mwp" target="_blank">
-			<img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/images/ad_250x250.png'; ?>" />
+		<a href="http://bit.ly/bwp-layer-themes" target="_blank">
+			<img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/images/ad_lt_250x250.png'; ?>" />
 		</a>
 	</div>
 </div>
@@ -350,8 +350,12 @@ class BWP_FRAMEWORK_V2
 
 	protected function init_actions()
 	{
-		add_action('init', array($this, 'build_wp_properties'));
-		add_action('init', array($this, 'init'));
+		// @since rev 140, sometimes we need to hook to the 'init' action with
+		// a specific priority
+		$init_priority = apply_filters($this->plugin_key . '_init_priority', 10);
+
+		add_action('init', array($this, 'build_wp_properties'), $init_priority);
+		add_action('init', array($this, 'init'), $init_priority);
 
 		// register backend hooks
 		add_action('admin_init', array($this, 'init_admin'), 1);
