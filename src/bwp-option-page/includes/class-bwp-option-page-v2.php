@@ -671,8 +671,8 @@ class BWP_OPTION_PAGE_V2
 		// update per-blog options
 		update_option($this->form_name, $options);
 
-		// Update site options if is super admin and is on main site
-		if (!BWP_FRAMEWORK_V2::is_normal_admin())
+		// Update site options if is super admin and is on main blog
+		if (!BWP_FRAMEWORK_V2::is_normal_admin() && BWP_FRAMEWORK_V2::is_on_main_blog())
 			update_site_option($this->form_name, $options);
 
 		// refresh the options for the form as well as the plugin's options
@@ -691,6 +691,24 @@ class BWP_OPTION_PAGE_V2
 		{
 			// hide multisite field if not in multisite environment
 			return true;
+		}
+
+		if (isset($this->form['blog'])
+			&& BWP_FRAMEWORK_V2::is_multisite()
+			&& array_key_exists($name, $this->form['blog'])
+		) {
+			global $blog_id;
+
+			if ($this->form['blog'][$name] == 'main' && $blog_id > 1)
+			{
+				// this field should be on main blog only
+				return true;
+			}
+			elseif ($this->form['blog'][$name] == 'sub' && $blog_id == 1)
+			{
+				// this field should be on sub blogs only
+				return true;
+			}
 		}
 
 		if (isset($this->form['role'])

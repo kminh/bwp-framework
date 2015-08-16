@@ -131,7 +131,7 @@ class BWP_FRAMEWORK_V2
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 142;
+	public $revision = 143;
 
 	/**
 	 * Text domain
@@ -838,6 +838,13 @@ class BWP_FRAMEWORK_V2
 		if (self::is_multisite() && !is_super_admin())
 			return true;
 		return false;
+	}
+
+	public static function is_on_main_blog()
+	{
+		global $blog_id;
+
+		return self::is_multisite() && intval($blog_id) === 1;
 	}
 
 	protected static function is_apache()
