@@ -125,13 +125,13 @@ class BWP_FRAMEWORK_V2
 	/**
 	 * Version constraints
 	 */
-	public $wp_ver  = '3.0';
-	public $php_ver = '5.3.2';
+	public $wp_ver;
+	public $php_ver;
 
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 141;
+	public $revision = 142;
 
 	/**
 	 * Text domain
@@ -145,16 +145,47 @@ class BWP_FRAMEWORK_V2
 	protected $_simple_menu = false;
 
 	/**
+	 * Construct a new plugin with appropriate meta
+	 *
+	 * @param array $meta
+	 * @since rev 142
+	 */
+	public function __construct(array $meta)
+	{
+		$required = array(
+			'title', 'version', 'domain'
+		);
+
+		foreach ($required as $required_meta)
+		{
+			if (!array_key_exists($required_meta, $meta))
+			{
+				throw new \InvalidArgumentException(sprintf('Missing required meta (%s) to construct plugin', $required_meta));
+			}
+		}
+
+		$this->plugin_title = $meta['title'];
+
+		require_once __DIR__ . '/class-bwp-version.php';
+
+		$this->set_version(isset($meta['php_version']) ? $meta['php_version'] : BWP_VERSION::$php_ver, 'php');
+		$this->set_version(isset($meta['wp_version']) ? $meta['wp_version'] : BWP_VERSION::$wp_ver, 'wp');
+		$this->set_version($meta['version']);
+
+		$this->domain = $meta['domain'];
+	}
+
+	/**
 	 * Build base properties
 	 */
 	protected function build_properties($key, $dkey, $options, $plugin_title = '',
 		$plugin_file = '', $plugin_url = '', $need_media_filters = true)
 	{
-		$this->plugin_key = strtolower($key);
-		$this->plugin_ckey = strtoupper($key);
-		$this->plugin_dkey = $dkey;
+		$this->plugin_key   = strtolower($key);
+		$this->plugin_ckey  = strtoupper($key);
+		$this->plugin_dkey  = $dkey;
 		$this->plugin_title = $plugin_title;
-		$this->plugin_url = $plugin_url;
+		$this->plugin_url   = $plugin_url;
 
 		$this->options_default = $options;
 		$this->need_media_filters = (boolean) $need_media_filters;
@@ -235,13 +266,7 @@ class BWP_FRAMEWORK_V2
 
 	public function warn_required_versions()
 	{
-		echo '<div class="error"><p>' . sprintf(
-			__('%s requires WordPress <strong>%s</strong> or higher '
-			. 'and PHP <strong>%s</strong> or higher. '
-			. 'The plugin will not function until you update your software. '
-			. 'Please deactivate this plugin.', $this->plugin_dkey),
-			$this->plugin_title, $this->wp_ver, $this->php_ver)
-		. '</p></div>';
+		BWP_VERSION::warn_required_versions($this->plugin_title, $this->plugin_dkey, $this->php_ver, $this->wp_ver);
 	}
 
 	public function show_donation()
