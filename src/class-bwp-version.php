@@ -1,12 +1,19 @@
 <?php
 
-if (!class_exists('BWP_VERSION')) :
+/**
+ * Copyright (c) 2015 Khang Minh <contact@betterwp.net>
+ * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
+ */
+
+// we need this check here because sometimes a plugin must include BWP_Version
+// separately
+if (!class_exists('BWP_Version')) :
 
 /**
- * Class BWP_VERSION
+ * Class BWP_Version
  * @author Khang Minh <contact@betterwp.net>
  */
-class BWP_VERSION
+class BWP_Version
 {
 	/**
 	 * Default version constraints

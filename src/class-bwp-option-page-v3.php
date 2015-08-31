@@ -4,71 +4,93 @@
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
-class BWP_OPTION_PAGE_V2
+class BWP_Option_Page_V3
 {
-	/**
-	 * The plugin that initializes this option page instance
-	 *
-	 * @var BWP_FRAMEWORK_V2
-	 */
-	public $plugin;
-
 	/**
 	 * The form
 	 */
-	public $form;
+	protected $form;
 
 	/**
 	 * The form name
 	 */
-	public $form_name;
+	protected $form_name;
 
 	/**
 	 * Tabs to build
 	 */
-	public $form_tabs;
+	protected $form_tabs;
 
 	/**
 	 * Current tab
 	 */
-	public $current_tab;
+	protected $current_tab;
 
 	/**
 	 * This holds the form items, determining the position
 	 */
-	public $form_items = array();
+	protected $form_items = array();
 
 	/**
 	 * This holds the name for each items (an item can have more than one fields)
 	 */
-	public $form_item_names = array();
+	protected $form_item_names = array();
 
 	/**
 	 * This holds the form label
 	 */
-	public $form_item_labels = array();
+	protected $form_item_labels = array();
 
 	/**
 	 * This holds the form option aka data
 	 */
-	public $form_options = array();
-	public $site_options = array();
+	protected $form_options = array();
+	protected $site_options = array();
+
+	/**
+	 * Actions associated with this form, in addition to the default submit
+	 * action
+	 *
+	 * @var array
+	 * @since rev 144
+	 */
+	protected $form_actions = array();
+
+	/**
+	 * The plugin that initializes this option page instance
+	 *
+	 * @var BWP_Framework_V3
+	 */
+	protected $plugin;
+
+	/**
+	 * @var BWP_WP_Bridge
+	 */
+	protected $bridge;
 
 	/**
 	 * Text domain
 	 */
-	public $domain;
+	protected $domain;
 
 	/**
 	 * Constructor
+	 *
+	 * @param string $form_name
+	 * @param BWP_Framework_V3 $plugin
 	 */
-	public function __construct($form_name = 'bwp_option_page', BWP_FRAMEWORK_V2 $plugin)
+	public function __construct($form_name, BWP_Framework_V3 $plugin)
 	{
 		$this->form_name    = $form_name;
+		$this->form_tabs    = $plugin->form_tabs;
 		$this->site_options = $plugin->site_options;
 		$this->domain       = $plugin->domain;
 
 		$this->plugin = $plugin;
+		$this->bridge = $plugin->get_bridge();
+
+		if (sizeof($this->form_tabs) == 0)
+			$this->form_tabs = array($this->bridge->t('Plugin Configurations', $this->domain));
 	}
 
 	/**
@@ -79,19 +101,31 @@ class BWP_OPTION_PAGE_V2
 	 */
 	public function init($form = array(), $form_option_keys = array())
 	{
-		$this->form_items       = $form['items'];
-		$this->form_item_names  = $form['item_names'];
-		$this->form_item_labels = $form['item_labels'];
 		$this->form             = $form;
+		$this->form_items       = isset($form['items']) ? $form['items'] : array();
+		$this->form_item_names  = isset($form['item_names']) ? $form['item_names'] : array();
+		$this->form_item_labels = isset($form['item_labels']) ? $form['item_labels'] : array();
 		$this->form_options     = $this->plugin->get_options_by_keys($form_option_keys);
-		$this->form_tabs        = $this->plugin->form_tabs;
 
 		$this->form['formats'] = isset($this->form['formats'])
 			? $this->form['formats']
 			: array();
+	}
 
-		if (sizeof($this->form_tabs) == 0)
-			$this->form_tabs = array(__('Plugin Configurations', 'bwp-option-page'));
+	/**
+	 * Add a container for a specific field of the current form
+	 *
+	 * @param string $name name of the field
+	 * @param string $container_data data of the container
+	 */
+	public function add_form_container($name, $container_data)
+	{
+		if (!isset($this->form['container']) || !is_array($this->form['container']))
+		{
+			$this->form['container'] = array();
+		}
+
+		$this->form['container'][$name] = $container_data;
 	}
 
 	public function get_form_name()
@@ -99,65 +133,14 @@ class BWP_OPTION_PAGE_V2
 		return $this->form_name;
 	}
 
+	public function get_form()
+	{
+		return $this->form;
+	}
+
 	public function set_current_tab($current_tab = 0)
 	{
 		$this->current_tab = $current_tab;
-	}
-
-	public function get_options($options = array(), $options_default = array())
-	{
-		foreach ($options_default as $key => $option)
-		{
-			if (!in_array($key, $options))
-				unset($options_default[$key]);
-		}
-
-		return $options_default;
-	}
-
-	public function get_db_options($name = '', $options = array())
-	{
-		$db_options = get_option($name);
-
-		if (!$db_options)
-		{
-			update_option($name, $options);
-		}
-		else if (array_keys($options) != array_keys($db_options))
-		{
-			foreach ($db_options as $key => $data)
-				if (isset($options[$key]) && !in_array($key, $this->site_options))
-					$options[$key] = $data;
-
-			update_option($name, $options);
-		}
-		else
-		{
-			foreach ($db_options as $key => $data)
-			{
-				if (!in_array($key, $this->site_options))
-					$options[$key] = $data;
-			}
-		}
-
-		return $options;
-	}
-
-	public function format_field($key)
-	{
-		$option_formats = $this->form['formats'];
-
-		if (!empty($option_formats[$key]))
-		{
-			if ('int' == $option_formats[$key])
-				$_POST[$key] = (int) $_POST[$key];
-			else if ('float' == $option_formats[$key])
-				$_POST[$key] = (float) $_POST[$key];
-			else if ('html' == $option_formats[$key])
-				$_POST[$key] = wp_filter_post_kses($_POST[$key]);
-		}
-		else
-			$_POST[$key] = strip_tags($_POST[$key]);
 	}
 
 	public function kill_html_fields(&$form, $names)
@@ -185,9 +168,238 @@ class BWP_OPTION_PAGE_V2
 	}
 
 	/**
+	 * Generate HTML form
+	 */
+	public function generate_html_form()
+	{
+		$return_str = '<div class="wrap" style="padding-bottom: 20px;">' . "\n";
+
+		if (sizeof($this->form_tabs) >= 2)
+			$return_str .= apply_filters('bwp-admin-form-icon', '<div class="icon32" id="icon-options-general"><br></div>'  . "\n");
+		else
+			$return_str .= '<div class="icon32" id="icon-options-general"><br></div>';
+
+		if (sizeof($this->form_tabs) >= 2)
+		{
+			$count = 0;
+
+			$return_str .= '<h2 class="bwp-option-page-tabs">' . "\n";
+			$return_str .= apply_filters('bwp-admin-plugin-version', '') . "\n";
+
+			foreach ($this->form_tabs as $title => $link)
+			{
+				$count++;
+
+				$active      = $count == $this->current_tab ? ' nav-tab-active' : '';
+				$return_str .= '<a class="nav-tab' . $active . '" href="' . $link . '">' . $title . '</a>' . "\n";
+			}
+
+			$return_str .= '</h2>' . "\n";
+		}
+		else if (!isset($this->form_tabs[0]))
+		{
+			$title       = array_keys($this->form_tabs);
+			$return_str .= '<h2>' . $title[0] . '</h2>'  . "\n";
+		}
+		else
+			$return_str .= '<h2>' . $this->form_tabs[0] . '</h2>'  . "\n";
+
+		$return_str .= apply_filters('bwp_option_before_form', '');
+		echo $return_str;
+
+		do_action('bwp_option_action_before_form');
+
+		$return_str  = '';
+		$return_str .= '<form class="bwp-option-page" name="' . $this->form_name . '" method="post" action="">'  . "\n";
+
+		if (function_exists('wp_nonce_field'))
+		{
+			echo $return_str;
+
+			wp_nonce_field($this->form_name);
+
+			$return_str = '';
+		}
+
+		$return_str .= '<ul>' . "\n";
+
+		// generate filled form
+		if (isset($this->form_items) && is_array($this->form_items))
+		{
+			foreach ($this->form_items as $key => $type)
+			{
+				$name = !empty($this->form_item_names[$key])
+					? $this->form_item_names[$key]
+					: '';
+
+				// this form item should not be shown
+				if ($this->is_form_item_hidden($name)) {
+					continue;
+				}
+
+				if (!empty($name) && !empty($this->form_item_labels[$key])
+				) {
+					$return_str .= '<li class="bwp-clear">'
+						. $this->generate_html_fields($type, $name)
+						. '</li>'
+						. "\n";
+				}
+			}
+		}
+
+		$return_str .= '</ul>' . "\n";
+		$return_str .= apply_filters('bwp_option_before_submit_button', '');
+
+		echo $return_str;
+		do_action('bwp_option_action_before_submit_button');
+
+		$return_str  = '';
+		$return_str .= apply_filters('bwp_option_submit_button',
+			'<p class="submit"><input type="submit" class="button-primary" name="submit_'
+			. $this->form_name . '" value="' . $this->bridge->t('Save Changes') . '" /></p>') . "\n";
+
+		$return_str .= '</form>' . "\n";
+		$return_str .= '</div>' . "\n";
+
+		echo $return_str;
+	}
+
+	/**
+	 * Register a custom submit action
+	 *
+	 * @param string $action the POST action
+	 * @since rev 144
+	 */
+	public function register_custom_submit_action($action)
+	{
+		$this->form_actions[] = $action;
+	}
+
+	public function submit_html_form()
+	{
+		// basic security check
+		$this->bridge->check_admin_referer($this->form_name);
+
+		$options = $this->form_options;
+		$option_formats = $this->form['formats'];
+
+		foreach ($options as $name => &$option)
+		{
+			// if this form item is hidden, it should not be handled here
+			if ($this->is_form_item_hidden($name))
+				continue;
+
+			if (isset($_POST[$name]))
+			{
+				// make sure options are in expected formats
+				$option = $this->format_field($name, $_POST[$name]);
+			}
+
+			if (isset($this->form['checkbox'][$name]) && !isset($_POST[$name])
+			) {
+				// unchecked checkbox
+				$option = '';
+			}
+		}
+
+		// allowing the current form to save its submitted data using a
+		// different form name
+		$form_name = $this->bridge->apply_filters('bwp_option_page_submit_form_name', $this->form_name);
+
+		// update per-blog options
+		$this->bridge->update_option($form_name, $options);
+
+		// update site options if allowed
+		if (BWP_Framework_V3::can_update_site_option())
+		{
+			// get a list of site options for this form
+			$site_options = array();
+
+			foreach ($this->site_options as $site_option_name)
+			{
+				if (array_key_exists($site_option_name, $options))
+					$site_options[$site_option_name] = $options[$site_option_name];
+			}
+
+			// update site options only if there are options to update
+			if (count($site_options) > 0)
+				$this->bridge->update_site_option($form_name, $site_options);
+		}
+
+		// refresh the options for the form as well as the plugin's options
+		$this->form_options    = array_merge($this->form_options, $options);
+		$this->plugin->options = array_merge($this->plugin->options, $options);
+
+		return true;
+	}
+
+	/**
+	 * Handles all kinds of form actions, including the default submit action
+	 *
+	 * @since rev 144
+	 */
+	public function handle_form_actions()
+	{
+		// handle the default submit action
+		if (isset($_POST['submit_' . $this->get_form_name()]))
+		{
+			$this->submit_html_form();
+			$this->plugin->add_notice_flash($this->bridge->t('All options have been saved.', $this->domain));
+
+			$redirect = $this->bridge->apply_filters('bwp_option_page_action_submitted', true);
+
+			if ($redirect !== false)
+				$this->plugin->safe_redirect();
+		}
+		else
+		{
+			foreach ($this->form_actions as $action)
+			{
+				if (isset($_POST[$action]))
+				{
+					// basic security check
+					$this->bridge->check_admin_referer($this->form_name);
+
+					$redirect = $this->bridge->apply_filters('bwp_option_page_custom_action_' . $action, true);
+
+					if ($redirect !== false)
+						$this->plugin->safe_redirect();
+				}
+			}
+		}
+	}
+
+	protected function format_field($name, $value)
+	{
+		$format = isset($this->form['formats'][$name])
+			? $this->form['formats'][$name]
+			: '';
+
+		$value = trim(stripslashes($value));
+
+		if (!empty($format))
+		{
+			if ('int' == $format)
+			{
+				// 'int' is understood as not a blank string and greater than 0
+				if ('' === $value || 0 > $value)
+					return $this->plugin->options_default[$name];
+
+				return (int) $value;
+			}
+			else if ('float' == $format)
+				return (float) $value;
+			else if ('html' == $format)
+				return $this->bridge->wp_filter_post_kses($value);
+		}
+		else
+			return strip_tags($value);
+	}
+
+	/**
 	 * Generate HTML field
 	 */
-	public function generate_html_field($type = '', $data = array(), $name = '', $in_section = false)
+	protected function generate_html_field($type = '', $data = array(), $name = '', $in_section = false)
 	{
 		$pre_html_field  = '';
 		$post_html_field = '';
@@ -201,9 +413,12 @@ class BWP_OPTION_PAGE_V2
 
 		$value = isset($data['value']) ? $data['value'] : $value;
 
+		if ('checkbox' == $type)
+			$value = current(array_values($data)) ?: 'yes';
+
 		$value = !empty($this->domain)
 			&& ('textarea' == $type || 'input' == $type)
-			? __($value, $this->domain)
+			? $this->bridge->t($value, $this->domain)
 			: $value;
 
 		if (is_array($value))
@@ -244,6 +459,8 @@ class BWP_OPTION_PAGE_V2
 		$param = empty($this->form['params'][$name])
 			? false : $this->form['params'][$name];
 
+		$name_attr = esc_attr($name);
+
 		switch ($type)
 		{
 			case 'heading':
@@ -253,20 +470,20 @@ class BWP_OPTION_PAGE_V2
 			case 'input':
 				$html_field = !$in_section
 					? '%pre%<input%disabled% size="%size%" type="text" '
-						. 'id="' . $name . '" '
-						. 'name="' . $name . '" '
+						. 'id="' . $name_attr . '" '
+						. 'name="' . $name_attr . '" '
 						. 'value="' . $value . '" /> <em>%label%</em>'
-					: '<label for="' . $name . '">%pre%<input%disabled% size="%size%" type="text" '
-						. 'id="' . $name . '" '
-						. 'name="' . $name . '" '
+					: '<label for="' . $name_attr . '">%pre%<input%disabled% size="%size%" type="text" '
+						. 'id="' . $name_attr . '" '
+						. 'name="' . $name_attr . '" '
 						. 'value="' . $value . '" /> <em>%label%</em></label>';
 			break;
 
 			case 'select':
 			case 'select_multi':
 				$pre_html_field = 'select_multi' == $type
-					? '%pre%<select id="' . $name . '" name="' . $name . '[]" multiple>' . "\n"
-					: '%pre%<select id="' . $name . '" name="' . $name . '">' . "\n";
+					? '%pre%<select id="' . $name_attr . '" name="' . $name_attr . '[]" multiple>' . "\n"
+					: '%pre%<select id="' . $name_attr . '" name="' . $name_attr . '">' . "\n";
 
 				$html_field = '<option %selected%value="%value%">%option%</option>';
 
@@ -285,13 +502,13 @@ class BWP_OPTION_PAGE_V2
 
 			case 'radio':
 				$html_field = '<label>' . '<input %checked%type="radio" '
-					. 'name="' . $name . '" value="%value%" /> %label%</label>';
+					. 'name="' . $name_attr . '" value="%value%" /> %label%</label>';
 			break;
 
 			case 'textarea':
 				$html_field = '%pre%<textarea%disabled% '
-					. 'id="' . $name . '" '
-					. 'name="' . $name . '" cols="%cols%" rows="%rows%">'
+					. 'id="' . $name_attr . '" '
+					. 'name="' . $name_attr . '" cols="%cols%" rows="%rows%">'
 					. $value . '</textarea>%post%';
 			break;
 		}
@@ -312,11 +529,11 @@ class BWP_OPTION_PAGE_V2
 				if ($type == 'checkbox')
 				{
 					// handle checkbox a little bit differently
-					if ($this->form_options[$value] == 'yes')
+					if ($this->form_options[$name] == 'yes')
 					{
 						$return_html .= str_replace(
 							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $value, $key, $checked),
+							array($value, $name_attr, $key, $checked),
 							$html_field
 						);
 
@@ -327,7 +544,7 @@ class BWP_OPTION_PAGE_V2
 					{
 						$return_html .= str_replace(
 							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $value, $key, ''),
+							array($value, $name_attr, $key, ''),
 							$html_field
 						);
 
@@ -345,7 +562,7 @@ class BWP_OPTION_PAGE_V2
 					) {
 						$return_html .= str_replace(
 							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $name, $key, $checked),
+							array($value, $name_attr, $key, $checked),
 							$html_field
 						);
 
@@ -356,7 +573,7 @@ class BWP_OPTION_PAGE_V2
 					{
 						$return_html .= str_replace(
 							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $name, $key, ''),
+							array($value, $name_attr, $key, ''),
 							$html_field
 						);
 
@@ -374,7 +591,7 @@ class BWP_OPTION_PAGE_V2
 
 					$return_html .= str_replace(
 						array('%value%', '%name%', '%label%', '%option%', '%checked%', '%selected%', '%pre%', '%post%'),
-						array($value, $value, $key, $key, $checked, $selected, $pre, $post),
+						array($value, $name_attr, $key, $key, $checked, $selected, $pre, $post),
 						$html_field
 					) . $item_br;
 				}
@@ -384,7 +601,7 @@ class BWP_OPTION_PAGE_V2
 
 					$return_html .= str_replace(
 						array('%value%', '%name%', '%label%', '%option%', '%checked%', '%selected%', '%pre%', '%post%'),
-						array($value, $value, $key, $key, '', '', $pre, $post),
+						array($value, $name_attr, $key, $key, '', '', $pre, $post),
 						$html_field
 					) . $item_br;
 				}
@@ -428,10 +645,8 @@ class BWP_OPTION_PAGE_V2
 
 	/**
 	 * Generate HTML fields
-	 *
-	 * @params	they explain themselves
 	 */
-	public function generate_html_fields($type, $name)
+	protected function generate_html_fields($type, $name)
 	{
 		$item_label  = '';
 		$return_html = '';
@@ -531,193 +746,58 @@ class BWP_OPTION_PAGE_V2
 		}
 	}
 
-	/**
-	 * Generate HTML form
-	 *
-	 * @see Constructor
-	 */
-	public function generate_html_form()
-	{
-		$return_str = '<div class="wrap" style="padding-bottom: 20px;">' . "\n";
-
-		if (sizeof($this->form_tabs) >= 2)
-			$return_str .= apply_filters('bwp-admin-form-icon', '<div class="icon32" id="icon-options-general"><br></div>'  . "\n");
-		else
-			$return_str .= '<div class="icon32" id="icon-options-general"><br></div>';
-
-		if (sizeof($this->form_tabs) >= 2)
-		{
-			$count = 0;
-
-			$return_str .= '<h2 class="bwp-option-page-tabs">' . "\n";
-			$return_str .= apply_filters('bwp-admin-plugin-version', '') . "\n";
-
-			foreach ($this->form_tabs as $title => $link)
-			{
-				$count++;
-
-				$active      = $count == $this->current_tab ? ' nav-tab-active' : '';
-				$return_str .= '<a class="nav-tab' . $active . '" href="' . $link . '">' . $title . '</a>' . "\n";
-			}
-
-			$return_str .= '</h2>' . "\n";
-		}
-		else if (!isset($this->form_tabs[0]))
-		{
-			$title       = array_keys($this->form_tabs);
-			$return_str .= '<h2>' . $title[0] . '</h2>'  . "\n";
-		}
-		else
-			$return_str .= '<h2>' . $this->form_tabs[0] . '</h2>'  . "\n";
-
-		$return_str .= apply_filters('bwp_option_before_form', '');
-		echo $return_str;
-
-		do_action('bwp_option_action_before_form');
-
-		$return_str  = '';
-		$return_str .= '<form class="bwp-option-page" name="' . $this->form_name . '" method="post" action="">'  . "\n";
-
-		if (function_exists('wp_nonce_field'))
-		{
-			echo $return_str;
-
-			wp_nonce_field($this->form_name);
-
-			$return_str = '';
-		}
-
-		$return_str .= '<ul>' . "\n";
-
-		// generate filled form
-		if (isset($this->form_items) && is_array($this->form_items))
-		{
-			foreach ($this->form_items as $key => $type)
-			{
-				$name = !empty($this->form_item_names[$key])
-					? $this->form_item_names[$key]
-					: '';
-
-				// this form item should not be shown
-				if ($this->is_form_item_hidden($name)) {
-					continue;
-				}
-
-				if (!empty($name) && !empty($this->form_item_labels[$key])
-				) {
-					$return_str .= '<li class="bwp-clear">'
-						. $this->generate_html_fields($type, $name)
-						. '</li>'
-						. "\n";
-				}
-			}
-		}
-
-		$return_str .= '</ul>' . "\n";
-		$return_str .= apply_filters('bwp_option_before_submit_button', '');
-
-		echo $return_str;
-		do_action('bwp_option_action_before_submit_button');
-
-		$return_str  = '';
-		$return_str .= apply_filters('bwp_option_submit_button',
-			'<p class="submit"><input type="submit" class="button-primary" name="submit_'
-			. $this->form_name . '" value="' . __('Save Changes') . '" /></p>') . "\n";
-
-		$return_str .= '</form>' . "\n";
-		$return_str .= '</div>' . "\n";
-
-		echo $return_str;
-	}
-
-	public function submit_html_form()
-	{
-		// basic security check
-		check_admin_referer($this->form_name);
-
-		$options = $this->form_options;
-		$option_formats = $this->form['formats'];
-
-		foreach ($options as $name => &$option)
-		{
-			// if this form item is hidden, it should not be handled here
-			if ($this->is_form_item_hidden($name)) {
-				continue;
-			}
-
-			if (isset($_POST[$name]))
-			{
-				// make sure options are in expected formats
-				$this->format_field($name);
-				$option = trim(stripslashes($_POST[$name]));
-			}
-
-			if (!isset($_POST[$name])
-				&& !isset($this->form['input'][$name]['disabled'])
-			) {
-				// checkbox, exclude disabled input
-				$option = '';
-			}
-			elseif (isset($option_formats[$name])
-				&& 'int' == $option_formats[$name]
-				&& ('' === $_POST[$name] || 0 > $_POST[$name])
-			) {
-				// expect integer but received empty string or negative
-				// integer, revert to default value
-				$option = $this->plugin->options_default[$name];
-			}
-		}
-
-		// update per-blog options
-		update_option($this->form_name, $options);
-
-		// Update site options if is super admin and is on main blog
-		if (!BWP_FRAMEWORK_V2::is_normal_admin() && BWP_FRAMEWORK_V2::is_on_main_blog())
-			update_site_option($this->form_name, $options);
-
-		// refresh the options for the form as well as the plugin's options
-		$this->form_options    = array_merge($this->form_options, $options);
-		$this->plugin->options = array_merge($this->plugin->options, $options);
-
-		return true;
-	}
-
 	protected function is_form_item_hidden($name)
 	{
 		if (isset($this->form['env'])
-			&& !BWP_FRAMEWORK_V2::is_multisite()
 			&& array_key_exists($name, $this->form['env'])
-			&& $this->form['env'][$name] == 'multisite')
-		{
+			&& $this->form['env'][$name] == 'multisite'
+			&& !BWP_Framework_V3::is_multisite()
+		) {
 			// hide multisite field if not in multisite environment
 			return true;
 		}
 
-		if (isset($this->form['blog'])
-			&& BWP_FRAMEWORK_V2::is_multisite()
-			&& array_key_exists($name, $this->form['blog'])
+		if (isset($this->form['role'])
+			&& array_key_exists($name, $this->form['role'])
+			&& $this->form['role'][$name] == 'superadmin'
+			&& (!BWP_Framework_V3::is_site_admin() || !BWP_Framework_V3::is_on_main_blog())
 		) {
-			global $blog_id;
+			// hide site-admin-only settings if not a site admin or not on
+			// main blog
+			return true;
+		}
 
-			if ($this->form['blog'][$name] == 'main' && $blog_id > 1)
+		/* if (isset($this->form['callback']) */
+		/* 	&& array_key_exists($name, $this->form['callback']) */
+		/* 	&& is_callable($this->form['callback'][$name]) */
+		/* 	&& !call_user_func($this->form['callback'][$name], $name) */
+		/* ) { */
+		/* 	// a condition not satisfied, hide the field */
+		/* 	return true; */
+		/* } */
+
+		if (in_array($name, $this->site_options)
+			&& (!BWP_Framework_V3::is_site_admin() || !BWP_Framework_V3::is_on_main_blog())
+		) {
+			// hide site-admin-only settings if not a site admin or not on
+			// main blog
+			return true;
+		}
+
+		if (isset($this->form['blog'])
+			&& array_key_exists($name, $this->form['blog'])
+			&& BWP_Framework_V3::is_multisite()
+		) {
+			if ($this->form['blog'][$name] == 'main' && !BWP_Framework_V3::is_on_main_blog())
 			{
 				// this field should be on main blog only
 				return true;
 			}
-			elseif ($this->form['blog'][$name] == 'sub' && $blog_id == 1)
+			elseif ($this->form['blog'][$name] == 'sub' && BWP_Framework_V3::is_on_main_blog())
 			{
 				// this field should be on sub blogs only
 				return true;
 			}
-		}
-
-		if (isset($this->form['role'])
-			&& BWP_FRAMEWORK_V2::is_normal_admin()
-			&& array_key_exists($name, $this->form['role'])
-			&& $this->form['role'][$name] == 'superadmin')
-		{
-			// hide superadmin-only fields if user is normal admin
-			return true;
 		}
 
 		return false;

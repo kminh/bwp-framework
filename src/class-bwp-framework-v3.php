@@ -1,25 +1,44 @@
 <?php
+
 /**
  * Copyright (c) 2015 Khang Minh <contact@betterwp.net>
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
-class BWP_FRAMEWORK_V2
+abstract class BWP_Framework_V3
 {
 	/**
-	 * Database related data
+	 * Hold plugin options
+	 *
+	 * This should return the most up-to-date options, even after a form submit
+	 *
+	 * @var array
 	 */
 	public $options = array();
 
 	/**
-	 * Default data
+	 * Hold plugin default options
+	 *
+	 * @var array
 	 */
 	public $options_default = array();
 
 	/**
-	 * Global options
+	 * Hold plugin site options (applied to whole site)
+	 *
+	 * @var array
 	 */
 	public $site_options = array();
+
+	/**
+	 * Hold plugin current options
+	 *
+	 * This should be used to get an option before it is modified by a form
+	 * submit
+	 *
+	 * @var array
+	 */
+	public $current_options;
 
 	/**
 	 * Hold db option keys
@@ -39,9 +58,9 @@ class BWP_FRAMEWORK_V2
 	/**
 	 * The current option page instance
 	 *
-	 * @var BWP_OPTION_PAGE_V2
+	 * @var BWP_Option_Page_V3
 	 */
-	public $curren_option_page;
+	public $current_option_page;
 
 	/**
 	 * Key to identify plugin
@@ -131,7 +150,7 @@ class BWP_FRAMEWORK_V2
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 143;
+	public $revision = 145;
 
 	/**
 	 * Text domain
@@ -145,12 +164,21 @@ class BWP_FRAMEWORK_V2
 	protected $_simple_menu = false;
 
 	/**
+	 * The bridge to WP
+	 *
+	 * @var BWP_WP_Bridge
+	 * @since rev 145
+	 */
+	protected $bridge;
+
+	/**
 	 * Construct a new plugin with appropriate meta
 	 *
 	 * @param array $meta
+	 * @param BWP_WP_Bridge $bridge optional, default to null
 	 * @since rev 142
 	 */
-	public function __construct(array $meta)
+	public function __construct(array $meta, BWP_WP_Bridge $bridge = null)
 	{
 		$required = array(
 			'title', 'version', 'domain'
@@ -166,26 +194,23 @@ class BWP_FRAMEWORK_V2
 
 		$this->plugin_title = $meta['title'];
 
-		require_once __DIR__ . '/class-bwp-version.php';
-
-		$this->set_version(isset($meta['php_version']) ? $meta['php_version'] : BWP_VERSION::$php_ver, 'php');
-		$this->set_version(isset($meta['wp_version']) ? $meta['wp_version'] : BWP_VERSION::$wp_ver, 'wp');
+		$this->set_version(isset($meta['php_version']) ? $meta['php_version'] : BWP_Version::$php_ver, 'php');
+		$this->set_version(isset($meta['wp_version']) ? $meta['wp_version'] : BWP_Version::$wp_ver, 'wp');
 		$this->set_version($meta['version']);
 
 		$this->domain = $meta['domain'];
+
+		$this->bridge = $bridge ?: new BWP_WP_Bridge();
 	}
 
 	/**
 	 * Build base properties
 	 */
-	protected function build_properties($key, $dkey, $options, $plugin_title = '',
-		$plugin_file = '', $plugin_url = '', $need_media_filters = true)
+	protected function build_properties($key, $options, $plugin_file = '', $plugin_url = '', $need_media_filters = true)
 	{
-		$this->plugin_key   = strtolower($key);
-		$this->plugin_ckey  = strtoupper($key);
-		$this->plugin_dkey  = $dkey;
-		$this->plugin_title = $plugin_title;
-		$this->plugin_url   = $plugin_url;
+		$this->plugin_key  = strtolower($key);
+		$this->plugin_ckey = strtoupper($key);
+		$this->plugin_url  = $plugin_url;
 
 		$this->options_default = $options;
 		$this->need_media_filters = (boolean) $need_media_filters;
@@ -197,7 +222,7 @@ class BWP_FRAMEWORK_V2
 		$this->init_actions();
 
 		// Load locale
-		load_plugin_textdomain($dkey, false, $this->plugin_folder . '/languages');
+		$this->bridge->load_plugin_textdomain($this->domain, false, $this->plugin_folder . '/languages');
 	}
 
 	protected function add_option_key($key, $option, $title)
@@ -233,7 +258,7 @@ class BWP_FRAMEWORK_V2
 		}
 	}
 
-	protected function get_version($type = '')
+	public function get_version($type = '')
 	{
 		switch ($type)
 		{
@@ -248,16 +273,16 @@ class BWP_FRAMEWORK_V2
 
 	protected function get_current_wp_version()
 	{
-		return get_bloginfo('version');
+		return $this->bridge->get_bloginfo('version');
 	}
 
 	protected function check_required_versions()
 	{
 		if (version_compare(PHP_VERSION, $this->php_ver, '<')
-			|| version_compare(get_bloginfo('version'), $this->wp_ver, '<')
+			|| version_compare($this->get_current_wp_version(), $this->wp_ver, '<')
 		) {
-			add_action('admin_notices', array($this, 'warn_required_versions'));
-			add_action('network_admin_notices', array($this, 'warn_required_versions'));
+			$this->bridge->add_action('admin_notices', array($this, 'warn_required_versions'));
+			$this->bridge->add_action('network_admin_notices', array($this, 'warn_required_versions'));
 			return false;
 		}
 		else
@@ -266,30 +291,34 @@ class BWP_FRAMEWORK_V2
 
 	public function warn_required_versions()
 	{
-		BWP_VERSION::warn_required_versions($this->plugin_title, $this->plugin_dkey, $this->php_ver, $this->wp_ver);
+		BWP_Version::warn_required_versions($this->plugin_title, $this->domain, $this->php_ver, $this->wp_ver);
 	}
 
 	public function show_donation()
 	{
-		$info_showable     = apply_filters('bwp_info_showable', true);
-		$donation_showable = apply_filters('bwp_donation_showable', true);
-		$ad_showable       = apply_filters('bwp_ad_showable', true);
+		$info_showable     = $this->bridge->apply_filters('bwp_info_showable', true);
+		$donation_showable = $this->bridge->apply_filters('bwp_donation_showable', true);
+		$ad_showable       = $this->bridge->apply_filters('bwp_ad_showable', true);
 
-		if (true == $info_showable || (self::is_multisite() && is_super_admin()))
+		if (true == $info_showable || self::is_multisite_admin())
 		{
 ?>
 <div id="bwp-info-place">
 <div id="bwp-donation" style="margin-bottom: 0px;">
 <a href="<?php echo $this->plugin_url; ?>"><?php echo $this->plugin_title; ?></a> <small>v<?php echo $this->plugin_ver; ?></small><br />
 <small>
-	<a href="<?php echo str_replace('/wordpress-plugins/', '/topic/', $this->plugin_url); ?>"><?php _e('Development Log', $this->plugin_dkey); ?></a> &ndash; <a href="<?php echo $this->plugin_url . 'faq/'; ?>" title="<?php _e('Frequently Asked Questions', $this->plugin_dkey) ?>"><?php _e('FAQ', $this->plugin_dkey); ?></a> &ndash; <a href="http://betterwp.net/contact/" title="<?php _e('Got a problem? Send me a feedback!', $this->plugin_dkey) ?>"><?php _e('Contact', $this->plugin_dkey); ?></a>
+	<a href="<?php echo str_replace('/wordpress-plugins/', '/topic/', $this->plugin_url); ?>"><?php _e('Development Log', $this->domain); ?></a>
+	&ndash;
+	<a href="<?php echo $this->plugin_url . 'faq/'; ?>" title="<?php _e('Frequently Asked Questions', $this->domain) ?>"><?php _e('FAQ', $this->domain); ?></a>
+	&ndash;
+	<a href="http://betterwp.net/contact/" title="<?php _e('Got a problem? Send me a feedback!', $this->domain) ?>"><?php _e('Contact', $this->domain); ?></a>
 </small>
 <br />
 <?php
-		if (true == $donation_showable || (self::is_multisite() && is_super_admin()))
+		if (true == $donation_showable || self::is_multisite_admin())
 		{
 ?>
-<small><?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->plugin_dkey); ?></small>
+<small><?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->domain); ?></small>
 <form class="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
 <p>
 <input type="hidden" name="cmd" value="_xclick">
@@ -303,16 +332,16 @@ class BWP_FRAMEWORK_V2
 <input type="hidden" name="return" value="http://betterwp.net">
 <input type="hidden" name="currency_code" value="USD">
 <input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
-<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->plugin_dkey), $this->plugin_title); ?>" />
+<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->domain), $this->plugin_title); ?>" />
 <select name="amount">
-	<option value="5.00"><?php _e('One cup $5.00', $this->plugin_dkey); ?></option>
-	<option value="10.00"><?php _e('Two cups $10.00', $this->plugin_dkey); ?></option>
-	<option value="25.00"><?php _e('Five cups! $25.00', $this->plugin_dkey); ?></option>
-	<option value="50.00"><?php _e('One LL-cup!!! $50.00', $this->plugin_dkey); ?></option>
-	<option value="100.00"><?php _e('... or any amount!', $this->plugin_dkey); ?></option>
+	<option value="5.00"><?php _e('One cup $5.00', $this->domain); ?></option>
+	<option value="10.00"><?php _e('Two cups $10.00', $this->domain); ?></option>
+	<option value="25.00"><?php _e('Five cups! $25.00', $this->domain); ?></option>
+	<option value="50.00"><?php _e('One LL-cup!!! $50.00', $this->domain); ?></option>
+	<option value="100.00"><?php _e('... or any amount!', $this->domain); ?></option>
 </select>
 <span class="paypal-alternate-input" style="display: none;"><!-- --></span>
-<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
+<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 </p>
 </form>
@@ -324,8 +353,8 @@ class BWP_FRAMEWORK_V2
 	<div style="height: 10px; width: 5px; background-color: #cccccc; margin: 0 auto;"><!-- --></div>
 </div>
 <div id="bwp-contact">
-	<a class="bwp-rss" href="http://feeds.feedburner.com/BetterWPnet"><?php _e('Latest updates from BetterWP.net!', $this->plugin_dkey); ?></a>
-	<a class="bwp-twitter" href="http://twitter.com/0dd0ne0ut"><?php _e('Follow me on Twitter!', $this->plugin_dkey); ?></a>
+	<a class="bwp-rss" href="http://feeds.feedburner.com/BetterWPnet"><?php _e('Latest updates from BetterWP.net!', $this->domain); ?></a>
+	<a class="bwp-twitter" href="http://twitter.com/0dd0ne0ut"><?php _e('Follow me on Twitter!', $this->domain); ?></a>
 </div>
 <?php
 		if (true == $ad_showable)
@@ -335,10 +364,10 @@ class BWP_FRAMEWORK_V2
 	<div style="height: 10px; width: 5px; background-color: #cccccc; margin: 0 auto;"><!-- --></div>
 </div>
 <div id="bwp-ads">
-	<p><strong><?php _e('This Plugin is Proudly Sponsored By', $this->plugin_dkey); ?></strong></p>
+	<p><strong><?php _e('This Plugin is Proudly Sponsored By', $this->domain); ?></strong></p>
 	<div style="width: 250px; margin: 0 auto;">
 		<a href="http://bit.ly/bwp-layer-themes" target="_blank">
-			<img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/images/ad_lt_250x250.png'; ?>" />
+			<img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/ad_lt_250x250.png'; ?>" />
 		</a>
 	</div>
 </div>
@@ -355,63 +384,58 @@ class BWP_FRAMEWORK_V2
 		if (empty($this->plugin_ver)) return '';
 
 		return '<a class="nav-tab version" title="'
-			. sprintf(esc_attr(__('You are using version %s!', $this->plugin_dkey)), $this->plugin_ver)
+			. sprintf(esc_attr(__('You are using version %s!', $this->domain)), $this->plugin_ver)
 			. '">' . $this->plugin_ver . '</a>';
 	}
 
 	protected function pre_init_actions()
 	{
 		$this->pre_init_build_constants();
+		$this->pre_init_update_plugin();
 		$this->pre_init_build_options();
 		$this->pre_init_properties();
 		$this->load_libraries();
 		$this->pre_init_hooks();
-		$this->pre_init_update_plugin();
 
 		// Support installation and uninstallation
-		register_activation_hook($this->plugin_file, array($this, 'install'));
-		register_deactivation_hook($this->plugin_file, array($this, 'uninstall'));
+		$this->bridge->register_activation_hook($this->plugin_file, array($this, 'install'));
+		$this->bridge->register_deactivation_hook($this->plugin_file, array($this, 'uninstall'));
 	}
 
 	protected function init_actions()
 	{
 		// @since rev 140, sometimes we need to hook to the 'init' action with
 		// a specific priority
-		$init_priority = apply_filters($this->plugin_key . '_init_priority', 10);
+		$init_priority = $this->bridge->apply_filters($this->plugin_key . '_init_priority', 10);
 
-		add_action('init', array($this, 'build_wp_properties'), $init_priority);
-		add_action('init', array($this, 'init'), $init_priority);
+		$this->bridge->add_action('init', array($this, 'build_wp_properties'), $init_priority);
+		$this->bridge->add_action('init', array($this, 'init'), $init_priority);
 
 		// register backend hooks
-		add_action('admin_init', array($this, 'init_admin'), 1);
-		add_action('admin_menu', array($this, 'init_admin_menu'), 1);
+		$this->bridge->add_action('admin_init', array($this, 'init_admin_page'), 1);
+		$this->bridge->add_action('admin_menu', array($this, 'init_admin_menu'), 1);
 	}
 
 	public function init()
 	{
-		do_action($this->plugin_key . '_pre_init');
+		$this->bridge->do_action($this->plugin_key . '_pre_init');
 
-		$this->init_update_plugin();
 		$this->build_constants();
-		$this->build_options();
+		$this->init_update_plugin();
+		$this->init_build_options();
 		$this->init_properties();
 		$this->init_hooks();
 		$this->enqueue_media();
 
-		do_action($this->plugin_key . '_loaded');
+		$this->bridge->do_action($this->plugin_key . '_loaded');
 
 		// icon 32px
 		if ($this->is_admin_page())
 		{
-			add_filter('bwp-admin-form-icon', array($this, 'add_icon'));
-			add_filter('bwp-admin-plugin-version', array($this, 'show_version'));
-			add_action('bwp_option_action_before_form', array($this, 'show_donation'), 12);
+			$this->bridge->add_filter('bwp-admin-form-icon', array($this, 'add_icon'));
+			$this->bridge->add_filter('bwp-admin-plugin-version', array($this, 'show_version'));
+			$this->bridge->add_action('bwp_option_action_before_form', array($this, 'show_donation'), 12);
 		}
-	}
-
-	protected function add_cap($cap)
-	{
-		$this->plugin_cap = $cap;
 	}
 
 	public function build_wp_properties()
@@ -419,11 +443,11 @@ class BWP_FRAMEWORK_V2
 		// set the plugin WP url here so it can be filtered
 		if (defined('BWP_USE_SYMLINKS'))
 			// make use of symlinks on development environment
-			$this->plugin_wp_url = trailingslashit(plugins_url($this->plugin_folder));
+			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugins_url($this->plugin_folder));
 		else
 			// this should allow other package to include BWP plugins while
 			// retaining correct URLs pointing to assets
-			$this->plugin_wp_url = trailingslashit(plugin_dir_url($this->plugin_file));
+			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugin_dir_url($this->plugin_file));
 	}
 
 	protected function pre_init_build_constants()
@@ -451,13 +475,13 @@ class BWP_FRAMEWORK_V2
 		if (true == $this->need_media_filters)
 		{
 			define($this->plugin_ckey . '_IMAGES',
-				apply_filters($this->plugin_key . '_image_path',
+				$this->bridge->apply_filters($this->plugin_key . '_image_path',
 				$this->plugin_wp_url . 'images'));
 			define($this->plugin_ckey . '_CSS',
-				apply_filters($this->plugin_key . '_css_path',
+				$this->bridge->apply_filters($this->plugin_key . '_css_path',
 				$this->plugin_wp_url . 'css'));
 			define($this->plugin_ckey . '_JS',
-				apply_filters($this->plugin_key . '_js_path',
+				$this->bridge->apply_filters($this->plugin_key . '_js_path',
 				$this->plugin_wp_url . 'js'));
 		}
 		else
@@ -473,47 +497,74 @@ class BWP_FRAMEWORK_V2
 		$this->build_options();
 	}
 
+	protected function init_build_options()
+	{
+		// don't rebuild options if there's no different between current
+		// options and the actual options
+		if ($this->options == $this->current_options)
+			return;
+
+		$this->build_options();
+	}
+
 	protected function build_options()
 	{
 		// Get all options and merge them
 		$options = $this->options_default;
+
 		foreach ($this->option_keys as $option)
 		{
-			$db_option = get_option($option);
-			$db_option = $db_option && is_array($db_option)
-				? $db_option
-				: array();
+			$db_options = $this->bridge->get_option($option);
+			$db_options = self::normalize_options($db_options);
+			$option_need_update = false;
 
 			// check for obsolete keys and remove them from db
-			if ($obsolete_keys = array_diff_key($db_option, $this->options_default))
+			if ($obsolete_keys = array_diff_key($db_options, $this->options_default))
 			{
-				foreach ($obsolete_keys as $obsolete_key) {
-					unset($db_option[$obsolete_key]);
+				foreach ($obsolete_keys as $obsolete_key => $value) {
+					unset($db_options[$obsolete_key]);
 				}
 
-				update_option($option, $db_option);
+				$option_need_update = true;
 			}
 
-			$options = array_merge($options, $db_option);
-			unset($db_option);
+			$options = array_merge($options, $db_options);
+			if ($option_need_update)
+				$this->bridge->update_option($option, $options);
 
 			// also check for global options if in Multi-site
 			if (self::is_multisite())
 			{
-				$db_option = get_site_option($option);
-				if ($db_option && is_array($db_option))
+				$db_options = $this->bridge->get_site_option($option);
+				$db_options = self::normalize_options($db_options);
+				$site_option_need_update = false;
+
+				// merge site options into the options array, overwrite
+				// any options with same keys
+				$temp = array();
+				foreach ($db_options as $k => $o)
 				{
-					$temp = array();
-					foreach ($db_option as $k => $o)
+					if (in_array($k, $this->site_options))
 					{
-						if (in_array($k, $this->site_options))
-							$temp[$k] = $o;
+						$temp[$k] = $o;
 					}
-					$options = array_merge($options, $temp);
+					else
+					{
+						// remove obsolete options
+						$site_option_need_update = true;
+						unset($db_options[$k]);
+					}
 				}
+
+				$options = array_merge($options, $temp);
+
+				if ($site_option_need_update)
+					$this->bridge->update_site_option($option, $temp);
 			}
 		}
-		$this->options = $options;
+
+		$this->options         = $options;
+		$this->current_options = $options;
 	}
 
 	/**
@@ -551,11 +602,11 @@ class BWP_FRAMEWORK_V2
 
 	protected function update_plugin($when = '')
 	{
-		if (!is_admin())
+		if (!$this->bridge->is_admin())
 			return;
 
 		$current_version = $this->plugin_ver;
-		$db_version = get_option($this->plugin_key . '_version');
+		$db_version = $this->bridge->get_option($this->plugin_key . '_version');
 
 		$action_hook = 'pre_init' == $when
 			? $this->plugin_key . '_upgrade'
@@ -563,10 +614,12 @@ class BWP_FRAMEWORK_V2
 
 		if (!$db_version || version_compare($db_version, $current_version, '<'))
 		{
-			do_action($action_hook, $db_version, $current_version);
+			// fire an action to allow plugins to update themselves
+			$this->bridge->do_action($action_hook, $db_version, $current_version);
+
 			// only mark as upgraded when this is init update
 			if ('init' == $when)
-				update_option($this->plugin_key . '_version', $current_version);
+				$this->bridge->update_option($this->plugin_key . '_version', $current_version);
 		}
 	}
 
@@ -607,7 +660,7 @@ class BWP_FRAMEWORK_V2
 
 	protected function is_admin_page($page = '')
 	{
-		if (is_admin() && !empty($_GET['page'])
+		if ($this->bridge->is_admin() && !empty($_GET['page'])
 			&& (in_array($_GET['page'], $this->option_keys)
 				|| in_array($_GET['page'], $this->extra_option_keys))
 			&& (empty($page)
@@ -620,7 +673,7 @@ class BWP_FRAMEWORK_V2
 	protected function get_current_admin_page()
 	{
 		if ($this->is_admin_page()) {
-			return wp_unslash($_GET['page']);
+			return $this->bridge->wp_unslash($_GET['page']);
 		}
 
 		return '';
@@ -633,14 +686,25 @@ class BWP_FRAMEWORK_V2
 			? 'admin.php'
 			: 'options-general.php';
 
-		return add_query_arg(array('page' => $page), admin_url($option_script));
+		return $this->bridge->add_query_arg(array('page' => $page), admin_url($option_script));
+	}
+
+	/**
+	 * Redirect internally
+	 *
+	 * @param mixed string|null $url default to current admin page
+	 */
+	public function safe_redirect($url = null)
+	{
+		$this->bridge->wp_safe_redirect($this->get_admin_page_url());
+		exit;
 	}
 
 	public function plugin_action_links($links, $file)
 	{
 		$option_keys = array_values($this->option_keys);
 
-		if (false !== strpos(plugin_basename($this->plugin_file), $file))
+		if (false !== strpos($this->bridge->plugin_basename($this->plugin_file), $file))
 		{
 			$links[] = '<a href="' . $this->get_admin_page_url($option_keys[0]) . '">'
 				. __('Settings') . '</a>';
@@ -649,42 +713,48 @@ class BWP_FRAMEWORK_V2
 		return $links;
 	}
 
-	public function init_admin()
+	private function init_session()
+	{
+		if (!isset($_SESSION) || (function_exists('session_status') && session_status() === PHP_SESSION_NONE))
+		{
+			// do not init a session if headers are already sent
+			if (headers_sent())
+				return;
+
+			session_start();
+		}
+	}
+
+	public function init_admin_page()
 	{
 		if ($this->is_admin_page())
 		{
-			$this->curren_option_page = new BWP_OPTION_PAGE_V2(
+			$this->current_option_page = new BWP_Option_Page_V3(
 				$this->get_current_admin_page(), $this
 			);
 
+			$this->init_session();
 			$this->build_option_page();
+			$this->current_option_page->handle_form_actions();
 
-			// submit the form on the current option page when needed
-			if (isset($_POST['submit_' . $this->curren_option_page->get_form_name()]))
-			{
-				$submitted = $this->curren_option_page->submit_html_form();
+			$notices = $this->get_flash('notice');
+			$errors  = $this->get_flash('error');
 
-				// form submitted successfully
-				if ($submitted)
-				{
-					// redirect to current page to invalidate POST data with
-					// proper messages
-					wp_safe_redirect(add_query_arg('flash', 'options-saved', $this->get_admin_page_url()));
-					exit;
-				}
+			foreach ($notices as $notice) {
+				$this->add_notice($notice);
 			}
 
-			// show flash messages if needed
-			if (!empty($_GET['flash']) && $_GET['flash'] == 'options-saved')
-				$this->add_notice(__('All options have been saved.', $this->domain));
+			foreach ($errors as $error) {
+				$this->add_error($error);
+			}
 		}
 	}
 
 	public function init_admin_menu()
 	{
-		$this->_menu_under_settings = apply_filters('bwp_menus_under_settings', false);
+		$this->_menu_under_settings = $this->bridge->apply_filters('bwp_menus_under_settings', false);
 
-		add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
+		$this->bridge->add_filter('plugin_action_links', array($this, 'plugin_action_links'), 10, 2);
 
 		if ($this->is_admin_page())
 		{
@@ -692,16 +762,16 @@ class BWP_FRAMEWORK_V2
 			$this->build_tabs();
 
 			// enqueue style sheets and scripts for the option page
-			wp_enqueue_style(
+			$this->bridge->wp_enqueue_style(
 				'bwp-option-page',
-				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/css/bwp-option-page.css',
+				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/css/bwp-option-page.css',
 				self::is_multisite() || class_exists('JCP_UseGoogleLibraries') ? array('wp-admin') : array(),
 				'1.1.0'
 			);
 
-			wp_enqueue_script(
+			$this->bridge->wp_enqueue_script(
 				'bwp-paypal-js',
-				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/js/paypal.js',
+				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/js/paypal.js',
 				array('jquery')
 			);
 		}
@@ -729,7 +799,7 @@ class BWP_FRAMEWORK_V2
 				? $this->option_keys[$key]
 				: $this->extra_option_keys[$key];
 
-			$this->form_tabs[$page] = admin_url($option_script)
+			$this->form_tabs[$page] = $this->bridge->admin_url($option_script)
 				. '?page=' . $pagelink;
 		}
 	}
@@ -747,12 +817,69 @@ class BWP_FRAMEWORK_V2
 		/* filled by plugin */
 	}
 
+	/**
+	 * Add a flash message that is shown only once
+	 *
+	 * @since rev 144
+	 * @param string $key the key to group this message
+	 * @param string $message the message to display
+	 * @param bool $append append to the group or replace
+	 */
+	protected function add_flash($key, $message, $append = true)
+	{
+		if (!isset($_SESSION))
+			return;
+
+		$flash_key = 'bwp_op_flash_' . $key;
+
+		if (!isset($_SESSION[$flash_key]) || !is_array($_SESSION[$flash_key]))
+			$_SESSION[$flash_key] = array();
+
+		if ($append)
+			$_SESSION[$flash_key][] = $message;
+		else
+			$_SESSION[$flash_key] = array($message);
+	}
+
+	public function add_notice_flash($message, $append = true)
+	{
+		$this->add_flash('notice', $message, $append);
+	}
+
+	public function add_error_flash($message, $append = true)
+	{
+		$this->add_flash('error', $message, $append);
+	}
+
+	/**
+	 * Get all flash messages that share a key
+	 *
+	 * @since rev 144
+	 * @return array
+	 */
+	protected function get_flash($key)
+	{
+		$flash_key = 'bwp_op_flash_' . $key;
+
+		if (!isset($_SESSION[$flash_key]))
+		{
+			$flashes = array();
+		}
+		else
+		{
+			$flashes =  (array) $_SESSION[$flash_key];
+			unset($_SESSION[$flash_key]);
+		}
+
+		return $flashes;
+	}
+
 	public function add_notice($notice)
 	{
 		if (!in_array($notice, $this->notices))
 		{
 			$this->notices[] = $notice;
-			add_action('bwp_option_action_before_form', array($this, 'show_notices'));
+			$this->bridge->add_action('bwp_option_action_before_form', array($this, 'show_notices'));
 		}
 	}
 
@@ -773,7 +900,7 @@ class BWP_FRAMEWORK_V2
 		if (!in_array($error, $this->errors))
 		{
 			$this->errors[] = $error;
-			add_action('bwp_option_action_before_form', array($this, 'show_errors'));
+			$this->bridge->add_action('bwp_option_action_before_form', array($this, 'show_errors'));
 		}
 	}
 
@@ -803,7 +930,7 @@ class BWP_FRAMEWORK_V2
 		{
 			$url = $this->urls[$key];
 			if ($url['relative'])
-				return trailingslashit($this->plugin_url) . $url['url'];
+				return $this->bridge->trailingslashit($this->plugin_url) . $url['url'];
 
 			return $url['url'];
 		}
@@ -811,60 +938,67 @@ class BWP_FRAMEWORK_V2
 		return '';
 	}
 
+
+	/**
+	 * @return BWP_WP_Bridge
+	 */
+	public function get_bridge()
+	{
+		return $this->bridge;
+	}
+
 	public static function is_multisite()
 	{
-		if (function_exists('is_multisite') && is_multisite())
-			return true;
-
-		if (defined('MULTISITE'))
-			return MULTISITE;
-
-		if (defined('SUBDOMAIN_INSTALL') || defined('VHOST') || defined('SUNRISE'))
-			return true;
-
-		return false;
+		return BWP_Framework_Util::is_multisite();
 	}
 
 	public static function is_subdomain_install()
 	{
-		if (defined('SUBDOMAIN_INSTALL') && SUBDOMAIN_INSTALL)
-			return true;
-
-		return false;
+		return BWP_Framework_Util::is_subdomain_install();
 	}
 
-	public static function is_normal_admin()
+	public static function is_super_admin()
 	{
-		if (self::is_multisite() && !is_super_admin())
-			return true;
-		return false;
+		return BWP_Framework_Util::is_super_admin();
+	}
+
+	public static function is_site_admin()
+	{
+		return BWP_Framework_Util::is_site_admin();
+	}
+
+	public static function is_multisite_admin()
+	{
+		return BWP_Framework_Util::is_multisite_admin();
 	}
 
 	public static function is_on_main_blog()
 	{
-		global $blog_id;
-
-		return self::is_multisite() && intval($blog_id) === 1;
+		return BWP_Framework_Util::is_on_main_blog();
 	}
 
-	protected static function is_apache()
+	public static function can_update_site_option()
 	{
-		if (isset($_SERVER['SERVER_SOFTWARE'])
-			&& false !== stripos($_SERVER['SERVER_SOFTWARE'], 'apache')
-		) {
-			return true;
-		}
-		return false;
+		return BWP_Framework_Util::can_update_site_option();
 	}
 
-	protected static function is_nginx()
+	public static function is_apache()
 	{
-		if (isset($_SERVER['SERVER_SOFTWARE'])
-			&& false !== stripos($_SERVER['SERVER_SOFTWARE'], 'nginx')
-		) {
-			return true;
-		}
+		return BWP_Framework_Util::is_apache();
+	}
 
-		return false;
+	public static function is_nginx()
+	{
+		return BWP_Framework_Util::is_nginx();
+	}
+
+	protected function add_cap($cap)
+	{
+		$this->plugin_cap = $cap;
+	}
+
+	protected static function normalize_options(array $options)
+	{
+		return $options && is_array($options) ? $options : array();
 	}
 }
