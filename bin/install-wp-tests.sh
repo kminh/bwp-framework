@@ -14,7 +14,8 @@ WP_VERSION=${5-latest}
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
-set -ex
+# set -ex
+set -e
 
 download() {
     if [ `which curl` ]; then

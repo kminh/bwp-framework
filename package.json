@@ -2,23 +2,24 @@
     "name": "BWP_Framework",
     "version": "3.0.0",
     "config": {
-        "phpunit_suite": "",
-        "wp_version": "",
-        "wp_multisite": ""
+        "phpunit_suite": ""
     },
     "scripts": {
-        "clear:wp:phpunit": "rm -r /tmp/wordpress-*",
-        "install:wp": "./bin/install-wp-tests.sh >/dev/null bwp_test_$npm_package_config_wp_version $WP_DB_USER $WP_DB_PASS localhost $npm_package_config_wp_version",
-        "test:php": "phpunit --colors=always --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
-        "test:php:functional": "export WP_TESTS_DIR=/tmp/wordpress-$npm_package_config_wp_version-tests-lib/ && export WP_CORE_DIR=/tmp/wordpress-$npm_package_config_wp_version/ && npm run install:wp --BWP_Framework:wp_version=$npm_package_config_wp_version && npm run test:php --BWP_Framework:phpunit_suite='functional'",
-        "test:php:functional:trunk": "npm run test:php:functional --BWP_Framework:wp_version=latest",
-        "test:php:functional:3.7": "npm run test:php:functional --BWP_Framework:wp_version='3.7'",
-        "test:php:functional:stable": "export WP_TESTS_MULTISITE=1 && npm run test:php:functional --BWP_Framework:wp_version=4.3",
+        "clear:wp:phpunit": "rm -rf /tmp/wordpress-*",
+        "install:wp": "./bin/install-wp-tests.sh > /dev/null bwp_test_$WP_VERSION ${WP_DB_USER-'test'} ${WP_DB_PASS-'test'} localhost $WP_VERSION",
+        "test:php": "phpunit --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
+        "test:php:legacy": "phpunit --stderr -c phpunit_php52.xml",
+        "test:php:functional": "export WP_TESTS_DIR=/tmp/wordpress-$WP_VERSION-tests-lib/ && export WP_CORE_DIR=/tmp/wordpress-$WP_VERSION/ && npm run install:wp && npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
+        "test:php:functional:trunk": "export WP_VERSION=latest && npm run test:php:functional",
+        "test:php:functional:3.7": "export WP_VERSION=3.7 && npm run test:php:functional",
+        "test:php:functional:stable": "export WP_VERSION=4.3 && export WP_TESTS_MULTISITE=1 && npm run test:php:functional",
+        "test:php:functional:all": "npm run test:php:functional:stable && npm run test:php:functional:3.7 && npm run test:php:functional:trunk",
         "test:php:unit": "npm run test:php --BWP_Framework:phpunit_suite='unit'",
         "test:php:stable": "npm run test:php:unit && npm run test:php:functional:stable",
-        "test:php:all": "npm run test:php:stable && npm run test:php:functional:3.7 && npm run test:php:functional:trunk",
-        "test": "export WP_DB_USER=test && export WP_DB_PASS=test && npm run test:php:stable",
+        "test:php:all": "npm run test:php:unit && npm run test:php:functional:all",
+        "test": "npm run test:php:stable",
         "build": "export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:all",
+        "build:legacy": "export PHPUNIT_CMD='test:php:legacy' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:functional:all",
         "update": "php composer update"
     }
 }

@@ -414,7 +414,10 @@ class BWP_Option_Page_V3
 		$value = isset($data['value']) ? $data['value'] : $value;
 
 		if ('checkbox' == $type)
-			$value = current(array_values($data)) ?: 'yes';
+		{
+			$value = current(array_values($data));
+			$value = $value ? $value : 'yes';
+		}
 
 		$value = !empty($this->domain)
 			&& ('textarea' == $type || 'input' == $type)

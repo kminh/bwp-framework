@@ -25,8 +25,8 @@ class BWP_Version
 
 	public static function warn_required_versions($title, $domain, $php_ver = null, $wp_ver = null)
 	{
-		$php_ver = $php_ver ?: self::$php_ver;
-		$wp_ver  = $wp_ver ?: self::$wp_ver;
+		$php_ver = $php_ver ? $php_ver : self::$php_ver;
+		$wp_ver  = $wp_ver ? $wp_ver : self::$wp_ver;
 
 		echo '<div class="error"><p>' . sprintf(
 			__('%s requires WordPress <strong>%s</strong> or higher '

@@ -22,7 +22,7 @@ class BWP_WP_Bridge
 	public function __call($name, $params)
 	{
 		if (!function_exists($name))
-			throw new \InvalidArgumentException(sprintf('Invalid WP utility function "%s"', $name));
+			throw new InvalidArgumentException(sprintf('Invalid WP utility function "%s"', $name));
 
 		return call_user_func_array($name, $params);
 	}

@@ -188,7 +188,7 @@ abstract class BWP_Framework_V3
 		{
 			if (!array_key_exists($required_meta, $meta))
 			{
-				throw new \InvalidArgumentException(sprintf('Missing required meta (%s) to construct plugin', $required_meta));
+				throw new InvalidArgumentException(sprintf('Missing required meta (%s) to construct plugin', $required_meta));
 			}
 		}
 
@@ -200,7 +200,7 @@ abstract class BWP_Framework_V3
 
 		$this->domain = $meta['domain'];
 
-		$this->bridge = $bridge ?: new BWP_WP_Bridge();
+		$this->bridge = $bridge ? $bridge : new BWP_WP_Bridge();
 	}
 
 	/**
@@ -681,7 +681,7 @@ abstract class BWP_Framework_V3
 
 	public function get_admin_page_url($page = '')
 	{
-		$page = $page ?: $this->get_current_admin_page();
+		$page = $page ? $page : $this->get_current_admin_page();
 		$option_script = !$this->_menu_under_settings && !$this->_simple_menu
 			? 'admin.php'
 			: 'options-general.php';

@@ -21,7 +21,7 @@ class BWP_Framework_PHPUnit_Test_Listener extends \PHPUnit_Framework_BaseTestLis
 			}
 
 			// functional test needs WordPress
-			require_once dirname(dirname(__DIR__)) . '/tests/functional/bootstrap.php';
+			require_once dirname(dirname(dirname(__FILE__))) . '/tests/functional/bootstrap.php';
 		} else {
 			// unit test
 		}
