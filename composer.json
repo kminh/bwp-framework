@@ -17,6 +17,9 @@
             "src/"
         ]
     },
+    "bin": [
+        "bin/install-wp-tests.sh"
+    ],
     "extra": {
         "branch-alias": {
             "dev-master": "3.0.x-dev"
