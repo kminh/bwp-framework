@@ -26,10 +26,10 @@ function _bwp_framework_functional_test_autoloader($class_name)
 	define('WP_TESTS_MULTISITE', 1);
 	define('WP_TESTS_FORCE_KNOWN_BUGS', false);
 
-	// install WordPress
-	$wp_version = getenv('WP_VERSION') ?: 'latest';
-	$db_user    = getenv('WP_DB_USER') ?: 'test';
-	$db_pass    = getenv('WP_DB_PASS') ?: 'test';
+	// install WordPress core files and test lib
+	$wp_version = getenv('WP_VERSION') ? getenv('WP_VERSION') : 'latest';
+	$db_user    = getenv('WP_DB_USER') ? getenv('WP_DB_USER') : 'test';
+	$db_pass    = getenv('WP_DB_PASS') ? getenv('WP_DB_PASS') : 'test';
 	$script     = dirname(dirname(__FILE__)) . '/bin/install-wp-tests.sh';
 	$cmd        = sprintf('%1$s bwp_test_%2$s %3$s %4$s localhost %2$s', $script, $wp_version, $db_user, $db_pass);
 
