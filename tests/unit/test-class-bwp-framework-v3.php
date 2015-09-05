@@ -27,6 +27,7 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		$this->bridge->shouldReceive('do_action')->andReturnNull()->byDefault();
 		$this->bridge->shouldReceive('add_action')->byDefault();
 		$this->bridge->shouldReceive('apply_filters')->byDefault();
+		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_default_options', array())->andReturn(array())->byDefault();
 		$this->bridge->shouldReceive('add_filter')->byDefault();
 		$this->bridge->shouldReceive('register_activation_hook')->byDefault();
 		$this->bridge->shouldReceive('register_deactivation_hook')->byDefault();
@@ -103,11 +104,32 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_V3::build_properties
+	 */
+	public function test_default_options_can_be_filtered()
+	{
+		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_default_options', array())->andReturn(array(
+			'option1' => 'option_value1_filtered',
+			'option3' => 'option_value3'
+		))->byDefault();
+
+		$this->build_properties();
+
+		$this->assertEquals(array(
+			'option1' => 'option_value1_filtered',
+			'option2' => 'option_value2',
+			'option3' => 'option_value3'
+		), PHPUnit_Framework_Assert::readAttribute($this->framework, 'options_default'));
+	}
+
+	/**
 	 * @covers BWP_Framework_V3::init_actions
 	 */
 	public function test_init_priority_should_be_filterable_and_default_to_10()
 	{
+		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_default_options', array())->andReturn(array());
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_init_priority', 10)->once();
+
 		$this->build_properties();
 	}
 

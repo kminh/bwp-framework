@@ -150,7 +150,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 145;
+	public $revision = 146;
 
 	/**
 	 * Text domain
@@ -206,13 +206,16 @@ abstract class BWP_Framework_V3
 	/**
 	 * Build base properties
 	 */
-	protected function build_properties($key, $options, $plugin_file = '', $plugin_url = '', $need_media_filters = true)
+	protected function build_properties($key, array $options, $plugin_file = '', $plugin_url = '', $need_media_filters = true)
 	{
 		$this->plugin_key  = strtolower($key);
 		$this->plugin_ckey = strtoupper($key);
 		$this->plugin_url  = $plugin_url;
 
-		$this->options_default = $options;
+		// @since rev 146 we allow filtering the default options when the
+		// plugin is init
+		$this->options_default = array_merge($options, $this->bridge->apply_filters($this->plugin_key . '_default_options', array()));
+
 		$this->need_media_filters = (boolean) $need_media_filters;
 
 		$this->plugin_file = $plugin_file;
@@ -997,7 +1000,7 @@ abstract class BWP_Framework_V3
 		$this->plugin_cap = $cap;
 	}
 
-	protected static function normalize_options(array $options)
+	protected static function normalize_options($options)
 	{
 		return $options && is_array($options) ? $options : array();
 	}
