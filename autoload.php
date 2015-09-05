@@ -1,15 +1,18 @@
 <?php
 
-// not autoloading anything actually
-if (!class_exists('BWP_Framework_V3'))
-{
-	$class_maps = include dirname(__FILE__) . '/vendor/composer/autoload_classmap.php';
+if (!function_exists('_bwp_framework_autoloader')) {
+	function _bwp_framework_autoloader($class_name)
+	{
+		$class_maps = include dirname(__FILE__) . '/vendor/composer/autoload_classmap.php';
 
-	foreach ($class_maps as $class_name => $class_file) {
-		if (strpos($class_name, 'BWP') === false || strpos($class_name, 'PHPUnit') !== false) {
-			continue;
+		if (stripos($class_name, 'BWP') === false) {
+			return;
 		}
 
-		require_once $class_file;
+		if (array_key_exists($class_name, $class_maps)) {
+			require $class_maps[$class_name];
+		}
 	}
+
+	spl_autoload_register('_bwp_framework_autoloader');
 }

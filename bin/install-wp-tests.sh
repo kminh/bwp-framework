@@ -71,6 +71,11 @@ install_test_suite() {
 		sed $ioption "s|localhost|${DB_HOST}|" "$WP_TESTS_DIR"/wp-tests-config.php
 	fi
 
+	cd $WP_TESTS_DIR/includes
+
+	# hack to allow using wp testcase class before we bootstrap WP
+	sed $ioption "s:require dirname( __FILE__ ) . '/testcase.php':require_once dirname( __FILE__ ) . '/testcase.php';:" bootstrap.php
+	sed $ioption "s/^class WP_UnitTestCase/abstract class WP_UnitTestCase/" testcase.php
 }
 
 install_db() {

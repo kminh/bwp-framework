@@ -6,7 +6,6 @@
     },
     "scripts": {
         "clear:wp:phpunit": "rm -rf /tmp/wordpress-*",
-        "install:wp": "bin/install-wp-tests.sh > /dev/null bwp_test_$WP_VERSION ${WP_DB_USER-'test'} ${WP_DB_PASS-'test'} localhost $WP_VERSION",
         "test:php": "phpunit --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
         "test:php:legacy": "phpunit --stderr -c phpunit_php52.xml",
         "test:php:functional": "export WP_TESTS_DIR=/tmp/wordpress-$WP_VERSION-tests-lib/ && export WP_CORE_DIR=/tmp/wordpress-$WP_VERSION/ && npm run install:wp && npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
