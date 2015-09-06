@@ -36,11 +36,11 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 		);
 
 		$this->op = new BWP_Option_Page_V3($this->form_name, $this->plugin);
-    }
+	}
 
 	protected function tearDown()
 	{
-    }
+	}
 
 	/**
 	 * @covers BWP_Option_Page_V3::add_form_container

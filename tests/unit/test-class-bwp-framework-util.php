@@ -11,11 +11,11 @@ class BWP_Framework_Util_Test extends \PHPUnit_Framework_TestCase
 {
 	protected function setUp()
 	{
-    }
+	}
 
 	protected function tearDown()
 	{
-    }
+	}
 
 	/**
 	 * @covers BWP_Framework_Util::is_site_admin

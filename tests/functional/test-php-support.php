@@ -7,11 +7,11 @@ class BWP_Framework_Functional_Test extends PHPUnit_Framework_TestCase
 {
 	protected function setUp()
 	{
-    }
+	}
 
 	protected function tearDown()
 	{
-    }
+	}
 
 	public function test_can_initiate_all_classes()
 	{

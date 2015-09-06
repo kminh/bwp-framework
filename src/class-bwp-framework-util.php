@@ -10,7 +10,7 @@
  */
 class BWP_Framework_Util
 {
-    private function __construct() {}
+	private function __construct() {}
 
 	public static function is_multisite()
 	{

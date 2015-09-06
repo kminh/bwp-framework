@@ -64,11 +64,11 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		);
 
 		$this->plugin_file = '/path/to/plugin/bwp-plugin.php';
-    }
+	}
 
 	protected function tearDown()
 	{
-    }
+	}
 
 	/**
 	 * @covers BWP_Framework_V3::__construct

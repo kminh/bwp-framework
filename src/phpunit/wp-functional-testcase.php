@@ -13,12 +13,12 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	public function setUp()
 	{
 		// do not call parent setUp here because WordPress has not been init
-    }
+	}
 
 	public function tearDown()
 	{
 		parent::tearDown();
-    }
+	}
 
 	abstract public function load_plugins();
 
