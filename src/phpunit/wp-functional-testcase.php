@@ -30,8 +30,20 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 
 		tests_add_filter('muplugins_loaded', array($this, 'load_plugins'));
 
+		$this->setup_before_bootstrap();
+
 		require $_tests_dir . '/includes/bootstrap.php';
 
 		parent::setUp();
+	}
+
+	/**
+	 * Setup before we bootstrap WordPress (i.e. loads its config and settings)
+	 *
+	 * This can be used to define certain constants
+	 */
+	protected function setup_before_bootstrap()
+	{
+		// to be implemented by child tests
 	}
 }

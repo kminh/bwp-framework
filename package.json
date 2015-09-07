@@ -1,11 +1,11 @@
 {
     "name": "BWP_Framework",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "config": {
         "phpunit_suite": ""
     },
     "scripts": {
-        "clear:wp:phpunit": "rm -rf /tmp/wordpress-*",
+        "clear:wp:phpunit": "rm -rf ${WP_TMP_DIR-'/tmp'}/wordpress-*",
         "test:php": "phpunit --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
         "test:php:legacy": "phpunit --stderr -c phpunit_php52.xml",
         "test:php:functional": "npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
