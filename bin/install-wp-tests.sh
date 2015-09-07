@@ -12,6 +12,7 @@ DB_HOST=${4-localhost}
 WP_VERSION=${5-latest}
 
 WP_TESTS_DIR=${WP_TESTS_DIR-/tmp/wordpress-tests-lib}
+WP_TESTS_DOMAIN=${WP_TESTS_DOMAIN-127.0.0.1}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
 # set -ex
@@ -72,7 +73,14 @@ install_test_suite() {
 
 		# allow unlimited resources for testing
 		sed $ioption "s|'php'|'php -d memory_limit=-1'|" "$WP_TESTS_DIR"/wp-tests-config.php
+
+		# allow using different domains for testing
+		sed $ioption "s|example.org|$WP_TESTS_DOMAIN|" "$WP_TESTS_DIR"/wp-tests-config.php
 	fi
+
+	# copy the config file to core dir so we can browse it in a browser
+	cp -f $WP_TESTS_DIR/wp-tests-config.php $WP_CORE_DIR/wp-config.php
+	echo "require_once ABSPATH . '/wp-settings.php';" >> $WP_CORE_DIR/wp-config.php
 
 	cd $WP_TESTS_DIR/includes
 

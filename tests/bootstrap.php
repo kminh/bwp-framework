@@ -16,28 +16,44 @@ function _bwp_framework_functional_test_autoloader($class_name)
 		return;
 	}
 
-	if (!$_tests_dir = getenv('WP_TESTS_DIR')) {
-		$_tests_dir = '/tmp/wordpress-latest-tests-lib';
+	$tmp_dir = getenv('WP_TMP_DIR') ? getenv('WP_TMP_DIR') : '/tmp';
 
-		putenv("WP_TESTS_DIR=$_tests_dir/");
-		putenv("WP_CORE_DIR=/tmp/wordpress-latest/");
+	if (!$wp_version = getenv('WP_VERSION')) {
+		$wp_version = 'latest';
 	}
+
+	$_tests_dir = $tmp_dir . '/wordpress-' . $wp_version . '-tests-lib';
+	$_core_dir  = $tmp_dir . '/wordpress-' . $wp_version;
+
+	putenv("WP_TESTS_DIR=$_tests_dir");
+	putenv("WP_CORE_DIR=$_core_dir/");
 
 	define('WP_TESTS_MULTISITE', 1);
 	define('WP_TESTS_FORCE_KNOWN_BUGS', false);
 
 	// install WordPress core files and test lib
-	$wp_version = getenv('WP_VERSION') ? getenv('WP_VERSION') : 'latest';
-	$db_user    = getenv('WP_DB_USER') ? getenv('WP_DB_USER') : 'test';
-	$db_pass    = getenv('WP_DB_PASS') ? getenv('WP_DB_PASS') : 'test';
-	$script     = dirname(dirname(__FILE__)) . '/bin/install-wp-tests.sh';
-	$cmd        = sprintf('%1$s bwp_test_%2$s %3$s %4$s localhost %2$s', $script, $wp_version, $db_user, $db_pass);
+	$db_user = getenv('WP_DB_USER') ? getenv('WP_DB_USER') : 'test';
+	$db_pass = getenv('WP_DB_PASS') ? getenv('WP_DB_PASS') : 'test';
+	$script  = dirname(dirname(__FILE__)) . '/bin/install-wp-tests.sh';
+	$cmd     = sprintf('%1$s bwp_test_%2$s %3$s %4$s localhost %2$s', $script, $wp_version, $db_user, $db_pass);
 
 	exec($cmd, $output, $status);
 
 	if ($status !== 0) {
 		exit($status);
 	}
+
+	// each functional test requires a doc root
+	$_tests_doc_root = getenv('WP_TESTS_DOCROOT') ? getenv('WP_TESTS_DOCROOT') : '/srv/http/sites/wptest';
+
+	// remove existing docroot, assuming that it is a symlink, the build
+	// script must take care of removing the docroot if it is a directory
+	if (file_exists($_tests_doc_root)) {
+		unlink($_tests_doc_root);
+	}
+
+	// create a symlink to WordPress core dir to use it as the test docroot
+	symlink($_core_dir, $_tests_doc_root);
 
 	// load WordPress TestCase
 	require_once $_tests_dir . '/includes/testcase.php';

@@ -8,7 +8,7 @@
         "clear:wp:phpunit": "rm -rf /tmp/wordpress-*",
         "test:php": "phpunit --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
         "test:php:legacy": "phpunit --stderr -c phpunit_php52.xml",
-        "test:php:functional": "export WP_TESTS_DIR=/tmp/wordpress-$WP_VERSION-tests-lib/ && export WP_CORE_DIR=/tmp/wordpress-$WP_VERSION/ && npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
+        "test:php:functional": "npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
         "test:php:functional:3.7": "export WP_VERSION=3.7 && npm run test:php:functional",
         "test:php:functional:stable": "export WP_VERSION=latest && npm run test:php:functional",
         "test:php:functional:beta": "echo 'No beta version'",
