@@ -1,0 +1,2 @@
+define('AKISMET_TEST_MODE', true);
+require_once ABSPATH . '/wp-settings.php';

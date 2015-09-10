@@ -78,9 +78,9 @@ install_test_suite() {
 		sed $ioption "s|example.org|$WP_TESTS_DOMAIN|" "$WP_TESTS_DIR"/wp-tests-config.php
 	fi
 
-	# copy the config file to core dir so we can browse it in a browser
-	cp -f $WP_TESTS_DIR/wp-tests-config.php $WP_CORE_DIR/wp-config.php
-	echo "require_once ABSPATH . '/wp-settings.php';" >> $WP_CORE_DIR/wp-config.php
+	# copy the config file to core dir so we can browse it in a browser, this
+	# config file must be altered later on by test bootstrap
+	cp -f $WP_TESTS_DIR/wp-tests-config.php $WP_CORE_DIR/wp-config-original.php
 
 	cd $WP_TESTS_DIR/includes
 

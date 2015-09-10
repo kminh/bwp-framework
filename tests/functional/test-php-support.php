@@ -23,6 +23,14 @@ class BWP_Framework_Functional_Test extends PHPUnit_Framework_TestCase
 				continue;
 			}
 
+			// don't test the testcase classes when on PHP < 5.3 as they
+			// require namespace
+			if (stripos($class_name, 'TestCase') !== false
+				&& version_compare(PHP_VERSION, '5.3', '<')
+			) {
+				continue;
+			}
+
 			$classes[] = $this->getMockBuilder($class_name)
 				->disableOriginalConstructor()
 				->getMock();

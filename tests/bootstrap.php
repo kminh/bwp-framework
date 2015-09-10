@@ -1,16 +1,16 @@
 <?php
 
-$_root_dir = dirname(dirname(__FILE__));
+$root_dir = dirname(dirname(__FILE__));
 
 if (version_compare(PHP_VERSION, '5.3.2', '<')) {
-	require_once $_root_dir . '/autoload.php';
+	require_once $root_dir . '/autoload.php';
 } else {
-	require_once $_root_dir . '/vendor/autoload.php';
+	require_once $root_dir . '/vendor/autoload.php';
 }
 
-function _bwp_framework_functional_test_autoloader($class_name)
+function _bwp_framework_test_autoloader($class_name)
 {
-	global $_tests_dir;
+	global $_tests_dir, $_core_dir;
 
 	if ($class_name != 'WP_UnitTestCase') {
 		return;
@@ -55,8 +55,8 @@ function _bwp_framework_functional_test_autoloader($class_name)
 	// create a symlink to WordPress core dir to use it as the test docroot
 	symlink($_core_dir, $_tests_doc_root);
 
-	// load WordPress TestCase
+	// load WordPress UnitTestCase
 	require_once $_tests_dir . '/includes/testcase.php';
 }
 
-spl_autoload_register('_bwp_framework_functional_test_autoloader');
+spl_autoload_register('_bwp_framework_test_autoloader');
