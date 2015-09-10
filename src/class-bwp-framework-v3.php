@@ -150,7 +150,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 146;
+	public $revision = 147;
 
 	/**
 	 * Text domain
@@ -455,6 +455,10 @@ abstract class BWP_Framework_V3
 
 	protected function pre_init_build_constants()
 	{
+		// only build constants once
+		if (defined($this->plugin_ckey . '_PLUGIN_URL'))
+			return;
+
 		// url to plugin bwp website
 		define($this->plugin_ckey . '_PLUGIN_URL', $this->plugin_url);
 		// the capability needed to configure this plugin
@@ -474,6 +478,10 @@ abstract class BWP_Framework_V3
 
 	protected function build_constants()
 	{
+		// only build constants once
+		if (defined($this->plugin_ckey . '_IMAGES'))
+			return;
+
 		// these constants are only available once plugin_wp_url is available
 		if (true == $this->need_media_filters)
 		{
