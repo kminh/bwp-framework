@@ -242,6 +242,20 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	}
 
 	/**
+	 * Get current WP version
+	 *
+	 * If a WP version is provided as the first parameter, check if the
+	 * current WP version is greater than or equal to that provided version
+	 *
+	 * @return mixed
+	 */
+	protected static function get_wp_version($version = '')
+	{
+		$current_version = get_bloginfo('version');
+		return !$version ? $current_version : version_compare($current_version, $version, '>=');
+	}
+
+	/**
 	 * @return string
 	 */
 	protected static function uniqid()
