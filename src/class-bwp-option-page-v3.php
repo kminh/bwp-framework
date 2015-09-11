@@ -760,6 +760,14 @@ class BWP_Option_Page_V3
 			return true;
 		}
 
+		if (isset($this->form['php'])
+			&& array_key_exists($name, $this->form['php'])
+			&& !BWP_Version::get_current_php_version_id($this->form['php'][$name])
+		) {
+			// hide field if the current PHP version requirement is not satisfied
+			return true;
+		}
+
 		if (isset($this->form['role'])
 			&& array_key_exists($name, $this->form['role'])
 			&& $this->form['role'][$name] == 'superadmin'

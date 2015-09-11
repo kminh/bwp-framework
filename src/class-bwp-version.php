@@ -36,6 +36,34 @@ class BWP_Version
 			$title, $wp_ver, $php_ver)
 		. '</p></div>';
 	}
+
+	/**
+	 * Get the current system's PHP version
+	 *
+	 * If the first parameter is provided this will return whether or not the
+	 * current system's PHP version is greater than or equal to the provided one
+	 *
+	 * @param string $version
+	 * @return mixed string|bool
+	 */
+	public static function get_current_php_version($version = '')
+	{
+		return $version ? version_compare(PHP_VERSION, $version, '>=') : PHP_VERSION;
+	}
+
+	/**
+	 * Get the current system's PHP version ID
+	 *
+	 * If the first parameter is provided this will return whether or not the
+	 * current system's PHP version is greater than or equal to the provided one
+	 *
+	 * @param integer $version
+	 * @return mixed integer|bool
+	 */
+	public static function get_current_php_version_id($version = null)
+	{
+		return $version ? PHP_VERSION_ID >= (int) $version : PHP_VERSION_ID;
+	}
 }
 
 endif;

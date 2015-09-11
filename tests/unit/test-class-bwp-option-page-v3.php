@@ -227,6 +227,10 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 	{
 		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
 
+		foreach ($form_options as $key => $value) {
+			$_POST[$key] = $value . '_updated';
+		}
+
 		$this->plugin->shouldReceive('get_options_by_keys')->with($form_option_keys)->andReturn($form_options)->byDefault();
 
 		// all fields are hidden so the options used to update are the same
@@ -239,11 +243,16 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 		$util->shouldReceive('is_on_main_blog')->andReturn($flags['is_on_main_blog'])->byDefault();
 		$util->shouldReceive('can_update_site_option')->andReturn(false)->byDefault();
 
+		$version = Mockery::mock('alias:BWP_Version');
+		$version->shouldReceive('get_current_php_version_id')->andReturn($flags['is_php_version'])->byDefault();
+
 		$this->op->init($form, $form_option_keys);
 		$this->op->submit_html_form();
 
 		$this->assertEquals($form_options, PHPUnit_Framework_Assert::readAttribute($this->op, 'form_options'), 'should update form options');
 		$this->assertEquals($form_options, $this->plugin->options, 'should update plugin options');
+
+		$_POST = array();
 	}
 
 	public function get_multisite_form_data()
@@ -257,6 +266,9 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 			),
 			'env' => array(
 				'input_multisite' => 'multisite'
+			),
+			'php' => array(
+				'input_php_version' => '50302' // require PHP version 5.3.2
 			),
 			'role' => array(
 				'input_superadmin' => 'superadmin'
@@ -274,16 +286,19 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 					'input_multisite',
 					'input_superadmin',
 					'input_site_option',
+					'input_php_version'
 				),
 				array(
 					'input_multisite'   => 'input_multisite_value',
 					'input_superadmin'  => 'input_superadmin_value',
 					'input_site_option' => 'input_site_option_value',
+					'input_php_version' => 'input_php_version_value'
 				),
 				array(
 					'is_multisite'    => false,
 					'is_site_admin'   => false,
-					'is_on_main_blog' => true
+					'is_on_main_blog' => true,
+					'is_php_version'  => false
 				)
 			),
 			array(
@@ -297,7 +312,8 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 				array(
 					'is_multisite'    => true,
 					'is_site_admin'   => false,
-					'is_on_main_blog' => false
+					'is_on_main_blog' => false,
+					'is_php_version'  => false
 				)
 			),
 			array(
@@ -306,12 +322,13 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 					'input_sub_blog'
 				),
 				array(
-					'input_sub_blog'    => 'input_sub_blog_value'
+					'input_sub_blog' => 'input_sub_blog_value'
 				),
 				array(
 					'is_multisite'    => true,
 					'is_site_admin'   => false,
-					'is_on_main_blog' => true
+					'is_on_main_blog' => true,
+					'is_php_version'  => false
 				)
 			)
 		);
