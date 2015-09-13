@@ -104,6 +104,32 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_V3::build_constants
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_plugin_asset_constants_are_set_correctly()
+	{
+		$this->bridge->shouldReceive('trailingslashit')->andReturnUsing(function($path) {
+			return $path;
+		})->byDefault();
+
+		$plugins_url = 'http://example.com/wp-content/plugins/bwp-plugin/';
+
+		$this->bridge->shouldReceive('plugin_dir_url')->andReturnUsing(function($plugin_file) use ($plugins_url) {
+			return $plugins_url;
+		})->byDefault();
+
+		$this->build_properties();
+		$this->framework->build_wp_properties();
+		$this->build_constants();
+
+		$this->assertEquals($plugins_url . 'assets/images', BWP_PLUGIN_IMAGES);
+		$this->assertEquals($plugins_url . 'assets/js', BWP_PLUGIN_JS);
+		$this->assertEquals($plugins_url . 'assets/css', BWP_PLUGIN_CSS);
+	}
+
+	/**
 	 * @covers BWP_Framework_V3::build_properties
 	 */
 	public function test_default_options_can_be_filtered()
@@ -452,6 +478,15 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 	{
 		$reflection = new ReflectionClass('BWP_Framework_V3');
 		$method = $reflection->getMethod('build_options');
+		$method->setAccessible(true);
+
+		$method->invokeArgs($this->framework, array());
+	}
+
+	protected function build_constants()
+	{
+		$reflection = new ReflectionClass('BWP_Framework_V3');
+		$method = $reflection->getMethod('build_constants');
 		$method->setAccessible(true);
 
 		$method->invokeArgs($this->framework, array());

@@ -150,7 +150,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 147;
+	public $revision = 148;
 
 	/**
 	 * Text domain
@@ -487,19 +487,19 @@ abstract class BWP_Framework_V3
 		{
 			define($this->plugin_ckey . '_IMAGES',
 				$this->bridge->apply_filters($this->plugin_key . '_image_path',
-				$this->plugin_wp_url . 'images'));
+				$this->plugin_wp_url . 'assets/images'));
 			define($this->plugin_ckey . '_CSS',
 				$this->bridge->apply_filters($this->plugin_key . '_css_path',
-				$this->plugin_wp_url . 'css'));
+				$this->plugin_wp_url . 'assets/css'));
 			define($this->plugin_ckey . '_JS',
 				$this->bridge->apply_filters($this->plugin_key . '_js_path',
-				$this->plugin_wp_url . 'js'));
+				$this->plugin_wp_url . 'assets/js'));
 		}
 		else
 		{
-			define($this->plugin_ckey . '_IMAGES', $this->plugin_wp_url . 'images');
-			define($this->plugin_ckey . '_CSS', $this->plugin_wp_url . 'css');
-			define($this->plugin_ckey . '_JS', $this->plugin_wp_url . 'js');
+			define($this->plugin_ckey . '_IMAGES', $this->plugin_wp_url . 'assets/images');
+			define($this->plugin_ckey . '_CSS', $this->plugin_wp_url . 'assets/css');
+			define($this->plugin_ckey . '_JS', $this->plugin_wp_url . 'assets/js');
 		}
 	}
 
