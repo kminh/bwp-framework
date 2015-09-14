@@ -766,8 +766,9 @@ abstract class BWP_Framework_V3
 			$this->build_option_page();
 			$this->current_option_page->handle_form_actions();
 
-			$notices = $this->get_flash('notice');
-			$errors  = $this->get_flash('error');
+			$notices    = $this->get_flash('notice');
+			$errors     = $this->get_flash('error');
+			$containers = $this->get_container_flash();
 
 			foreach ($notices as $notice) {
 				$this->add_notice($notice);
@@ -775,6 +776,10 @@ abstract class BWP_Framework_V3
 
 			foreach ($errors as $error) {
 				$this->add_error($error);
+			}
+
+			foreach ($containers as $name => $container_data) {
+				$this->current_option_page->add_form_container($name, $container_data);
 			}
 		}
 	}
@@ -881,6 +886,25 @@ abstract class BWP_Framework_V3
 	}
 
 	/**
+	 * Add a flash message that should be put in a form container
+	 *
+	 * @param string $field the field that owns the container
+	 * @param string $message
+	 */
+	public function add_container_flash($field, $message)
+	{
+		if (!isset($_SESSION))
+			return;
+
+		$flash_key = 'bwp_op_flash_container';
+
+		if (!isset($_SESSION[$flash_key]) || !is_array($_SESSION[$flash_key]))
+			$_SESSION[$flash_key] = array();
+
+		$_SESSION[$flash_key][$field] = $message;
+	}
+
+	/**
 	 * Get all flash messages that share a key
 	 *
 	 * @since rev 144
@@ -897,6 +921,23 @@ abstract class BWP_Framework_V3
 		else
 		{
 			$flashes =  (array) $_SESSION[$flash_key];
+			unset($_SESSION[$flash_key]);
+		}
+
+		return $flashes;
+	}
+
+	protected function get_container_flash()
+	{
+		$flash_key = 'bwp_op_flash_container';
+
+		if (!isset($_SESSION[$flash_key]))
+		{
+			$flashes = array();
+		}
+		else
+		{
+			$flashes = (array) $_SESSION[$flash_key];
 			unset($_SESSION[$flash_key]);
 		}
 
