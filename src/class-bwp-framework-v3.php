@@ -150,7 +150,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 148;
+	public $revision = 149;
 
 	/**
 	 * Text domain
@@ -576,6 +576,24 @@ abstract class BWP_Framework_V3
 
 		$this->options         = $options;
 		$this->current_options = $options;
+	}
+
+	/**
+	 * Update options with a specific key
+	 *
+	 * @param string $option_key
+	 * @param array $options
+	 */
+	protected function update_plugin_options($option_key, array $new_options)
+	{
+		$db_options = $this->bridge->get_option($option_key);
+
+		if (!$db_options || !is_array($db_options))
+			return;
+
+		$db_options = array_merge($db_options, $new_options);
+
+		$this->bridge->update_option($option_key, $db_options);
 	}
 
 	/**

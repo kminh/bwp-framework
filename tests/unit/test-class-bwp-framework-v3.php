@@ -122,7 +122,7 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 
 		$this->build_properties();
 		$this->framework->build_wp_properties();
-		$this->build_constants();
+		$this->call_protected_method('build_constants');
 
 		$this->assertEquals($plugins_url . 'assets/images', BWP_PLUGIN_IMAGES);
 		$this->assertEquals($plugins_url . 'assets/js', BWP_PLUGIN_JS);
@@ -270,7 +270,7 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		$this->framework->shouldReceive('init_update_plugin')->byDefault();
 
 		$this->build_properties();
-		$this->update_plugin($when);
+		$this->call_protected_method('update_plugin', $when);
 	}
 
 	public function get_update_plugin_data()
@@ -298,7 +298,7 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		}
 
 		$this->build_properties($options_default);
-		$this->build_options();
+		$this->call_protected_method('build_options');
 
 		$this->assertEquals($merged_options, $this->framework->options);
 		$this->assertEquals($merged_options, $this->framework->current_options);
@@ -368,7 +368,7 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		}
 
 		$this->build_properties($options);
-		$this->build_options();
+		$this->call_protected_method('build_options');
 
 		$this->assertEquals($merged_options, $this->framework->options);
 		$this->assertEquals($merged_options, $this->framework->current_options);
@@ -445,6 +445,48 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		unset($_GET['page']);
 	}
 
+	/**
+	 * @covers BWP_Framework_V3::update_plugin_options
+	 * @dataProvider get_update_plugin_options_data
+	 */
+	public function test_update_plugin_options($db_options, $new_options, $update)
+	{
+		$option_key = 'bwp_plugin_general';
+
+		$this->bridge->shouldReceive('get_option')->with($option_key)->andReturn($db_options)->byDefault();
+
+		if ($update) {
+			$this->bridge->shouldReceive('update_option')->with($option_key, array_merge($db_options, $new_options))->once();
+		} else {
+			$this->bridge->shouldNotReceive('update_option');
+		}
+
+		$this->call_protected_method('update_plugin_options', array($option_key, $new_options));
+	}
+
+	public function get_update_plugin_options_data()
+	{
+		return array(
+			array(
+				false,
+				array(
+					'option1' => 'value1_new'
+				),
+				false
+			),
+			array(
+				array(
+					'option1' => 'value1',
+					'option2' => 'value2'
+				),
+				array(
+					'option1' => 'value1_new'
+				),
+				true
+			)
+		);
+	}
+
 	protected function build_properties(array $options = array())
 	{
 		$reflection = new ReflectionClass('BWP_Framework_V3');
@@ -465,30 +507,13 @@ class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
 		));
 	}
 
-	protected function update_plugin($when)
+	protected function call_protected_method($method_name, $params = array())
 	{
 		$reflection = new ReflectionClass('BWP_Framework_V3');
-		$method = $reflection->getMethod('update_plugin');
+		$method = $reflection->getMethod($method_name);
 		$method->setAccessible(true);
 
-		$method->invokeArgs($this->framework, array($when));
-	}
-
-	protected function build_options()
-	{
-		$reflection = new ReflectionClass('BWP_Framework_V3');
-		$method = $reflection->getMethod('build_options');
-		$method->setAccessible(true);
-
-		$method->invokeArgs($this->framework, array());
-	}
-
-	protected function build_constants()
-	{
-		$reflection = new ReflectionClass('BWP_Framework_V3');
-		$method = $reflection->getMethod('build_constants');
-		$method->setAccessible(true);
-
-		$method->invokeArgs($this->framework, array());
+		$params = (array) $params;
+		$method->invokeArgs($this->framework, $params);
 	}
 }
