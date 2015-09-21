@@ -284,16 +284,38 @@ abstract class BWP_Framework_V3
 		}
 	}
 
-	protected function get_current_wp_version()
+	/**
+	 * Get or check if the current WP version is greater than a specified version
+	 *
+	 * @param string $version optional
+	 */
+	public function get_current_php_version($version = null)
 	{
+		return BWP_Version::get_current_php_version($version);
+	}
+
+	/**
+	 * Get or check if the current WP version is greater than a specified version
+	 *
+	 * @param string $version optional
+	 */
+	public function get_current_wp_version($version = null)
+	{
+		if ($version) {
+			return version_compare($this->get_current_wp_version(), $version, '>=');
+		}
+
 		return $this->bridge->get_bloginfo('version');
 	}
 
 	protected function check_required_versions()
 	{
-		if (version_compare(PHP_VERSION, $this->php_ver, '<')
-			|| version_compare($this->get_current_wp_version(), $this->wp_ver, '<')
+		if (!$this->get_current_php_version($this->php_ver)
+			|| !$this->get_current_wp_version($this->wp_ver)
 		) {
+			// show a warning in admin dashboard if either the required PHP
+			// version or the required WP version is not met, and return false
+			// to tell plugin to not init at all
 			$this->bridge->add_action('admin_notices', array($this, 'warn_required_versions'));
 			$this->bridge->add_action('network_admin_notices', array($this, 'warn_required_versions'));
 			return false;
