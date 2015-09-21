@@ -68,6 +68,11 @@ abstract class BWP_Framework_V3
 	public $plugin_key;
 
 	/**
+	 * Full key to identify plugin
+	 */
+	public $plugin_full_key;
+
+	/**
 	 * Constant Key to identify plugin
 	 */
 	public $plugin_ckey;
@@ -150,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 149;
+	public $revision = 151;
 
 	/**
 	 * Text domain
@@ -211,6 +216,11 @@ abstract class BWP_Framework_V3
 		$this->plugin_key  = strtolower($key);
 		$this->plugin_ckey = strtoupper($key);
 		$this->plugin_url  = $plugin_url;
+
+		// @since rev 151 we add another property called plugin_full_key that
+		// defaults to plugin_key (with underscores replaced with hyphens) but
+		// can be used to construct other urls to plugin
+		$this->plugin_full_key = str_replace('_', '-', $this->plugin_key);
 
 		// @since rev 146 we allow filtering the default options when the
 		// plugin is init
@@ -310,11 +320,11 @@ abstract class BWP_Framework_V3
 <div id="bwp-donation" style="margin-bottom: 0px;">
 <a href="<?php echo $this->plugin_url; ?>"><?php echo $this->plugin_title; ?></a> <small>v<?php echo $this->plugin_ver; ?></small><br />
 <small>
-	<a href="<?php echo str_replace('/wordpress-plugins/', '/topic/', $this->plugin_url); ?>"><?php _e('Development Log', $this->domain); ?></a>
+	<a href="https://wordpress.org/support/plugin/<?php echo $this->plugin_full_key ?>" title="<?php _e('Got a problem? Send me a feedback!', $this->domain) ?>"><?php _e('Support', $this->domain); ?></a>
+	&ndash;
+	<a href="https://wordpress.org/support/view/plugin-reviews/<?php echo $this->plugin_full_key ?>?filter=5" title="<?php _e('Rate this plugin 5 stars!', $this->domain) ?>"><?php _e('Reviews', $this->domain); ?></a>
 	&ndash;
 	<a href="<?php echo $this->plugin_url . 'faq/'; ?>" title="<?php _e('Frequently Asked Questions', $this->domain) ?>"><?php _e('FAQ', $this->domain); ?></a>
-	&ndash;
-	<a href="http://betterwp.net/contact/" title="<?php _e('Got a problem? Send me a feedback!', $this->domain) ?>"><?php _e('Contact', $this->domain); ?></a>
 </small>
 <br />
 <?php
