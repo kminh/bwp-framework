@@ -36,6 +36,10 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends \PHPUnit_Framework_Te
 			return rtrim($path, '/') . '/';
 		})->byDefault();
 
+		$this->bridge->shouldReceive('untrailingslashit')->andReturnUsing(function($path) {
+			return rtrim($path, '/');
+		})->byDefault();
+
 		$this->bridge->shouldReceive('is_admin')->andReturn(false)->byDefault();
 
 		$this->bridge->shouldReceive('register_activation_hook')->byDefault();
