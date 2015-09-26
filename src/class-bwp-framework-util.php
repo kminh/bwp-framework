@@ -104,7 +104,7 @@ class BWP_Framework_Util
 
 	public static function can_update_site_option()
 	{
-		return self::is_multisite_admin() && self::is_on_main_blog();
+		return self::is_site_admin() && self::is_on_main_blog();
 	}
 
 	public static function is_apache()

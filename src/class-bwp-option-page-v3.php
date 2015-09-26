@@ -310,7 +310,7 @@ class BWP_Option_Page_V3
 		$this->bridge->update_option($form_name, $options);
 
 		// update site options if allowed
-		if (BWP_Framework_V3::can_update_site_option())
+		if (BWP_Framework_V3::is_multisite_admin() && BWP_Framework_V3::is_on_main_blog())
 		{
 			// get a list of site options for this form
 			$site_options = array();

@@ -92,7 +92,7 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 		$util = Mockery::mock('alias:BWP_Framework_Util');
 		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
 		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
-		$util->shouldReceive('can_update_site_option')->andReturn(true)->byDefault();
+		$util->shouldReceive('is_multisite_admin')->andReturn(true)->byDefault();
 
 		$this->bridge->shouldReceive('update_site_option')->with('bwp_op_general', Mockery::type('array'))->once();
 
@@ -241,7 +241,7 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 		$util->shouldReceive('is_multisite')->andReturn($flags['is_multisite'])->byDefault();
 		$util->shouldReceive('is_site_admin')->andReturn($flags['is_site_admin'])->byDefault();
 		$util->shouldReceive('is_on_main_blog')->andReturn($flags['is_on_main_blog'])->byDefault();
-		$util->shouldReceive('can_update_site_option')->andReturn(false)->byDefault();
+		$util->shouldReceive('is_multisite_admin')->andReturn(false)->byDefault();
 
 		$version = Mockery::mock('alias:BWP_Version');
 		$version->shouldReceive('get_current_php_version_id')->andReturn($flags['is_php_version'])->byDefault();
@@ -383,7 +383,7 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 		$util->shouldReceive('is_multisite')->andReturn(true)->byDefault();
 		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
 		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
-		$util->shouldReceive('can_update_site_option')->andReturn($can_update)->byDefault();
+		$util->shouldReceive('is_multisite_admin')->andReturn($can_update)->byDefault();
 
 		array_shift($post_options);
 		if ($can_update) {
