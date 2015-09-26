@@ -20,6 +20,10 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends \PHPUnit_Framework_Te
 	{
 		$this->bridge = Mockery::mock('BWP_WP_Bridge');
 
+		$this->bridge->shouldReceive('home_url')->andReturn('http://example.com')->byDefault();
+		$this->bridge->shouldReceive('site_url')->andReturn('http://example.com')->byDefault();
+		$this->bridge->shouldReceive('is_ssl')->andReturn(false)->byDefault();
+
 		$this->bridge->shouldReceive('get_bloginfo')->andReturn('4.3')->byDefault();
 		$this->bridge->shouldReceive('get_option')->andReturn(false)->byDefault();
 		$this->bridge->shouldReceive('update_option')->byDefault();
