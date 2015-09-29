@@ -14,6 +14,9 @@ class BWP_Framework_Util
 
 	public static function is_multisite()
 	{
+		if (defined('BWP_MULTISITE'))
+			return BWP_MULTISITE;
+
 		if (function_exists('is_multisite') && is_multisite())
 			return true;
 
@@ -28,6 +31,9 @@ class BWP_Framework_Util
 
 	public static function is_subdomain_install()
 	{
+		if (defined('BWP_SUBDOMAIN_INSTALL'))
+			return BWP_SUBDOMAIN_INSTALL;
+
 		if (defined('SUBDOMAIN_INSTALL') && SUBDOMAIN_INSTALL)
 			return true;
 
