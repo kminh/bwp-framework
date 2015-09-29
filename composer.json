@@ -9,6 +9,12 @@
             "email": "contact@betterwp.net"
         }
     ],
+    "repositories": [
+        {
+            "type": "git",
+            "url": "https://github.com/kminh/http"
+        }
+    ],
     "require": {
         "php": "^5.1.2"
     },
@@ -29,6 +35,9 @@
         "phpunit/phpunit": "^4.8",
         "mockery/mockery": "^0.9.4",
         "fabpot/goutte": "~1.0",
-        "guzzle/plugin-cookie": "^3.9"
+        "guzzle/http": "dev-master as 3.9.2",
+        "guzzle/plugin-cookie": "^3.9",
+        "guzzle/plugin-cache": "^3.9",
+        "doctrine/common": "^2.5"
     }
 }

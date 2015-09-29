@@ -1,5 +1,6 @@
 <?php
 
+use \Guzzle\Plugin\Cache\CachePlugin;
 use \Symfony\Component\DomCrawler\Crawler;
 use \Goutte\Client;
 
@@ -18,6 +19,11 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	 */
 	protected static $client;
 
+	/**
+	 * @var string
+	 */
+	protected static $cache_dir;
+
 	public function setUp()
 	{
 		global $_tests_dir;
@@ -32,6 +38,9 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 
 		// this needs to be called for every test
 		static::prepare_wp_config();
+		static::prepare_htaccess_file();
+		static::prepare_cache_directory();
+		static::prepare_asset_directories();
 		static::load_plugins();
 		static::activate_plugins();
 		static::set_wp_default_options();
@@ -71,6 +80,44 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 
 			exec('cp -f ' . escapeshellarg($wp_config_file_original) . ' ' . escapeshellarg($wp_config_file));
 			exec('echo ' . escapeshellarg($wp_config) . ' >> ' . escapeshellarg($wp_config_file));
+		}
+	}
+
+	protected static function prepare_htaccess_file()
+	{
+		// intentionally left blank
+	}
+
+	/**
+	 * Prepare a blank cache folder for every test
+	 *
+	 * @param string $cache_dir
+	 */
+	protected static function prepare_cache_directory($cache_dir = null)
+	{
+		global $_core_dir;
+
+		self::$cache_dir = !$cache_dir ? $_core_dir . '/wp-content/cache' : $cache_dir;
+
+		exec('rm -rf ' . self::$cache_dir);
+		mkdir(self::$cache_dir);
+	}
+
+	/**
+	 * Prepare js and css directories if not existed
+	 */
+	protected static function prepare_asset_directories()
+	{
+		global $_core_dir;
+
+		$dirs = array(
+			'/js', '/css'
+		);
+
+		foreach ($dirs as $dir) {
+			if (!file_exists($_core_dir . $dir)) {
+				mkdir($_core_dir . $dir);
+			}
 		}
 	}
 
@@ -197,19 +244,25 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	/**
 	 * @param bool $use_existing whether to create a new client or use existing if any,
 	 *                           default to true
-	 * @param bool $clone whether to return a clone of the client
+	 * @param bool $use_cache whether to use http cache
 	 * @return \Goutte\Client
 	 */
-	protected static function get_client($use_existing = true, $clone = false)
+	protected static function get_client($use_existing = true, $use_cache = false)
 	{
 		$client = self::$client && $use_existing ? self::$client : new Client();
 
 		// reset the existing client if not using it
 		if (!$use_existing) {
+			// use http cache if needed
+			if ($use_cache) {
+				$cache_plugin = new CachePlugin();
+				$client->getClient()->addSubscriber($cache_plugin);
+			}
+
 			self::$client = $client;
 		}
 
-		return $clone ? clone $client : $client;
+		return $client;
 	}
 
 	/**
