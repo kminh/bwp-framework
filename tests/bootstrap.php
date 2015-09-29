@@ -12,7 +12,7 @@ function _bwp_framework_test_autoloader($class_name)
 {
 	global $_tests_dir, $_core_dir;
 
-	if ($class_name != 'WP_UnitTestCase') {
+	if ($class_name != 'WP_UnitTestCase' || class_exists('WP_UnitTestCase', false)) {
 		return;
 	}
 

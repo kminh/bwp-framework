@@ -142,6 +142,11 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 				exec('ln -s ' . escapeshellarg($target) . ' ' . escapeshellarg($symlink));
 			}
 
+			// dont include fixtures because they are not actually plugins
+			if (stripos($plugin_file, 'fixtures') !== false) {
+				continue;
+			}
+
 			include_once $plugin_file;
 		}
 	}
