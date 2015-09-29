@@ -15,7 +15,11 @@ abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BW
 		global $_tests_dir, $_core_dir;
 
 		$htaccess_file = $_core_dir . '/.htaccess';
-		exec('rm -f ' . escapeshellarg($htaccess_file));
+
+		if (file_exists($htaccess_file)) {
+			$last_htaccess_file = $_core_dir . '/multisite-htaccess';
+			exec('mv -f ' . escapeshellarg($htaccess_file) . ' ' . escapeshellarg($last_htaccess_file));
+		}
 
 		parent::tearDownAfterClass();
 	}
@@ -43,11 +47,19 @@ abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BW
 			exec('cp -f ' . escapeshellarg($wp_config_file_original) . ' ' . escapeshellarg($wp_config_file));
 			exec('echo ' . escapeshellarg($wp_config) . ' >> ' . escapeshellarg($wp_config_file));
 		}
+	}
+
+	protected static function prepare_htaccess_file()
+	{
+		global $_core_dir;
+
+		$root_dir = dirname(dirname(__DIR__));
 
 		$htaccess_file = $_core_dir . '/.htaccess';
+		$htaccess = file_get_contents($root_dir . '/tests/functional/data/multisite-htaccess');
 
-		if (!file_exists($htaccess_file)) {
-			$htaccess = file_get_contents($root_dir . '/tests/functional/data/multisite-htaccess');
+		if (!file_exists($htaccess_file)
+			|| stripos($htaccess, 'RewriteEngine On') === false) {
 			exec('echo ' . escapeshellarg($htaccess) . ' > ' . escapeshellarg($htaccess_file));
 		}
 	}
@@ -60,6 +72,13 @@ abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BW
 	{
 		update_site_option($key, $value);
 
+		self::commit_transaction();
+	}
+
+	protected static function reset_blogs()
+	{
+		global $wpdb;
+		$wpdb->query("DELETE FROM $wpdb->blogs WHERE 1=1 AND path <> '/'");
 		self::commit_transaction();
 	}
 }
