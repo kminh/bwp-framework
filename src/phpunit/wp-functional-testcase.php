@@ -278,11 +278,19 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	}
 
 	/**
+	 * @param string $url
+	 * @param array $headers
 	 * @return \Symfony\Component\DomCrawler\Crawler
 	 */
-	protected static function get_crawler_from_url($url)
+	protected static function get_crawler_from_url($url, array $headers = array())
 	{
-		return self::get_client(false)->request('GET', $url);
+		$client = self::get_client(false);
+
+		foreach ($headers as $name => $value) {
+			$client->setHeader($name, $value);
+		}
+
+		return $client->request('GET', $url);
 	}
 
 	/**
