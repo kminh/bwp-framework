@@ -31,6 +31,9 @@ function _bwp_framework_test_autoloader($class_name)
 	define('WP_TESTS_MULTISITE', 1);
 	define('WP_TESTS_FORCE_KNOWN_BUGS', false);
 
+	// use symlinks for dev
+	define('BWP_USE_SYMLINKS', true);
+
 	// install WordPress core files and test lib
 	$db_user = getenv('WP_DB_USER') ? getenv('WP_DB_USER') : 'test';
 	$db_pass = getenv('WP_DB_PASS') ? getenv('WP_DB_PASS') : 'test';

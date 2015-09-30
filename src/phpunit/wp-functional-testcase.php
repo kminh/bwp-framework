@@ -12,7 +12,7 @@ use \Goutte\Client;
 /**
  * @author Khang Minh <contact@betterwp.net>
  */
-abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestCase
+abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framework_PHPUnit_WP_Base_Functional_TestCase
 {
 	/**
 	 * @var \Goutte\Client
@@ -24,27 +24,28 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	 */
 	protected static $cache_dir;
 
+	/**
+	 * Prepare the WP environment
+	 *
+	 * This will prepare the environment for the current session as well as any
+	 * following requests made to the current test installation using a client
+	 * such as a crawler or a browser
+	 */
 	public function setUp()
 	{
-		global $_tests_dir;
+		$this->bootstrap_plugin();
 
-		if (!function_exists('tests_add_filter')) {
-			require_once $_tests_dir . '/includes/functions.php';
-
-			// bootstrap WordPress itself, this should provides the WP environment and
-			// drop/recreate tables
-			require $_tests_dir . '/includes/bootstrap.php';
-		}
-
-		// this needs to be called for every test
 		static::prepare_wp_config();
 		static::prepare_htaccess_file();
 		static::prepare_cache_directory();
 		static::prepare_asset_directories();
-		static::load_plugins();
-		static::activate_plugins();
-		static::set_wp_default_options();
-		static::set_plugin_default_options();
+
+		// each test can require different plugins loaded (such as different
+		// fixtures), so we need to call load_plugins() here again. This will
+		// not load the plugin under test again if it is already loaded.
+		$this->load_plugins();
+
+		$this->prepare_default_values();
 
 		parent::setUp();
 	}
@@ -53,11 +54,6 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	{
 		parent::tearDown();
 	}
-
-	/**
-	 * Get a list of plugins that should be loaded and activated for testing
-	 */
-	abstract public static function get_plugins();
 
 	protected static function prepare_wp_config()
 	{
@@ -122,36 +118,6 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	}
 
 	/**
-	 * Load plugins into their places
-	 *
-	 * This should include the plugin codes as well as create symlinks to the
-	 * plugins' folders from `wp-content/plugins` directory so that they can
-	 * be activated and used later on
-	 */
-	protected static function load_plugins()
-	{
-		global $_core_dir;
-
-		$plugins = static::get_plugins();
-
-		foreach ($plugins as $plugin_file => $plugin_path) {
-			$target  = dirname($plugin_file);
-			$symlink = $_core_dir . '/wp-content/plugins/' . dirname($plugin_path);
-
-			if (!file_exists($symlink)) {
-				exec('ln -s ' . escapeshellarg($target) . ' ' . escapeshellarg($symlink));
-			}
-
-			// dont include fixtures because they are not actually plugins
-			if (stripos($plugin_file, 'fixtures') !== false) {
-				continue;
-			}
-
-			include_once $plugin_file;
-		}
-	}
-
-	/**
 	 * Set WP options that are used for all tests
 	 */
 	protected static function set_wp_default_options()
@@ -186,12 +152,10 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	 *
 	 * Activated plugins are only fully available in next request
 	 *
-	 * @param array $plugins default to `array_values` of ::get_plugins
+	 * @param array $plugins
 	 */
-	protected static function activate_plugins(array $plugins = array())
+	protected static function activate_plugins(array $plugins)
 	{
-		$plugins = $plugins ? $plugins : array_values(static::get_plugins());
-
 		self::update_option('active_plugins', $plugins);
 	}
 
@@ -327,5 +291,15 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends WP_UnitTestC
 	protected static function uniqid()
 	{
 		return md5(uniqid(rand(), true));
+	}
+
+	/**
+	 * Prepare default values including options and active plugins
+	 */
+	protected function prepare_default_values()
+	{
+		static::activate_plugins(array_values($this->get_plugins()));
+		static::set_wp_default_options();
+		static::set_plugin_default_options();
 	}
 }
