@@ -302,9 +302,12 @@ class BWP_Option_Page_V3
 			}
 		}
 
-		// allowing the current form to save its submitted data using a
-		// different form name
+		// allow the current form to save its submitted data using a different
+		// form name
 		$form_name = $this->bridge->apply_filters('bwp_option_page_submit_form_name', $this->form_name);
+
+		// allow filtering the options that are going to be updated
+		$options = $this->bridge->apply_filters('bwp_option_page_submit_options', $options);
 
 		// update per-blog options
 		$this->bridge->update_option($form_name, $options);
