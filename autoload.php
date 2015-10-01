@@ -10,13 +10,6 @@ if (!function_exists('_bwp_framework_autoloader')) {
 			return;
 		}
 
-		// do not load testcase classes if PHP version is less than 5.3
-		if (stripos($class_name, 'TestCase') !== false
-			&& version_compare(PHP_VERSION, '5.3', '<')
-		) {
-			continue;
-		}
-
 		if (array_key_exists($class_name, $class_maps)) {
 			require $class_maps[$class_name];
 		}
