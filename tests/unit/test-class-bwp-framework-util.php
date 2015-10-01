@@ -1,7 +1,5 @@
 <?php
 
-use \Mockery as Mockery;
-
 /**
  * @covers BWP_Framework_Util
  * @runTestsInSeparateProcesses

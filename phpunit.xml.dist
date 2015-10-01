@@ -26,10 +26,6 @@
 		</whitelist>
 	</filter>
 
-	<listeners>
-		<listener class="\Mockery\Adapter\Phpunit\TestListener"></listener>
-	</listeners>
-
 	<php>
 		<ini name="memory_limit" value="-1"/>
 		<ini name="max_execution_time" value="0"/>

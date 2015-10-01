@@ -1,12 +1,13 @@
 <?php
 
 use \Mockery as Mockery;
+use \Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
  * @covers BWP_Option_Page_V3_Test
  * @author Khang Minh <contact@betterwp.net>
  */
-class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
+class BWP_Option_Page_V3_Test extends MockeryTestCase
 {
 	protected $bridge;
 
@@ -36,10 +37,6 @@ class BWP_Option_Page_V3_Test extends \PHPUnit_Framework_TestCase
 		);
 
 		$this->op = new BWP_Option_Page_V3($this->form_name, $this->plugin);
-	}
-
-	protected function tearDown()
-	{
 	}
 
 	/**

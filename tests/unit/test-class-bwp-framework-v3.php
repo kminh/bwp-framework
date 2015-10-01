@@ -1,12 +1,13 @@
 <?php
 
 use \Mockery as Mockery;
+use \Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
  * @covers BWP_Framework_V3
  * @author Khang Minh <contact@betterwp.net>
  */
-class BWP_Framework_V3_Test extends \PHPUnit_Framework_TestCase
+class BWP_Framework_V3_Test extends MockeryTestCase
 {
 	protected $bridge;
 
