@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 152;
+	public $revision = 153;
 
 	/**
 	 * Text domain
@@ -820,13 +820,19 @@ abstract class BWP_Framework_V3
 	}
 
 	/**
-	 * Redirect internally
+	 * Redirect internally, only when headers have not been sent
 	 *
 	 * @param mixed string|null $url default to current admin page
 	 */
 	public function safe_redirect($url = null)
 	{
+		// @since rev 153, to avoid errors when WP_DEBUG is turned on and
+		// there are errors from other plugins
+		if (headers_sent())
+			return;
+
 		$this->bridge->wp_safe_redirect($this->get_admin_page_url());
+
 		exit;
 	}
 
