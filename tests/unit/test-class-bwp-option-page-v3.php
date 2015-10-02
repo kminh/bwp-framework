@@ -489,19 +489,38 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 
 		$_POST[$post_action] = 1;
 
-		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
+		$this->bridge
+			->shouldReceive('check_admin_referer')
+			->with($this->form_name)
+			->once();
 
 		if ('submit_bwp_op' == $post_action) {
 			$this->plugin->shouldReceive('update_options')->once();
 			$this->plugin->shouldReceive('update_site_options')->once();
-			$this->plugin->shouldReceive('add_notice_flash')->with('All options have been saved.')->once();
-			$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_action_submitted', true)->andReturn($redirect)->byDefault();
+
+			$this->bridge
+				->shouldReceive('apply_filters')
+				->with('bwp_option_page_action_submitted', true)
+				->andReturn($redirect)
+				->byDefault();
 		} else {
-			$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_custom_action_' . $post_action, true)->andReturn($redirect)->byDefault();
+			$this->bridge
+				->shouldReceive('apply_filters')
+				->with('bwp_option_page_custom_action_' . $post_action, true)
+				->andReturn($redirect)
+				->byDefault();
 		}
 
 		if ($redirect) {
-			$this->plugin->shouldReceive('safe_redirect')->once();
+			if ('submit_bwp_op' == $post_action) {
+				$this->plugin
+					->shouldReceive('add_notice_flash')
+					->with('All options have been saved.')
+					->ordered()
+					->once();
+			}
+
+			$this->plugin->shouldReceive('safe_redirect')->ordered()->once();
 		} else {
 			$this->plugin->shouldNotReceive('safe_redirect');
 		}

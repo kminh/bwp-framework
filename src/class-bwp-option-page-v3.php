@@ -339,12 +339,14 @@ class BWP_Option_Page_V3
 			// submitted successully
 			if ($this->submit_html_form())
 			{
-				$this->plugin->add_notice_flash($this->bridge->t('All options have been saved.', $this->domain));
-
+				// allow plugin to choose to not redirect
 				$redirect = $this->bridge->apply_filters('bwp_option_page_action_submitted', true);
 
 				if ($redirect !== false)
+				{
+					$this->plugin->add_notice_flash($this->bridge->t('All options have been saved.', $this->domain));
 					$this->plugin->safe_redirect();
+				}
 			}
 		}
 		else
