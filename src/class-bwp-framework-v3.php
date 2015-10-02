@@ -38,7 +38,7 @@ abstract class BWP_Framework_V3
 	 *
 	 * @var array
 	 */
-	public $current_options;
+	public $current_options = array();
 
 	/**
 	 * Hold db option keys
@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 151;
+	public $revision = 152;
 
 	/**
 	 * Text domain
@@ -613,10 +613,70 @@ abstract class BWP_Framework_V3
 	/**
 	 * Update options with a specific key
 	 *
+	 * This should update $options but not $current_options. If there are site
+	 * options in $options, they should use the default options.
+	 *
 	 * @param string $option_key
-	 * @param array $options
+	 * @param array $options all options under the option key
 	 */
-	protected function update_plugin_options($option_key, array $new_options)
+	public function update_options($option_key, array $options)
+	{
+		$this->bridge->update_option($option_key, $options);
+
+		// update $options property, but don't update site options as they
+		// should be handled by update_site_options()
+		if (self::is_multisite())
+		{
+			foreach ($options as $name => $value)
+			{
+				if (in_array($name, $this->site_options))
+					unset($options[$name]);
+			}
+		}
+
+		$this->options = array_merge($this->options, $options);
+	}
+
+	/**
+	 * Update site options with a specific key, when allowed to
+	 *
+	 * This should pick site options found in $options and update accordingly.
+	 * This should also update $options property.
+	 *
+	 * @param string $option_key
+	 * @param array $options all options under the option key
+	 */
+	public function update_site_options($option_key, array $options)
+	{
+		if (!self::is_multisite_admin() || !self::is_on_main_blog())
+			return;
+
+		$site_options = array();
+
+		foreach ($this->site_options as $site_option_name)
+		{
+			if (array_key_exists($site_option_name, $options))
+				$site_options[$site_option_name] = $options[$site_option_name];
+		}
+
+		// update site options only if there are options to update
+		if (count($site_options) > 0)
+		{
+			$this->bridge->update_site_option($option_key, $site_options);
+			$this->options = array_merge($this->options, $site_options);
+		}
+	}
+
+	/**
+	 * Update some options under a specific key
+	 *
+	 * This will update per blog options and site options. This will also
+	 * accept options that have not been persisted in db.
+	 *
+	 * @param string $option_key
+	 * @param array $new_options only the new options that need updating
+	 */
+	protected function update_some_options($option_key, array $new_options)
 	{
 		$db_options = $this->bridge->get_option($option_key);
 
@@ -625,7 +685,16 @@ abstract class BWP_Framework_V3
 
 		$db_options = array_merge($db_options, $new_options);
 
-		$this->bridge->update_option($option_key, $db_options);
+		$this->update_options($option_key, $db_options);
+		$this->update_site_options($option_key, $db_options);
+	}
+
+	/**
+	 * @deprecated rev152
+	 */
+	protected function update_plugin_options($option_key, array $new_options)
+	{
+		$this->update_some_options($option_key, $new_options);
 	}
 
 	/**
@@ -1004,6 +1073,11 @@ abstract class BWP_Framework_V3
 			$this->errors[] = $error;
 			$this->bridge->add_action('bwp_option_action_before_form', array($this, 'show_errors'));
 		}
+	}
+
+	public function has_error()
+	{
+		return count($this->errors) > 0;
 	}
 
 	public function show_errors()

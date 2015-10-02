@@ -447,44 +447,204 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	}
 
 	/**
-	 * @covers BWP_Framework_V3::update_plugin_options
-	 * @dataProvider get_update_plugin_options_data
+	 * @covers BWP_Framework_V3::update_some_options
+	 * @dataProvider get_update_some_options_data
 	 */
-	public function test_update_plugin_options($db_options, $new_options, $update)
+	public function test_update_some_options($db_options, $new_options, $update)
 	{
 		$option_key = 'bwp_plugin_general';
 
-		$this->bridge->shouldReceive('get_option')->with($option_key)->andReturn($db_options)->byDefault();
+		$this->bridge
+			->shouldReceive('get_option')
+			->with($option_key)
+			->andReturn($db_options)
+			->byDefault();
 
 		if ($update) {
-			$this->bridge->shouldReceive('update_option')->with($option_key, array_merge($db_options, $new_options))->once();
+			$updated_options = array_merge($db_options, $new_options);
+
+			$this->framework
+				->shouldReceive('update_options')
+				->with($option_key, $updated_options)
+				->once();
+
+			$this->framework
+				->shouldReceive('update_site_options')
+				->with($option_key, $updated_options)
+				->once();
 		} else {
-			$this->bridge->shouldNotReceive('update_option');
+			$this->framework->shouldNotReceive('update_options');
+			$this->framework->shouldNotReceive('update_site_options');
 		}
 
-		$this->call_protected_method('update_plugin_options', array($option_key, $new_options));
+		$this->call_protected_method('update_some_options', array($option_key, $new_options));
 	}
 
-	public function get_update_plugin_options_data()
+	public function get_update_some_options_data()
 	{
 		return array(
-			array(
+			'invalid db options' => array(
 				false,
 				array(
 					'option1' => 'value1_new'
 				),
 				false
 			),
-			array(
+
+			'update both blog and site options' => array(
 				array(
-					'option1' => 'value1',
-					'option2' => 'value2'
+					'option1'      => 'value1',
+					'option2'      => 'value2',
+					'site_option1' => 'site_value1',
+					'site_option2' => 'site_value2'
 				),
 				array(
-					'option1' => 'value1_new'
+					'option1'      => 'value1_new',
+					'site_option1' => 'site_value1_new'
 				),
 				true
 			)
+		);
+	}
+
+	/**
+	 * @covers BWP_Framework_V3::update_options
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider get_test_update_options_cases
+	 */
+	public function test_update_options(array $options, $is_multisite, $expected)
+	{
+		$option_key = 'bwp_plugin_general';
+
+		$util = Mockery::mock('alias:BWP_Framework_Util');
+		$util->shouldReceive('is_multisite')->andReturn($is_multisite)->byDefault();
+
+		$this->framework->options = array(
+			'option1'      => 'value1',
+			'option2'      => 'value2',
+			'site_option1' => 'site_value1',
+			'site_option2' => 'site_value2'
+		);
+
+		$this->framework->site_options = array(
+			'site_option1',
+			'site_option2'
+		);
+
+		$this->bridge
+			->shouldReceive('update_option')
+			->with($option_key, $options)
+			->once();
+
+		$this->framework->update_options($option_key, $options);
+
+		$this->assertEquals($expected, $this->framework->options, 'should update $options property');
+		$this->assertEquals(array(), $this->framework->current_options, 'should NOT update $current_options property');
+	}
+
+	public function get_test_update_options_cases()
+	{
+		return array(
+			'not multisite, update all options' => array(
+				array(
+					'option1'      => 'value1_new',
+					'option2'      => 'value2',
+					'site_option1' => 'site_value1_new',
+					'site_option2' => 'site_value2'
+				),
+				false,
+				array(
+					'option1'      => 'value1_new',
+					'option2'      => 'value2',
+					'site_option1' => 'site_value1_new',
+					'site_option2' => 'site_value2'
+				)
+			),
+
+			'multisite, update blog options only' => array(
+				array(
+					'option1'      => 'value1_new',
+					'option2'      => 'value2',
+					'site_option1' => 'site_value1_new',
+					'site_option2' => 'site_value2'
+				),
+				true,
+				array(
+					'option1'      => 'value1_new',
+					'option2'      => 'value2',
+					'site_option1' => 'site_value1',
+					'site_option2' => 'site_value2'
+				)
+			)
+		);
+	}
+
+	/**
+	 * @covers BWP_Framework_V3::update_site_options
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider get_update_site_options_cases
+	 */
+	public function test_update_site_options($is_multisite_admin, $is_on_main_blog, array $options, array $site_option_keys, $expected)
+	{
+		$util = Mockery::mock('alias:BWP_Framework_Util');
+		$util->shouldReceive('is_multisite_admin')->andReturn($is_multisite_admin)->byDefault();
+		$util->shouldReceive('is_on_main_blog')->andReturn($is_on_main_blog)->byDefault();
+
+		$option_key = 'bwp_plugin_general';
+		$old_options = array(
+			'option1'      => 'value1',
+			'option2'      => 'value2',
+			'site_option1' => 'site_value1',
+			'site_option2' => 'site_value2'
+		);
+
+		$this->framework->options = $old_options;
+
+		$this->framework->site_options = $site_option_keys;
+
+		if ($expected) {
+			$this->bridge
+				->shouldReceive('update_site_option')
+				->with($option_key, $expected)
+				->once();
+		} else {
+			// should not update any site options
+			$this->bridge
+				->shouldNotReceive('update_site_option');
+		}
+
+		$this->framework->update_site_options($option_key, $options);
+
+		if ($expected) {
+			$this->assertEquals(array_merge($old_options, $expected), $this->framework->options, 'should update $options property with site options');
+		}
+	}
+
+	public function get_update_site_options_cases()
+	{
+		return array(
+			array(false, false, array(), array(), false),
+			array(true, false, array(), array(), false),
+			array(false, true, array(), array(), false),
+
+			'no options to update' => array(true, true, array(), array(), false),
+
+			'no site options to update' => array(true, true, array(
+				'option1' => 'value1_new',
+				'option2' => 'value2',
+			), array('site_option1'), false),
+
+			'site options to update' => array(true, true, array(
+				'option1'      => 'value1_new',
+				'option2'      => 'value2',
+				'site_option1' => 'site_value1_new',
+				'site_option2' => 'site_value2'
+			), array('site_option1', 'site_option2'), array(
+				'site_option1' => 'site_value1_new',
+				'site_option2' => 'site_value2'
+			))
 		);
 	}
 
