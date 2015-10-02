@@ -309,29 +309,18 @@ class BWP_Option_Page_V3
 		// allow filtering the options that are going to be updated
 		$options = $this->bridge->apply_filters('bwp_option_page_submit_options', $options);
 
+		// allow plugin to return false or non-array to not update any options at all
+		if ($options === false || !is_array($options))
+			return false;
+
 		// update per-blog options
-		$this->bridge->update_option($form_name, $options);
+		$this->plugin->update_options($form_name, $options);
 
-		// update site options if allowed
-		if (BWP_Framework_V3::is_multisite_admin() && BWP_Framework_V3::is_on_main_blog())
-		{
-			// get a list of site options for this form
-			$site_options = array();
+		// update site options
+		$this->plugin->update_site_options($form_name, $options);
 
-			foreach ($this->site_options as $site_option_name)
-			{
-				if (array_key_exists($site_option_name, $options))
-					$site_options[$site_option_name] = $options[$site_option_name];
-			}
-
-			// update site options only if there are options to update
-			if (count($site_options) > 0)
-				$this->bridge->update_site_option($form_name, $site_options);
-		}
-
-		// refresh the options for the form as well as the plugin's options
-		$this->form_options    = array_merge($this->form_options, $options);
-		$this->plugin->options = array_merge($this->plugin->options, $options);
+		// refresh the options for the form
+		$this->form_options = array_merge($this->form_options, $options);
 
 		return true;
 	}
@@ -346,13 +335,17 @@ class BWP_Option_Page_V3
 		// handle the default submit action
 		if (isset($_POST['submit_' . $this->get_form_name()]))
 		{
-			$this->submit_html_form();
-			$this->plugin->add_notice_flash($this->bridge->t('All options have been saved.', $this->domain));
+			// add a notice and allow redirection only when the form is
+			// submitted successully
+			if ($this->submit_html_form())
+			{
+				$this->plugin->add_notice_flash($this->bridge->t('All options have been saved.', $this->domain));
 
-			$redirect = $this->bridge->apply_filters('bwp_option_page_action_submitted', true);
+				$redirect = $this->bridge->apply_filters('bwp_option_page_action_submitted', true);
 
-			if ($redirect !== false)
-				$this->plugin->safe_redirect();
+				if ($redirect !== false)
+					$this->plugin->safe_redirect();
+			}
 		}
 		else
 		{

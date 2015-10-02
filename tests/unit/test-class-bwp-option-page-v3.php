@@ -106,17 +106,22 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			'input3_integer'              => 4,
 		);
 
+		$this->plugin
+			->shouldReceive('update_options')
+			->with($this->form_name, $merged_options)
+			->once();
+
+		$this->plugin
+			->shouldReceive('update_site_options')
+			->with($this->form_name, $merged_options)
+			->once();
+
 		$this->bridge
 			->shouldReceive('wp_filter_post_kses')
 			->andReturnUsing(function($value) {
 				return $value;
 			})
 			->byDefault();
-
-		$this->bridge
-			->shouldReceive('update_option')
-			->with($this->form_name, $merged_options)
-			->once();
 
 		foreach ($post_options as $key => $option) {
 			$_POST[$key] = $option;
@@ -126,7 +131,6 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$this->op->submit_html_form();
 
 		$this->assertEquals($merged_options, PHPUnit_Framework_Assert::readAttribute($this->op, 'form_options'), 'should update form options');
-		$this->assertEquals($merged_options, $this->plugin->options, 'should update plugin options');
 
 		$_POST = array();
 	}
@@ -232,13 +236,13 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 
 		// all fields are hidden so the options used to update are the same
 		// ones that are feed to the form from the beginning
-		$this->bridge->shouldReceive('update_option')->with($this->form_name, $form_options)->once();
+		$this->plugin->shouldReceive('update_options')->with($this->form_name, $form_options)->once();
+		$this->plugin->shouldReceive('update_site_options')->with($this->form_name, $form_options)->once();
 
 		$util = Mockery::mock('alias:BWP_Framework_Util');
 		$util->shouldReceive('is_multisite')->andReturn($flags['is_multisite'])->byDefault();
 		$util->shouldReceive('is_site_admin')->andReturn($flags['is_site_admin'])->byDefault();
 		$util->shouldReceive('is_on_main_blog')->andReturn($flags['is_on_main_blog'])->byDefault();
-		$util->shouldReceive('is_multisite_admin')->andReturn(false)->byDefault();
 
 		$version = Mockery::mock('alias:BWP_Version');
 		$version->shouldReceive('get_current_php_version_id')->andReturn($flags['is_php_version'])->byDefault();
@@ -247,7 +251,6 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$this->op->submit_html_form();
 
 		$this->assertEquals($form_options, PHPUnit_Framework_Assert::readAttribute($this->op, 'form_options'), 'should update form options');
-		$this->assertEquals($form_options, $this->plugin->options, 'should update plugin options');
 
 		$_POST = array();
 	}
@@ -335,9 +338,8 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 	 * @covers BWP_Option_Page_V3::submit_html_form
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
-	 * @dataProvider get_submit_html_form_multisite_flags
 	 */
-	public function test_submit_html_form_in_multisite_should_update_options_correctly($can_update)
+	public function test_submit_html_form_in_multisite_should_update_options_correctly()
 	{
 		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
 
@@ -372,22 +374,14 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			$_POST[$key] = $option;
 		}
 
-		$this->plugin->shouldReceive('get_options_by_keys')->with($form_option_keys)->andReturn($form_options)->byDefault();
-
-		$this->bridge->shouldReceive('update_option')->with($this->form_name, $post_options)->once();
-
 		$util = Mockery::mock('alias:BWP_Framework_Util');
 		$util->shouldReceive('is_multisite')->andReturn(true)->byDefault();
 		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
 		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
-		$util->shouldReceive('is_multisite_admin')->andReturn($can_update)->byDefault();
 
-		array_shift($post_options);
-		if ($can_update) {
-			$this->bridge->shouldReceive('update_site_option')->with($this->form_name, $post_options)->once();
-		} else {
-			$this->bridge->shouldNotReceive('update_site_option')->with($this->form_name, $post_options);
-		}
+		$this->plugin->shouldReceive('get_options_by_keys')->with($form_option_keys)->andReturn($form_options)->byDefault();
+		$this->plugin->shouldReceive('update_options')->with($this->form_name, $post_options)->once();
+		$this->plugin->shouldReceive('update_site_options')->with($this->form_name, $post_options)->once();
 
 		$this->op->init($form, $form_option_keys);
 		$this->op->submit_html_form();
@@ -395,18 +389,8 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$_POST = array();
 	}
 
-	public function get_submit_html_form_multisite_flags()
-	{
-		return array(
-			array(false),
-			array(true),
-		);
-	}
-
 	/**
 	 * @covers BWP_Option_Page_V3::submit_html_form
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
 	 */
 	public function test_submit_html_form_can_use_custom_form_name()
 	{
@@ -419,14 +403,9 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 
 		// use a custom form name to save options
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_submit_form_name', $this->form_name)->andReturn('bwp_op_general')->byDefault();
-		$this->bridge->shouldReceive('update_option')->with('bwp_op_general', Mockery::type('array'))->once();
 
-		$util = Mockery::mock('alias:BWP_Framework_Util');
-		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
-		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
-		$util->shouldReceive('is_multisite_admin')->andReturn(true)->byDefault();
-
-		$this->bridge->shouldReceive('update_site_option')->with('bwp_op_general', Mockery::type('array'))->once();
+		$this->plugin->shouldReceive('update_options')->with('bwp_op_general', Mockery::type('array'))->once();
+		$this->plugin->shouldReceive('update_site_options')->with('bwp_op_general', Mockery::type('array'))->once();
 
 		$this->op->init();
 		$this->op->submit_html_form();
@@ -476,24 +455,20 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			->andReturn(array_merge($post_options, $filtered_form_options))
 			->byDefault();
 
+		$util = Mockery::mock('alias:BWP_Framework_Util');
+		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
+		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
+
 		// should update filtered options
-		$this->bridge
-			->shouldReceive('update_option')
+		$this->plugin
+			->shouldReceive('update_options')
 			->with($this->form_name, array_merge($post_options, $filtered_form_options))
 			->once();
 
-		$util = Mockery::mock('alias:BWP_Framework_Util');
-		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
-		$util->shouldReceive('is_multisite_admin')->andReturn(true)->byDefault();
-		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
-
 		// should update filtered site options
-		$this->bridge
-			->shouldReceive('update_site_option')
-			->with($this->form_name, array(
-				'input_site_option'  => 'input_site_option_value_updated',
-				'input_site_option2' => 'input_site_option2_value'
-			))
+		$this->plugin
+			->shouldReceive('update_site_options')
+			->with($this->form_name, array_merge($post_options, $filtered_form_options))
 			->once();
 
 		$this->op->init();
@@ -506,7 +481,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 	 * @covers BWP_Option_Page_V3::handle_form_actions
 	 * @dataProvider get_form_actions
 	 */
-	public function test_handle_form_actions($actions, $post_action, $redirect)
+	public function test_handle_form_actions_main_cases($actions, $post_action, $redirect)
 	{
 		foreach ($actions as $action) {
 			$this->op->register_custom_submit_action($action);
@@ -517,9 +492,10 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
 
 		if ('submit_bwp_op' == $post_action) {
-			$this->bridge->shouldReceive('update_option')->once();
-			$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_action_submitted', true)->andReturn($redirect)->byDefault();
+			$this->plugin->shouldReceive('update_options')->once();
+			$this->plugin->shouldReceive('update_site_options')->once();
 			$this->plugin->shouldReceive('add_notice_flash')->with('All options have been saved.')->once();
+			$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_action_submitted', true)->andReturn($redirect)->byDefault();
 		} else {
 			$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_custom_action_' . $post_action, true)->andReturn($redirect)->byDefault();
 		}
@@ -543,5 +519,42 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			array(array('save1', 'save2'), 'save1', true),
 			array(array('save1', 'save2'), 'save2', false),
 		);
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::handle_form_actions
+	 */
+	public function test_handle_form_actions_should_not_add_notice_flash_or_redirect_when_the_form_was_not_submitted_successfully()
+	{
+		$_POST['submit_bwp_op'] = 1;
+
+		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
+
+		$this->bridge
+			->shouldReceive('apply_filters')
+			->with('bwp_option_page_submit_form_name', $this->form_name)
+			->andReturn($this->form_name);
+
+		$this->bridge
+			->shouldReceive('apply_filters')
+			->with('bwp_option_page_submit_options', Mockery::type('array'))
+			->andReturn(false);
+
+		$this->plugin->shouldNotReceive('update_options');
+		$this->plugin->shouldNotReceive('update_site_options');
+
+		$this->plugin
+			->shouldNotReceive('add_notice_flash')
+			->with('All options have been saved.');
+
+		$this->bridge
+			->shouldNotReceive('apply_filters')
+			->with('bwp_option_page_action_submitted', true);
+
+		$this->plugin->shouldNotReceive('safe_redirect');
+
+		$this->op->handle_form_actions();
+
+		$_POST = array();
 	}
 }
