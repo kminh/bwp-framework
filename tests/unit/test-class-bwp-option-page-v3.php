@@ -57,6 +57,24 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 	}
 
 	/**
+	 * @covers BWP_Option_Page_V3::init
+	 */
+	public function test_init_should_throw_exception_if_form_option_keys_also_have_values()
+	{
+		$this->setExpectedException('LogicException', '$form_option_keys must contain keys only and no values');
+
+		$this->op->init(array(), array('key' => 'value'));
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::init
+	 */
+	public function test_init_should_return_self_to_support_chanining()
+	{
+		$this->assertSame($this->op, $this->op->init());
+	}
+
+	/**
 	 * @covers BWP_Option_Page_V3::add_form_container
 	 */
 	public function test_add_form_container()
@@ -471,7 +489,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			->with($this->form_name, array_merge($post_options, $filtered_form_options))
 			->once();
 
-		$this->op->init();
+		$this->op->init(array(), array('input3', 'input4', 'input_site_option'));
 		$this->op->submit_html_form();
 
 		$_POST = array();

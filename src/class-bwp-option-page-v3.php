@@ -98,6 +98,7 @@ class BWP_Option_Page_V3
 	 *
 	 * @param array $form             form data to build the form for the current option page
 	 * @param array $form_option_keys contains all option keys that should be handled by the current option page form
+	 * @return $this
 	 */
 	public function init($form = array(), $form_option_keys = array())
 	{
@@ -105,11 +106,31 @@ class BWP_Option_Page_V3
 		$this->form_items       = isset($form['items']) ? $form['items'] : array();
 		$this->form_item_names  = isset($form['item_names']) ? $form['item_names'] : array();
 		$this->form_item_labels = isset($form['item_labels']) ? $form['item_labels'] : array();
-		$this->form_options     = $this->plugin->get_options_by_keys($form_option_keys);
+
+		// we only support option keys and not key and value pairs
+		if (array_values($form_option_keys) !== $form_option_keys)
+			throw new LogicException('$form_option_keys must contain keys only and no values');
+
+		$this->form_options = $form_option_keys ? $this->plugin->get_options_by_keys($form_option_keys) : array();
 
 		$this->form['formats'] = isset($this->form['formats'])
 			? $this->form['formats']
 			: array();
+
+		return $this;
+	}
+
+	/**
+	 * Set options to be used for the currently active form
+	 *
+	 * This allows setting arbitrary options that might not be associated with
+	 * an option key.
+	 *
+	 * @param array $options
+	 */
+	public function set_form_options(array $options)
+	{
+		$this->form_options = $options;
 	}
 
 	/**
@@ -810,5 +831,15 @@ class BWP_Option_Page_V3
 		}
 
 		return false;
+	}
+
+	public function get_form_name()
+	{
+		return $this->form_name;
+	}
+
+	public function get_form()
+	{
+		return $this->form;
 	}
 }
