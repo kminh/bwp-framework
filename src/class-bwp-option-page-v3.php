@@ -228,7 +228,7 @@ class BWP_Option_Page_V3
 
 			$return_str .= '</h2>' . "\n";
 		}
-		else if (!isset($this->form_tabs[0]))
+		elseif (!isset($this->form_tabs[0]))
 		{
 			$title       = array_keys($this->form_tabs);
 			$return_str .= '<h2>' . $title[0] . '</h2>'  . "\n";
@@ -575,7 +575,7 @@ class BWP_Option_Page_V3
 		{
 			$return_html .= sprintf($html_field, $data) . $br;
 		}
-		else if ($type == 'radio'
+		elseif ($type == 'radio'
 			|| $type == 'checkbox' || $type == 'checkbox_multi'
 			|| $type == 'select' || $type == 'select_multi'
 		) {
@@ -607,13 +607,12 @@ class BWP_Option_Page_V3
 						$return_html .= $br;
 					}
 				}
-				else if ($type == 'checkbox_multi')
+				elseif ($type == 'checkbox_multi')
 				{
 					// handle a multi checkbox differently
 					if (isset($this->form_options[$name])
 						&& is_array($this->form_options[$name])
-						&& (in_array($value, $this->form_options[$name])
-							|| array_key_exists($value, $this->form_options[$name]))
+						&& in_array($value, $this->form_options[$name])
 					) {
 						$return_html .= str_replace(
 							array('%value%', '%name%', '%label%', '%checked%'),
@@ -636,11 +635,10 @@ class BWP_Option_Page_V3
 						$return_html .= $br;
 					}
 				}
-				else if (isset($this->form_options[$name])
+				elseif (isset($this->form_options[$name])
 					&& ($this->form_options[$name] == $value
 						|| (is_array($this->form_options[$name])
-							&& (in_array($value, $this->form_options[$name])
-								|| array_key_exists($value, $this->form_options[$name]))))
+							&& in_array($value, $this->form_options[$name])))
 				) {
 					$item_br = $type == 'select' || $type == 'select_multi' ? "\n" : $br;
 
