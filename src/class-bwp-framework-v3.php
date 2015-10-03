@@ -863,31 +863,32 @@ abstract class BWP_Framework_V3
 
 	public function init_admin_page()
 	{
-		if ($this->is_admin_page())
-		{
-			$this->current_option_page = new BWP_Option_Page_V3(
-				$this->get_current_admin_page(), $this
-			);
+		// not an admin page of this plugin, do nothing
+		if (!$this->is_admin_page())
+			return;
 
-			$this->init_session();
-			$this->build_option_page();
-			$this->current_option_page->handle_form_actions();
+		$this->current_option_page = new BWP_Option_Page_V3(
+			$this->get_current_admin_page(), $this
+		);
 
-			$notices    = $this->get_flash('notice');
-			$errors     = $this->get_flash('error');
-			$containers = $this->get_container_flash();
+		$this->init_session();
+		$this->build_option_page();
+		$this->current_option_page->handle_form_actions();
 
-			foreach ($notices as $notice) {
-				$this->add_notice($notice);
-			}
+		$notices    = $this->get_flash('notice');
+		$errors     = $this->get_flash('error');
+		$containers = $this->get_container_flash();
 
-			foreach ($errors as $error) {
-				$this->add_error($error);
-			}
+		foreach ($notices as $notice) {
+			$this->add_notice($notice);
+		}
 
-			foreach ($containers as $name => $container_data) {
-				$this->current_option_page->add_form_container($name, $container_data);
-			}
+		foreach ($errors as $error) {
+			$this->add_error($error);
+		}
+
+		foreach ($containers as $name => $container_data) {
+			$this->current_option_page->add_form_container($name, $container_data);
 		}
 	}
 

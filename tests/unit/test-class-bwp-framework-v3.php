@@ -427,23 +427,42 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	 * @covers BWP_Framework_V3::init_admin_page
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 * @dataProvider get_wp_admin_pages
 	 */
-	public function test_init_admin_page()
+	public function test_init_admin_page($page, $should_init)
 	{
-		$_GET['page'] = 'bwp_plugin_general';
-
-		$this->framework->shouldReceive('build_option_page')->globally()->ordered()->once();
+		$_GET['page'] = $page;
 
 		$option_page = Mockery::mock('overload:BWP_Option_Page_V3');
-		$option_page->shouldReceive('handle_form_actions')->globally()->ordered()->once();
+
+		if ($should_init) {
+			$this->framework->shouldReceive('build_option_page')->globally()->ordered()->once();
+			$option_page->shouldReceive('handle_form_actions')->globally()->ordered()->once();
+		} else {
+			$this->framework->shouldNotReceive('build_option_page');
+			$option_page->shouldNotReceive('handle_form_actions');
+		}
 
 		$this->build_properties();
 		$this->framework->init_admin_page();
 
-		$this->assertInstanceOf('BWP_Option_Page_V3', $this->framework->current_option_page, 'BWP_Framework_V3::current_option_page should be created');
-		$this->assertTrue(isset($_SESSION), 'session should be init');
+		if ($should_init) {
+			$this->assertInstanceOf('BWP_Option_Page_V3', $this->framework->current_option_page, 'BWP_Framework_V3::current_option_page should be created');
+			$this->assertTrue(isset($_SESSION), 'session should be init');
+		} else {
+			$this->assertNull($this->framework->current_option_page, 'BWP_Framework_V3::current_option_page should NOT be created');
+			$this->assertFalse(isset($_SESSION), 'session should NOT be init');
+		}
 
 		unset($_GET['page']);
+	}
+
+	public function get_wp_admin_pages()
+	{
+		return array(
+			array('bwp_plugin_general', true),
+			array('not_plugin_page', false)
+		);
 	}
 
 	/**
