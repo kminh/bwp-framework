@@ -345,14 +345,28 @@ class BWP_Option_Page_V3
 
 			if (isset($_POST[$name]))
 			{
-				// make sure options are in expected formats
-				$option = $this->format_field($name, $_POST[$name]);
+				// make sure options are in expected formats, only when option
+				// values are not array, if array all values will be sanitized
+				// but not formatted, plugin should take care of the formats
+				// explicitly
+				$option = !is_array($_POST[$name])
+					? $this->format_field($name, $_POST[$name])
+					: $this->sanitize($_POST[$name]);
 			}
 
-			if (isset($this->form['checkbox'][$name]) && !isset($_POST[$name])
-			) {
-				// unchecked checkbox
-				$option = '';
+			if (!isset($_POST[$name]))
+			{
+				// unchecked single checkbox
+				if (isset($this->form['checkbox'][$name]))
+				{
+					$option = '';
+				}
+				elseif (isset($this->form['checkbox_multi'][$name])
+					|| isset($this->form['select_multi'][$name])
+				) {
+					// unchecked/unselected multi-checkboxes and multi-select
+					$option = array();
+				}
 			}
 		}
 
@@ -421,13 +435,24 @@ class BWP_Option_Page_V3
 		}
 	}
 
+	private function sanitize($value)
+	{
+		if (!is_array($value))
+			return trim(stripslashes($value));
+
+		$value = array_map('stripslashes', $value);
+		$value = array_map('trim', $value);
+
+		return $value;
+	}
+
 	protected function format_field($name, $value)
 	{
 		$format = isset($this->form['formats'][$name])
 			? $this->form['formats'][$name]
 			: '';
 
-		$value = trim(stripslashes($value));
+		$value = $this->sanitize($value);
 
 		if (!empty($format))
 		{
@@ -439,10 +464,10 @@ class BWP_Option_Page_V3
 
 				return (int) $value;
 			}
-			else if ('float' == $format)
+			elseif ('float' == $format)
 				return (float) $value;
-			else if ('html' == $format)
-				return $this->bridge->wp_filter_post_kses($value);
+			elseif ('html' == $format)
+				return stripslashes($this->bridge->wp_filter_post_kses($value));
 		}
 		else
 			return strip_tags($value);

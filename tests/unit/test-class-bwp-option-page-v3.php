@@ -241,7 +241,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$this->bridge
 			->shouldReceive('wp_filter_post_kses')
 			->andReturnUsing(function($value) {
-				return $value;
+				return addslashes($value);
 			})
 			->byDefault();
 
@@ -272,6 +272,12 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			'checkbox' => array(
 				'checkbox1' => array('' => '')
 			),
+			'checkbox_multi' => array(
+				'checkbox_multi1' => array('' => array())
+			),
+			'select_multi' => array(
+				'select_multi1' => array('' => array())
+			),
 			'input' => array(
 				'input2_disabled' => array(
 					'disabled' => true
@@ -300,6 +306,8 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input4_float',
 					'textarea1',
 					'checkbox1',
+					'checkbox_multi1',
+					'select_multi1',
 					'select1'
 				),
 				array(
@@ -312,6 +320,8 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input4_float'                => 1.0,
 					'textarea1'                   => 'textarea1_value',
 					'checkbox1'                   => 'checkbox1_value',
+					'checkbox_multi1'             => 'checkbox_multi1_value',
+					'select_multi1'               => 'select_multi1_value',
 					'select1'                     => 'select1_value'
 				),
 				array(
@@ -321,7 +331,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input3_integer_string'       => '3',
 					'input3_integer'              => 5,
 					'input4_float'                => 2,
-					'textarea1'                   => '<p>textarea1_updated_value</p>', // tags should be preserved
+					'textarea1'                   => '<p class="class">textarea1_updated_value</p>', // tags should be preserved
 					'select1'                     => 'select1_updated_value'
 				),
 				array(
@@ -332,8 +342,10 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input3_integer_string'       => 3,
 					'input3_integer'              => 5,
 					'input4_float'                => 2.0,
-					'textarea1'                   => '<p>textarea1_updated_value</p>',
+					'textarea1'                   => '<p class="class">textarea1_updated_value</p>',
 					'checkbox1'                   => '', // unchecked checkbox should be empty
+					'checkbox_multi1'             => array(), // unchecked multi-checkbox should be an empty array
+					'select_multi1'               => array(), // unchecked multi-select should be an empty array
 					'select1'                     => 'select1_updated_value'
 				)
 			)
