@@ -139,7 +139,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 	/**
 	 * @covers BWP_Option_Page_V3::register_custom_submit_action
 	 */
-	public function test_register_custom_action()
+	public function test_register_custom_action_correctly()
 	{
 		$this->assertEmpty(PHPUnit_Framework_Assert::readAttribute($this->op, 'form_actions'));
 
@@ -149,6 +149,62 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$this->assertEquals(array(
 			'flush', 'save'
 		), PHPUnit_Framework_Assert::readAttribute($this->op, 'form_actions'));
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::register_custom_submit_action
+	 * @dataProvider get_invalid_custom_action_callbacks
+	 */
+	public function test_register_custom_action_should_throw_exception_when_callback_is_not_callable($callback)
+	{
+		$this->setExpectedException('InvalidArgumentException', 'callback used for action "action" must be null or callable');
+
+		$this->op->register_custom_submit_action('action', $callback);
+	}
+
+	public function get_invalid_custom_action_callbacks()
+	{
+		return array(
+			array(false),
+			array('bwp_undefined_function'),
+			array(array($this, 'undefined_method'))
+		);
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::register_custom_submit_action
+	 */
+	public function test_register_custom_action_should_register_callback_as_well_if_callback_is_callable()
+	{
+		$callback = function() {};
+
+		$this->bridge
+			->shouldReceive('add_filter')
+			->with('bwp_option_page_custom_action_action', $callback, 10, 2)
+			->once();
+
+		$this->op->register_custom_submit_action('action', $callback);
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::register_custom_submit_actions
+	 */
+	public function test_register_custom_actions_correctly()
+	{
+		$actions = array(
+			'action1', 'action2'
+		);
+
+		$callback = function() {};
+
+		$this->bridge
+			->shouldReceive('add_filter')
+			->with('/^bwp_option_page_custom_action_action(1|2)$/', $callback, 10, 2)
+			->twice();
+
+		$this->op->register_custom_submit_actions($actions, $callback);
+
+		$this->assertEquals($actions, PHPUnit_Framework_Assert::readAttribute($this->op, 'form_actions'));
 	}
 
 	/**
@@ -572,7 +628,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		} else {
 			$this->bridge
 				->shouldReceive('apply_filters')
-				->with('bwp_option_page_custom_action_' . $post_action, true)
+				->with('bwp_option_page_custom_action_' . $post_action, true, $post_action)
 				->andReturn($redirect)
 				->byDefault();
 		}

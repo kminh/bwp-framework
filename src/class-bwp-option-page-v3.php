@@ -300,11 +300,33 @@ class BWP_Option_Page_V3
 	 * Register a custom submit action
 	 *
 	 * @param string $action the POST action
+	 * @param mixed $callback the callback to use for this action
 	 * @since rev 144
 	 */
-	public function register_custom_submit_action($action)
+	public function register_custom_submit_action($action, $callback = null)
 	{
+		if (!is_null($callback))
+		{
+			if (!is_callable($callback))
+				throw new InvalidArgumentException(sprintf('callback used for action "%s" must be null or callable', $action));
+
+			$this->bridge->add_filter('bwp_option_page_custom_action_' . $action, $callback, 10, 2);
+		}
+
 		$this->form_actions[] = $action;
+	}
+
+	/**
+	 * Register multiple custom submit actions
+	 *
+	 * @param array $actions the POST actions
+	 * @param mixed $callback the callback to use for all the actions, optional
+	 * @since rev 155
+	 */
+	public function register_custom_submit_actions(array $actions, $callback = null)
+	{
+		foreach ($actions as $action)
+			$this->register_custom_submit_action($action, $callback);
 	}
 
 	public function submit_html_form()
@@ -390,7 +412,7 @@ class BWP_Option_Page_V3
 					// basic security check
 					$this->bridge->check_admin_referer($this->form_name);
 
-					$redirect = $this->bridge->apply_filters('bwp_option_page_custom_action_' . $action, true);
+					$redirect = $this->bridge->apply_filters('bwp_option_page_custom_action_' . $action, true, $action);
 
 					if ($redirect !== false)
 						$this->plugin->safe_redirect();
