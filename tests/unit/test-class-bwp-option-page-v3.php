@@ -76,16 +76,64 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 
 	/**
 	 * @covers BWP_Option_Page_V3::add_form_container
+	 * @dataProvider get_test_add_form_container_cases
 	 */
-	public function test_add_form_container()
+	public function test_add_form_container(array $form, array $expected)
 	{
-		$this->op->init();
+		$this->op->init($form);
 		$this->op->add_form_container('h2', 'some text');
 
-		$this->assertEquals(array(
-			'container' => array('h2' => 'some text'),
-			'formats' => array()
-		), $this->op->get_form());
+		$this->assertArraySubset($expected, $this->op->get_form());
+	}
+
+	public function get_test_add_form_container_cases()
+	{
+		return array(
+			'form with container set for fields' => array(array(
+				'container' => array(
+					'h2' => ''
+				)
+			), array(
+				'container' => array('h2' => 'some text')
+			)),
+
+			'form without container set for fields' => array(array(
+				'container' => array()
+			), array(
+				'container' => array()
+			))
+		);
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::add_form_inline
+	 * @dataProvider get_test_add_form_inline_cases
+	 */
+	public function test_add_form_inline(array $form, array $expected)
+	{
+		$this->op->init($form);
+		$this->op->add_form_inline('input', 'some inline text');
+
+		$this->assertArraySubset($expected, $this->op->get_form());
+	}
+
+	public function get_test_add_form_inline_cases()
+	{
+		return array(
+			'form with inline set for fields' => array(array(
+				'inline' => array(
+					'input' => ''
+				)
+			), array(
+				'inline' => array('input' => 'some inline text')
+			)),
+
+			'form without inline set for fields' => array(array(
+				'inline' => array()
+			), array(
+				'inline' => array()
+			))
+		);
 	}
 
 	/**

@@ -134,29 +134,40 @@ class BWP_Option_Page_V3
 	}
 
 	/**
-	 * Add a container for a specific field of the current form
+	 * Add a container for a specific field of the currently active form
 	 *
 	 * @param string $name name of the field
 	 * @param string $container_data data of the container
+	 * @param bool $only_if_exist only add container if $name should have it, default to true
 	 */
-	public function add_form_container($name, $container_data)
+	public function add_form_container($name, $container_data, $only_if_exist = true)
 	{
 		if (!isset($this->form['container']) || !is_array($this->form['container']))
-		{
 			$this->form['container'] = array();
-		}
+
+		if ($only_if_exist && !isset($this->form['container'][$name]))
+			return;
 
 		$this->form['container'][$name] = $container_data;
 	}
 
-	public function get_form_name()
+	/**
+	 * Add inline contents to a specific field of the currently active form
+	 *
+	 * @param string $name name of the field
+	 * @param string $inline_data inline data to add
+	 * @param bool $only_if_exist only add inline data if $name should have
+	 *                            inline, default to true
+	 */
+	public function add_form_inline($name, $inline_data, $only_if_exist = true)
 	{
-		return $this->form_name;
-	}
+		if (!isset($this->form['inline']) || !is_array($this->form['inline']))
+			$this->form['inline'] = array();
 
-	public function get_form()
-	{
-		return $this->form;
+		if ($only_if_exist && !isset($this->form['inline'][$name]))
+			return;
+
+		$this->form['inline'][$name] = $inline_data;
 	}
 
 	public function set_current_tab($current_tab = 0)
