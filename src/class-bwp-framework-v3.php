@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 155;
+	public $revision = 157;
 
 	/**
 	 * Text domain
@@ -458,6 +458,7 @@ abstract class BWP_Framework_V3
 		$this->build_constants();
 		$this->init_update_plugin();
 		$this->init_build_options();
+		$this->init_shared_properties();
 		$this->init_properties();
 		$this->init_hooks();
 		$this->enqueue_media();
@@ -719,6 +720,11 @@ abstract class BWP_Framework_V3
 	}
 
 	protected function pre_init_properties()
+	{
+		/* intentionally left blank */
+	}
+
+	protected function init_shared_properties()
 	{
 		/* intentionally left blank */
 	}
@@ -1131,6 +1137,33 @@ abstract class BWP_Framework_V3
 	public function get_bridge()
 	{
 		return $this->bridge;
+	}
+
+	/**
+	 * Set cached value of a property
+	 *
+	 * @param string $key
+	 * @param mixed $value
+	 * @param bool $shared whether to share with other plugins
+	 * @uses wp_cache_set
+	 * @since rev 157
+	 */
+	public function set_cached_value($key, $value, $shared = false)
+	{
+		$this->bridge->wp_cache_set($key, $value, $shared ? 'bwp_plugins' : $this->plugin_key);
+	}
+
+	/**
+	 * Get cached value of a property
+	 *
+	 * @param string $key
+	 * @param bool $shared whether to get shared value
+	 * @uses wp_cache_get
+	 * @since rev 157
+	 */
+	public function get_cached_value($key, $shared = false)
+	{
+		return $this->bridge->wp_cache_get($key, $shared ? 'bwp_plugins' : $this->plugin_key);
 	}
 
 	public static function is_multisite()

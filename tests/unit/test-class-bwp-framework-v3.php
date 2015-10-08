@@ -55,6 +55,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->framework->shouldReceive('load_libraries')->byDefault();
 		$this->framework->shouldReceive('pre_init_hooks')->byDefault();
 		$this->framework->shouldReceive('build_constants')->byDefault();
+		$this->framework->shouldReceive('init_shared_properties')->byDefault();
 		$this->framework->shouldReceive('init_properties')->byDefault();
 		$this->framework->shouldReceive('init_hooks')->byDefault();
 		$this->framework->shouldReceive('enqueue_media')->byDefault();
@@ -236,6 +237,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 			$this->framework->shouldReceive('build_options')->globally()->ordered()->once();
 		}
 
+		$this->framework->shouldReceive('init_shared_properties')->globally()->ordered()->once();
 		$this->framework->shouldReceive('init_properties')->globally()->ordered()->once();
 		$this->framework->shouldReceive('init_hooks')->globally()->ordered()->once();
 		$this->framework->shouldReceive('enqueue_media')->globally()->ordered()->once();
