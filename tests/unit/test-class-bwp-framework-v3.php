@@ -173,6 +173,11 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->framework->shouldReceive('load_libraries')->ordered()->once();
 		$this->framework->shouldReceive('pre_init_hooks')->ordered()->once();
 
+		// mock this to test pre_init_actions() only
+		$this->framework
+			->shouldReceive('init_actions')
+			->byDefault();
+
 		$this->build_properties();
 	}
 
@@ -195,10 +200,16 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	public function test_init_actions_correctly_when_build_properties()
 	{
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_init_priority', 10)->andReturn(10)->byDefault();
+
 		$this->bridge->shouldReceive('add_action')->with('init', array($this->framework, 'build_wp_properties'), 10)->once();
 		$this->bridge->shouldReceive('add_action')->with('init', array($this->framework, 'init'), 10)->once();
 		$this->bridge->shouldReceive('add_action')->with('admin_init', array($this->framework, 'init_admin_page'), 1)->once();
 		$this->bridge->shouldReceive('add_action')->with('admin_menu', array($this->framework, 'init_admin_menu'), 1)->once();
+
+		// mock this to test init_actions() only
+		$this->framework
+			->shouldReceive('pre_init_actions')
+			->byDefault();
 
 		$this->build_properties();
 	}
@@ -207,7 +218,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	 * @covers BWP_Framework_V3::init
 	 * @dataProvider get_init_case
 	 */
-	public function test_init($options_changed)
+	public function test_init_cases($options_changed)
 	{
 		$this->framework->shouldReceive('pre_init_update_plugin')->byDefault();
 		$this->framework->shouldReceive('pre_init_build_options')->byDefault();
