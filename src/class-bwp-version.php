@@ -62,6 +62,12 @@ class BWP_Version
 	 */
 	public static function get_current_php_version_id($version = null)
 	{
+		// @since rev 157 PHP_VERSION_ID is only available since PHP 5.2.7
+		if (!defined('PHP_VERSION_ID')) {
+			$version = explode('.', PHP_VERSION);
+			define('PHP_VERSION_ID', $version[0] * 10000 + $version[1] * 100 + $version[2]);
+		}
+
 		return $version ? PHP_VERSION_ID >= (int) $version : PHP_VERSION_ID;
 	}
 }
