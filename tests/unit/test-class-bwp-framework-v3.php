@@ -266,8 +266,30 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->bridge->shouldReceive('get_option')->with('bwp_plugin_version')->andReturn($db_version)->byDefault();
 
 		if ($do_update) {
-			$action_hook = 'pre_init' == $when ? 'bwp_plugin_upgrade' : 'bwp_plugin_init_upgrade';
-			$this->bridge->shouldReceive('do_action')->with($action_hook, $db_version, $this->plugin_version)->once();
+			if ('pre_init' == $when) {
+				$action_hook = 'bwp_plugin_upgrade';
+
+				$this->framework
+					->shouldReceive('upgrade_plugin')
+					->with($db_version, $this->plugin_version)
+					->once()
+					->globally()
+					->ordered();
+			} else {
+				$action_hook = 'bwp_plugin_init_upgrade';
+
+				$this->framework
+					->shouldReceive('init_upgrade_plugin')
+					->with($db_version, $this->plugin_version)
+					->once()
+					->globally()
+					->ordered();
+			}
+
+			$this->bridge
+				->shouldReceive('do_action')
+				->with($action_hook, $db_version, $this->plugin_version)
+				->once();
 
 			// update the version in db if it's 'init_upgrade'
 			if ('init' == $when) {

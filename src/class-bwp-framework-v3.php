@@ -750,13 +750,20 @@ abstract class BWP_Framework_V3
 		$current_version = $this->plugin_ver;
 		$db_version = $this->bridge->get_option($this->plugin_key . '_version');
 
-		$action_hook = 'pre_init' == $when
-			? $this->plugin_key . '_upgrade'
-			: $this->plugin_key . '_init_upgrade';
-
 		if (!$db_version || version_compare($db_version, $current_version, '<'))
 		{
-			// fire an action to allow plugins to update themselves
+			if ('pre_init' == $when)
+			{
+				$action_hook = $this->plugin_key . '_upgrade';
+				$this->upgrade_plugin($db_version, $current_version);
+			}
+			else
+			{
+				$action_hook = $this->plugin_key . '_init_upgrade';
+				$this->init_upgrade_plugin($db_version, $current_version);
+			}
+
+			// fire an action when plugin updates itself
 			$this->bridge->do_action($action_hook, $db_version, $current_version);
 
 			// only mark as upgraded when this is init update
@@ -796,6 +803,22 @@ abstract class BWP_Framework_V3
 	}
 
 	public function uninstall()
+	{
+		/* intentionally left blank */
+	}
+
+	/**
+	 * @since rev 157
+	 */
+	public function upgrade_plugin($from, $to)
+	{
+		/* intentionally left blank */
+	}
+
+	/**
+	 * @since rev 157
+	 */
+	public function init_upgrade_plugin($from, $to)
 	{
 		/* intentionally left blank */
 	}
