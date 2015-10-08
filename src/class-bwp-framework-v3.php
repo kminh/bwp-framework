@@ -432,7 +432,7 @@ abstract class BWP_Framework_V3
 		$this->load_libraries();
 		$this->pre_init_hooks();
 
-		// Support installation and uninstallation
+		// support installation and uninstallation
 		$this->bridge->register_activation_hook($this->plugin_file, array($this, 'install'));
 		$this->bridge->register_deactivation_hook($this->plugin_file, array($this, 'uninstall'));
 	}
@@ -488,9 +488,12 @@ abstract class BWP_Framework_V3
 	protected function pre_init_build_constants()
 	{
 		// only build constants once
-		if (defined($this->plugin_ckey . '_PLUGIN_URL'))
+		if (defined($this->plugin_ckey . '_PLUGIN_DIR'))
 			return;
 
+		// absolute path to plugin folders
+		define($this->plugin_ckey . '_PLUGIN_DIR', dirname($this->plugin_file));
+		define($this->plugin_ckey . '_PLUGIN_SRC', dirname($this->plugin_file) . '/src');
 		// url to plugin bwp website
 		define($this->plugin_ckey . '_PLUGIN_URL', $this->plugin_url);
 		// the capability needed to configure this plugin
