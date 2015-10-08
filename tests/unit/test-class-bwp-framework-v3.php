@@ -680,6 +680,67 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		);
 	}
 
+	/**
+	 * @covers BWP_Framework_V3::get_current_timezone
+	 * @dataProvider get_wp_timezone_settings
+	 */
+	public function test_get_current_timezone_correctly($timezone_string, $gmt_offset, $is_greater_than_php_50200, $expected)
+	{
+		$this->bridge
+			->shouldReceive('wp_cache_get')
+			->andReturn(false)
+			->byDefault();
+
+		$this->bridge
+			->shouldReceive('get_option')
+			->with('timezone_string')
+			->andReturn($timezone_string)
+			->byDefault();
+
+		$this->framework
+			->shouldReceive('get_current_php_version')
+			->with('5.2.0')
+			->andReturn($is_greater_than_php_50200)
+			->byDefault();
+
+		$this->bridge
+			->shouldReceive('get_option')
+			->with('gmt_offset')
+			->andReturn($gmt_offset)
+			->byDefault();
+
+		$this->assertEquals($expected, $this->framework->get_current_timezone());
+	}
+
+	public function get_wp_timezone_settings()
+	{
+		return array(
+			array('Asia/Bangkok', false, true, new DateTimeZone('Asia/Bangkok')),
+			array('bad timezone string', false, true, new DateTimeZone('UTC')),
+			array('bad timezone string', false, false, new DateTimeZone('UTC')),
+
+			'integer offset' => array(false, 7, true,   new DateTimeZone('Asia/Almaty')),
+			'float offset'   => array(false, 7.5, true, new DateTimeZone('Asia/Brunei')),
+			'invalid offset' => array(false, 7.7, true, new DateTimeZone('UTC')),
+			'php < 5.2.0'    => array(false, 7, false,  new DateTimeZone('UTC')),
+		);
+	}
+
+	/**
+	 * @covers BWP_Framework_V3::get_current_timezone
+	 */
+	public function test_get_current_timezone_should_return_cached_timezone_when_possible()
+	{
+		$timezone = new DateTimeZone('UTC');
+
+		$this->bridge
+			->shouldReceive('wp_cache_get')
+			->andReturn($timezone)
+			->byDefault();
+
+		$this->assertEquals($timezone, $this->framework->get_current_timezone());
+	}
+
 	protected function build_properties(array $options = array())
 	{
 		$reflection = new ReflectionClass('BWP_Framework_V3');

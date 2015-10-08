@@ -724,9 +724,12 @@ abstract class BWP_Framework_V3
 		/* intentionally left blank */
 	}
 
+	/**
+	 * Init properties that are shared across different plugins
+	 */
 	protected function init_shared_properties()
 	{
-		/* intentionally left blank */
+		$this->set_cached_value('timezone', $this->get_current_timezone(), true);
 	}
 
 	protected function init_properties()
@@ -1164,6 +1167,59 @@ abstract class BWP_Framework_V3
 	public function get_cached_value($key, $shared = false)
 	{
 		return $this->bridge->wp_cache_get($key, $shared ? 'bwp_plugins' : $this->plugin_key);
+	}
+
+	/**
+	 * Get current timezone set by user
+	 *
+	 * @return DateTimeZone
+	 * @since rev 157
+	 */
+	public function get_current_timezone()
+	{
+		if ($timezone = $this->get_cached_value('timezone', true))
+			return $timezone;
+
+		// use timezone_string if set
+		if ($timezone_string = $this->bridge->get_option('timezone_string'))
+		{
+			try {
+				return new DateTimeZone($timezone_string);
+			} catch (Exception $e) {
+				// continue finding the timezone
+			}
+		}
+
+		$timezone_offset = (float) $this->bridge->get_option('gmt_offset');
+
+		// before PHP 5.2 it's impossible to get timezone from offset, return
+		// UTC here if PHP version not > 5.2.0, or there's no offset set
+		// @todophp remove this when dropping support for PHP < 5.3.2
+		if (!$this->get_current_php_version('5.2.0') || empty($timezone_offset))
+			return new DateTimeZone('UTC');
+
+		// create DateTimeZone from offset converted to hours in minute format
+		$timezone_offset = (int) (3600 * $timezone_offset);
+		$timezones = DateTimeZone::listAbbreviations();
+
+		foreach ($timezones as $timezone)
+		{
+			foreach ($timezone as $city)
+			{
+				if ($city['offset'] === $timezone_offset)
+				{
+					try {
+						return new DateTimeZone($city['timezone_id']);
+					} catch (Exception $e) {
+						// failed, return UTC
+						return new DateTimeZone('UTC');
+					}
+				}
+			}
+		}
+
+		// as last effort, return UTC
+		return new DateTimeZone('UTC');
 	}
 
 	public static function is_multisite()
