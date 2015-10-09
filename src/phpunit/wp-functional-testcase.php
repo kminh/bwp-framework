@@ -40,12 +40,24 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		static::prepare_cache_directory();
 		static::prepare_asset_directories();
 
-		// each test can require different plugins loaded (such as different
-		// fixtures), so we need to call load_plugins() here again. This will
-		// not load the plugin under test again if it is already loaded.
 		$this->load_plugins();
 
-		$this->prepare_default_values();
+		parent::setUp();
+	}
+
+	/**
+	 * Prepares the WP environment, but for current request only
+	 *
+	 * This means we don't need to prepare config and htaccess stuff
+	 */
+	public function setUpForCurrentRequest()
+	{
+		$this->bootstrap_plugin();
+
+		static::prepare_cache_directory();
+		static::prepare_asset_directories();
+
+		$this->load_plugins();
 
 		parent::setUp();
 	}
@@ -272,29 +284,7 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	}
 
 	/**
-	 * Get current WP version
-	 *
-	 * If a WP version is provided as the first parameter, check if the
-	 * current WP version is greater than or equal to that provided version
-	 *
-	 * @return mixed
-	 */
-	protected static function get_wp_version($version = '')
-	{
-		$current_version = get_bloginfo('version');
-		return !$version ? $current_version : version_compare($current_version, $version, '>=');
-	}
-
-	/**
-	 * @return string
-	 */
-	protected static function uniqid()
-	{
-		return md5(uniqid(rand(), true));
-	}
-
-	/**
-	 * Prepare default values including options and active plugins
+	 * {@inheritDoc}
 	 */
 	protected function prepare_default_values()
 	{

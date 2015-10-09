@@ -26,15 +26,13 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	abstract public function get_plugins();
 
 	/**
-	 * Load plugins into their places
+	 * Prepare plugin directories
 	 *
-	 * This should include the plugin codes as well as create symlinks to the
-	 * plugins' folders from `wp-content/plugins` directory so that they can
-	 * be activated and used later on
-	 *
-	 * This function is safe to be called several times.
+	 * This should create symlinks to the plugins' folders from
+	 * `wp-content/plugins` directory so that they can be activated and used
+	 * later on
 	 */
-	public function load_plugins()
+	public function prepare_plugin_directories()
 	{
 		global $_core_dir;
 
@@ -47,7 +45,20 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 			if (!file_exists($symlink)) {
 				exec('ln -s ' . escapeshellarg($target) . ' ' . escapeshellarg($symlink));
 			}
+		}
+	}
 
+	/**
+	 * Load all required plugins in order to test the plugin under test
+	 *
+	 * This only loads actual plugins, not fixtures. This also sets default
+	 * values (WP options and plugin options) for testing.
+	 */
+	public function load_plugins()
+	{
+		$plugins = $this->get_plugins();
+
+		foreach ($plugins as $plugin_file => $plugin_path) {
 			// dont include fixtures because they are not actually plugins
 			if (stripos($plugin_file, 'fixtures') !== false) {
 				continue;
@@ -55,6 +66,9 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 
 			include_once $plugin_file;
 		}
+
+		// always prepare default values after all required plugins are loaded
+		$this->prepare_default_values();
 	}
 
 	protected function bootstrap_plugin()
@@ -64,8 +78,12 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 		if (!function_exists('tests_add_filter')) {
 			require_once $_tests_dir . '/includes/functions.php';
 
+			// prepare plugin directories for the current session and any
+			// following requests
+			tests_add_filter('muplugins_loaded', array($this, 'prepare_plugin_directories'));
+
 			// load plugin to use within this session, NOT for the next request
-			tests_add_filter('muplugins_loaded', array($this, 'load_plugins'));
+			tests_add_filter('pre_option_active_plugins', array($this, 'get_plugins'));
 
 			// bootstrap WordPress itself, this should provides the WP environment and
 			// drop/recreate tables
@@ -93,5 +111,13 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	protected static function uniqid()
 	{
 		return md5(uniqid(rand(), true));
+	}
+
+	/**
+	 * Prepare default values including options and active plugins
+	 */
+	protected function prepare_default_values()
+	{
+		// to be implemented in child testcases
 	}
 }
