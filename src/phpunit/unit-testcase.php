@@ -23,7 +23,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 	{
 		$this->bridge = Mockery::mock('BWP_WP_Bridge');
 
-		$plugin_wp_url = 'http://example.com/wp-content/plugins/' . $this->plugin_slug . '/';
+		$plugin_slug   = $this->plugin_slug;
+		$plugin_wp_url = 'http://example.com/wp-content/plugins/' . $plugin_slug . '/';
 
 		$this->bridge->shouldReceive('plugins_url')->andReturnUsing(function() use ($plugin_wp_url) {
 			return $plugin_wp_url;
@@ -35,8 +36,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 
 		$this->bridge
 			->shouldReceive('plugin_dir_path')
-			->andReturnUsing(function() {
-				return '/path/to/wordpress/wp-content/plugins/' . $this->plugin_slug . '/';
+			->andReturnUsing(function() use ($plugin_slug) {
+				return '/path/to/wordpress/wp-content/plugins/' . $plugin_slug . '/';
 			})
 			->byDefault();
 
