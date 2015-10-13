@@ -374,8 +374,16 @@ class BWP_Option_Page_V3
 		// form name
 		$form_name = $this->bridge->apply_filters('bwp_option_page_submit_form_name', $this->form_name);
 
+		// save $_POST options for later use
+		$post_options = $options;
+
 		// allow filtering the options that are going to be updated
 		$options = $this->bridge->apply_filters('bwp_option_page_submit_options', $options);
+
+		// always refresh the options for the form, so that form fields will
+		// correctly show user-submitted values, use original options from
+		// $_POST if $options is not valid after being filtered
+		$this->form_options = array_merge($this->form_options, $options ? $options : $post_options);
 
 		// allow plugin to return false or non-array to not update any options at all
 		if ($options === false || !is_array($options))
@@ -386,9 +394,6 @@ class BWP_Option_Page_V3
 
 		// update site options
 		$this->plugin->update_site_options($form_name, $options);
-
-		// refresh the options for the form
-		$this->form_options = array_merge($this->form_options, $options);
 
 		return true;
 	}

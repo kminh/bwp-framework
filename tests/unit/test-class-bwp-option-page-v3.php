@@ -549,31 +549,67 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 	 * @covers BWP_Option_Page_V3::submit_html_form
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
+	 * @dataProvider get_form_options_with_filtered_options
 	 */
-	public function test_submit_html_form_should_allow_filtering_submitted_options_before_updating()
+	public function test_submit_html_form_should_allow_filtering_submitted_options_before_updating($form_options, $post_options, $filtered_form_options)
 	{
-		$form_options = array(
-			'input3'            => 'input3_value',
-			'input4'            => 'input4_value',
-			'input_site_option' => 'input_site_option_value'
-		);
-
-		$post_options = array(
-			'input3'            => 'input3_value_updated',
-			'input4'            => 'input4_value_updated',
-			'input_site_option' => 'input_site_option_value_updated'
-		);
-
 		foreach ($post_options as $name => $value) {
 			$_POST[$name] = $value;
 		}
 
-		$filtered_form_options = array(
-			'input4'             => 'input4_value_updated_filtered',
-			'input5'             => 'input5_value',
-			'input6'             => 'input6_value',
-			'input_site_option2' => 'input_site_option2_value'
+		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
+
+		$this->plugin
+			->shouldReceive('get_options_by_keys')
+			->with(Mockery::type('array'))
+			->andReturn($form_options)
+			->byDefault();
+
+		$merged_options = array_merge($post_options, $filtered_form_options);
+
+		$this->bridge
+			->shouldReceive('apply_filters')
+			->with('bwp_option_page_submit_options', $post_options)
+			->andReturn($merged_options)
+			->byDefault();
+
+		$util = Mockery::mock('alias:BWP_Framework_Util');
+		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
+		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
+
+		// should update filtered options
+		$this->plugin
+			->shouldReceive('update_options')
+			->with($this->form_name, $merged_options)
+			->once();
+
+		// should update filtered site options
+		$this->plugin
+			->shouldReceive('update_site_options')
+			->with($this->form_name, $merged_options)
+			->once();
+
+		$this->op->init(array(), array('input3', 'input4', 'input_site_option'));
+		$this->op->submit_html_form();
+
+		$this->assertEquals(
+			$merged_options, PHPUnit_Framework_Assert::readAttribute($this->op, 'form_options'), 'should update form options with merged options'
 		);
+
+		$_POST = array();
+	}
+
+	/**
+	 * @covers BWP_Option_Page_V3::submit_html_form
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider get_form_options_with_filtered_options
+	 */
+	public function test_submit_html_form_should_update_form_options_with_post_options_if_filtered_options_is_invalid($form_options, $post_options)
+	{
+		foreach ($post_options as $name => $value) {
+			$_POST[$name] = $value;
+		}
 
 		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
 
@@ -586,29 +622,43 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$this->bridge
 			->shouldReceive('apply_filters')
 			->with('bwp_option_page_submit_options', $post_options)
-			->andReturn(array_merge($post_options, $filtered_form_options))
+			->andReturn(false)
 			->byDefault();
 
 		$util = Mockery::mock('alias:BWP_Framework_Util');
 		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
 		$util->shouldReceive('is_site_admin')->andReturn(true)->byDefault();
 
-		// should update filtered options
-		$this->plugin
-			->shouldReceive('update_options')
-			->with($this->form_name, array_merge($post_options, $filtered_form_options))
-			->once();
-
-		// should update filtered site options
-		$this->plugin
-			->shouldReceive('update_site_options')
-			->with($this->form_name, array_merge($post_options, $filtered_form_options))
-			->once();
-
 		$this->op->init(array(), array('input3', 'input4', 'input_site_option'));
 		$this->op->submit_html_form();
 
+		$this->assertEquals(
+			$post_options, PHPUnit_Framework_Assert::readAttribute($this->op, 'form_options'), 'should update form options with post options'
+		);
+
 		$_POST = array();
+	}
+
+	public function get_form_options_with_filtered_options()
+	{
+		return array(array(
+			array(
+				'input3'            => 'input3_value',
+				'input4'            => 'input4_value',
+				'input_site_option' => 'input_site_option_value'
+			),
+			array(
+				'input3'            => 'input3_value_updated',
+				'input4'            => 'input4_value_updated',
+				'input_site_option' => 'input_site_option_value_updated'
+			),
+			array(
+				'input4'             => 'input4_value_updated_filtered',
+				'input5'             => 'input5_value',
+				'input6'             => 'input6_value',
+				'input_site_option2' => 'input_site_option2_value'
+			)
+		));
 	}
 
 	/**
