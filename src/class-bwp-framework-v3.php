@@ -530,12 +530,16 @@ abstract class BWP_Framework_V3
 			define($this->plugin_ckey . '_JS',
 				$this->bridge->apply_filters($this->plugin_key . '_js_path',
 				$this->plugin_wp_url . 'assets/js'));
+			define($this->plugin_ckey . '_DIST',
+				$this->bridge->apply_filters($this->plugin_key . '_dist_path',
+				$this->plugin_wp_url . 'assets/dist'));
 		}
 		else
 		{
 			define($this->plugin_ckey . '_IMAGES', $this->plugin_wp_url . 'assets/images');
 			define($this->plugin_ckey . '_CSS', $this->plugin_wp_url . 'assets/css');
 			define($this->plugin_ckey . '_JS', $this->plugin_wp_url . 'assets/js');
+			define($this->plugin_ckey . '_DIST', $this->plugin_wp_url . 'assets/dist');
 		}
 	}
 
@@ -792,6 +796,59 @@ abstract class BWP_Framework_V3
 		/* intentionally left blank */
 	}
 
+	/**
+	 * Get correct media src based on WP_DEBUG
+	 *
+	 * @param string $dev_src the source used in development environment
+	 * @param string $prod_src the source used in production environment, this
+	 *                         will be used instead of replacing $dev_src's
+	 *                         extension when provided
+	 * @return string
+	 */
+	protected function get_src_by_environment($dev_src, $prod_src = null)
+	{
+		return defined('WP_DEBUG') && WP_DEBUG
+			? $dev_src : ($prod_src
+				? $prod_src
+				: str_replace(
+					array('.js', '.css'),
+					array('.min.js', '.min.css'),
+					$dev_src
+				));
+	}
+
+	/**
+	 * Register a BWP media file
+	 *
+	 * @param string $prod_src the source to use when debug is off
+	 */
+	protected function register_media_file($handle, $src, array $deps = array(), $version = false, $prod_src = null)
+	{
+		$method = strpos($src, '.js') !== false ? 'wp_register_script' : 'wp_register_style';
+		$group  = strpos($src, '.js') !== false ? true : 'all'; // in footer or 'all' media
+
+		$this->bridge->$method(
+			$handle, $this->get_src_by_environment($src, $prod_src),
+			$deps, $version ? $version : $this->plugin_ver, $group
+		);
+	}
+
+	/**
+	 * Enqueue a BWP media file
+	 *
+	 * @param string $prod_src the source to use when debug is off
+	 */
+	protected function enqueue_media_file($handle, $src, array $deps = array(), $version = false, $prod_src = null)
+	{
+		$method = strpos($src, '.js') !== false ? 'wp_enqueue_script' : 'wp_enqueue_style';
+		$group  = strpos($src, '.js') !== false ? true : 'all'; // in footer or 'all' media
+
+		$this->bridge->$method(
+			$handle, $this->get_src_by_environment($src, $prod_src),
+			$deps, $version ? $version : $this->plugin_ver, $group
+		);
+	}
+
 	protected function enqueue_media()
 	{
 		/* intentionally left blank */
@@ -938,18 +995,19 @@ abstract class BWP_Framework_V3
 			// build tabs
 			$this->build_tabs();
 
+			$asset_url = $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page';
+
 			// enqueue style sheets and scripts for the option page
-			$this->bridge->wp_enqueue_style(
-				'bwp-option-page',
-				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/css/bwp-option-page.css',
+			$this->enqueue_media_file('bwp-option-page',
+				$asset_url . '/css/style.css',
 				self::is_multisite() || class_exists('JCP_UseGoogleLibraries') ? array('wp-admin') : array(),
-				'1.1.0'
+				$this->revision,
+				$asset_url . '/dist/css/op.min.css'
 			);
 
-			$this->bridge->wp_enqueue_script(
-				'bwp-paypal-js',
-				$this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/js/paypal.js',
-				array('jquery')
+			$this->enqueue_media_file('bwp-paypal-js',
+				$asset_url . '/js/paypal.js', array('jquery'), $this->revision,
+				$asset_url . '/js/paypal.js'
 			);
 		}
 

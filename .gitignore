@@ -1,4 +1,6 @@
 /.project
 /.buildpath
 /.settings
+bower_components/
+node_modules/
 vendor/
