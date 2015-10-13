@@ -1,25 +1,34 @@
 {
-    "name": "BWP_Framework",
-    "version": "3.0.12",
-    "config": {
-        "phpunit_suite": ""
-    },
-    "scripts": {
-        "clear:wp:phpunit": "rm -rf ${WP_TMP_DIR-'/tmp'}/wordpress-*",
-        "test:php": "phpunit --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
-        "test:php:legacy": "phpunit --stderr -c phpunit_php52.xml",
-        "test:php:functional": "npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
-        "test:php:functional:3.7": "export WP_VERSION=3.7 && npm run test:php:functional",
-        "test:php:functional:stable": "export WP_VERSION=latest && npm run test:php:functional",
-        "test:php:functional:beta": "echo 'No beta version'",
-        "test:php:functional:all": "npm run test:php:functional:stable && npm run test:php:functional:3.7 && npm run test:php:functional:beta",
-        "test:php:unit": "npm run test:php --BWP_Framework:phpunit_suite='unit'",
-        "test:php:stable": "npm run test:php:unit && npm run test:php:functional:stable",
-        "test:php:all": "npm run test:php:unit && npm run test:php:functional:all",
-        "test": "npm run test:php:stable",
-        "build": "export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:all",
-        "build:legacy": "export PHPUNIT_CMD='test:php:legacy' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:functional:all",
-        "build:php55": "export PHPUNIT_CMD='test:php' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm test",
-        "update": "php composer update"
-    }
+  "name": "BWP_Framework",
+  "version": "3.1.0",
+  "config": {
+    "phpunit_suite": ""
+  },
+  "scripts": {
+    "clear:wp:phpunit": "rm -rf ${WP_TMP_DIR-'/tmp'}/wordpress-*",
+    "test:php": "phpunit --stderr --testsuite \"$npm_package_config_phpunit_suite\"",
+    "test:php:legacy": "phpunit --stderr -c phpunit_php52.xml",
+    "test:php:functional": "npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
+    "test:php:functional:3.7": "export WP_VERSION=3.7 && npm run test:php:functional",
+    "test:php:functional:stable": "export WP_VERSION=latest && npm run test:php:functional",
+    "test:php:functional:beta": "echo 'No beta version'",
+    "test:php:functional:all": "npm run test:php:functional:stable && npm run test:php:functional:3.7 && npm run test:php:functional:beta",
+    "test:php:unit": "npm run test:php --BWP_Framework:phpunit_suite='unit'",
+    "test:php:stable": "npm run test:php:unit && npm run test:php:functional:stable",
+    "test:php:all": "npm run test:php:unit && npm run test:php:functional:all",
+    "test": "npm run test:php:stable",
+    "build:assets:js": "uglifyjs assets/option-page/js/toggle.js -m -o assets/option-page/dist/js/op.min.js",
+    "build:assets:css": "cleancss assets/option-page/css/style.css -o assets/option-page/dist/css/op.min.css",
+    "build:assets": "npm run build:assets:js && npm run build:assets:css",
+    "prebuild": "npm run build:assets",
+    "build": "npm run test:php:all",
+    "build:ci": "export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:all",
+    "build:legacy": "export PHPUNIT_CMD='test:php:legacy' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:functional:all",
+    "build:php55": "export PHPUNIT_CMD='test:php' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm test",
+    "update": "php composer update"
+  },
+  "devDependencies": {
+    "clean-css": "^3.4.5",
+    "uglifyjs": "^2.4.10"
+  }
 }
