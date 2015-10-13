@@ -133,4 +133,38 @@ class BWP_Framework_Util
 
 		return false;
 	}
+
+	/**
+	 * Get a variable with a specific key from $_REQUEST
+	 *
+	 * This should sanitize the variable's value before returning it.
+	 *
+	 * @param string $key
+	 * @param bool $empty_as_null consider empty value as null. Should check
+	 *                            the sanitized value.
+	 * @return mixed|null null if $key is not set
+	 */
+	public static function get_request_var($key, $empty_as_null = true)
+	{
+		if (!isset($_REQUEST[$key]))
+			return null;
+
+		$value = $_REQUEST[$key];
+
+		if (is_array($value))
+		{
+			$value = array_map('stripslashes', $value);
+			$value = array_map('strip_tags', $value);
+			$value = array_map('trim', $value);
+		}
+		else
+		{
+			$value = trim(strip_tags(stripslashes($value)));
+		}
+
+		if ($empty_as_null && empty($value))
+			return null;
+
+		return $value;
+	}
 }

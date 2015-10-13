@@ -97,4 +97,38 @@ class BWP_Framework_Util_Test extends \PHPUnit_Framework_TestCase
 			array(true, true, 1, true),
 		);
 	}
+
+	/**
+	 * @covers BWP_Framework_Util::get_request_var
+	 * @dataProvider get_test_request_var_cases
+	 */
+	public function test_get_request_var($key, $value, $expected, $empty_as_null = true)
+	{
+		$_REQUEST[$key] = $value;
+
+		$this->assertEquals($expected, BWP_Framework_Util::get_request_var($key, $empty_as_null));
+	}
+
+	public function get_test_request_var_cases()
+	{
+		return array(
+			// scalar values
+			array('var', 'value', 'value'),
+			array('var', " v\'alue <strong>", 'v\'alue'),
+			array('var', '<strong>', null),
+			array('var', '<strong>', '', false),
+			array('var', 1, 1),
+			array('var', 0, 0),
+
+			// array values
+			array('var', array(
+				'value', " v\'alue <strong>", '<strong>'
+			), array(
+				'value', "v'alue", ''
+			)),
+
+			array('var', array(), null),
+			array('var', array(), array(), false)
+		);
+	}
 }
