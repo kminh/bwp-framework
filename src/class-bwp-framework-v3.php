@@ -461,6 +461,7 @@ abstract class BWP_Framework_V3
 		$this->init_shared_properties();
 		$this->init_properties();
 		$this->init_hooks();
+		$this->register_framework_media();
 		$this->enqueue_media();
 
 		$this->bridge->do_action($this->plugin_key . '_loaded');
@@ -846,6 +847,45 @@ abstract class BWP_Framework_V3
 		$this->bridge->$method(
 			$handle, $this->get_src_by_environment($src, $prod_src),
 			$deps, $version ? $version : $this->plugin_ver, $group
+		);
+	}
+
+	/**
+	 * Register some framework media that plugins can depend on anytime
+	 */
+	protected function register_framework_media()
+	{
+		$asset_url = $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets';
+
+		$this->register_media_file('bwp-placeholders',
+			$asset_url . '/vendor/placeholders/placeholders.js',
+			array(), $this->revision
+		);
+
+		$this->register_media_file('bwp-select2',
+			$asset_url . '/vendor/select2/js/select2.js',
+			array('bwp-placeholders'), $this->revision
+		);
+
+		$this->register_media_file('bwp-select2',
+			$asset_url . '/vendor/select2/css/select2.css',
+			array('wp-admin'), $this->revision
+		);
+
+		$this->register_media_file('bwp-datatables',
+			$asset_url . '/vendor/datatables/js/jquery.dataTables.js',
+			array('jquery'), $this->revision
+		);
+
+		$this->register_media_file('bwp-datatables',
+			$asset_url . '/vendor/datatables/css/jquery.dataTables.css',
+			array(), $this->revision
+		);
+
+		$this->register_media_file('bwp-op-toggle',
+			$asset_url . '/option-page/js/toggle.js',
+			array('jquery'), $this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js'
 		);
 	}
 
