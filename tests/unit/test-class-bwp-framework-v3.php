@@ -11,6 +11,8 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 {
 	protected $bridge;
 
+	protected $cache;
+
 	protected $default_options;
 
 	protected $plugin_file;
@@ -35,6 +37,8 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->bridge->shouldReceive('load_plugin_textdomain')->byDefault();
 		$this->bridge->shouldReceive('wp_unslash')->byDefault();
 
+		$this->cache = Mockery::mock('BWP_Cache');
+
 		$this->plugin_version = '1.2.0';
 
 		$this->framework = Mockery::mock('BWP_Framework_V3', array(
@@ -44,7 +48,9 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 				'wp_version'  => '4.0',
 				'php_version' => '5.4',
 				'domain'      => 'bwp-plugin'
-			), $this->bridge
+			),
+			$this->bridge,
+			$this->cache
 		))
 		->makePartial()
 		->shouldAllowMockingProtectedMethods();
@@ -58,6 +64,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->framework->shouldReceive('init_shared_properties')->byDefault();
 		$this->framework->shouldReceive('init_properties')->byDefault();
 		$this->framework->shouldReceive('init_hooks')->byDefault();
+		$this->framework->shouldReceive('register_framework_media')->byDefault();
 		$this->framework->shouldReceive('enqueue_media')->byDefault();
 
 		$this->default_options = array(
@@ -708,8 +715,8 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	 */
 	public function test_get_current_timezone_correctly($timezone_string, $gmt_offset, $is_greater_than_php_50200, $expected)
 	{
-		$this->bridge
-			->shouldReceive('wp_cache_get')
+		$this->cache
+			->shouldReceive('get')
 			->andReturn(false)
 			->byDefault();
 
@@ -755,8 +762,8 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	{
 		$timezone = new DateTimeZone('UTC');
 
-		$this->bridge
-			->shouldReceive('wp_cache_get')
+		$this->cache
+			->shouldReceive('get')
 			->andReturn($timezone)
 			->byDefault();
 

@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 157;
+	public $revision = 158;
 
 	/**
 	 * Text domain
@@ -177,13 +177,24 @@ abstract class BWP_Framework_V3
 	protected $bridge;
 
 	/**
+	 * Cache for plugins
+	 *
+	 * @var BWP_Cache
+	 * @since rev 158
+	 */
+	protected $cache;
+
+	/**
 	 * Construct a new plugin with appropriate meta
 	 *
 	 * @param array $meta
 	 * @param BWP_WP_Bridge $bridge optional, default to null
 	 * @since rev 142
 	 */
-	public function __construct(array $meta, BWP_WP_Bridge $bridge = null)
+	public function __construct(
+		array $meta,
+		BWP_WP_Bridge $bridge = null,
+		BWP_Cache $cache = null)
 	{
 		$required = array(
 			'title', 'version', 'domain'
@@ -206,6 +217,7 @@ abstract class BWP_Framework_V3
 		$this->domain = $meta['domain'];
 
 		$this->bridge = $bridge ? $bridge : new BWP_WP_Bridge();
+		$this->cache  = $cache  ? $cache  : new BWP_Cache($this->bridge, $this->plugin_key);
 	}
 
 	/**
@@ -734,7 +746,7 @@ abstract class BWP_Framework_V3
 	 */
 	protected function init_shared_properties()
 	{
-		$this->set_cached_value('timezone', $this->get_current_timezone(), true);
+		$this->cache->set('timezone', $this->get_current_timezone(), true);
 	}
 
 	protected function init_properties()
@@ -1264,30 +1276,11 @@ abstract class BWP_Framework_V3
 	}
 
 	/**
-	 * Set cached value of a property
-	 *
-	 * @param string $key
-	 * @param mixed $value
-	 * @param bool $shared whether to share with other plugins
-	 * @uses wp_cache_set
-	 * @since rev 157
+	 * @return BWP_Cache
 	 */
-	public function set_cached_value($key, $value, $shared = false)
+	public function get_cache()
 	{
-		$this->bridge->wp_cache_set($key, $value, $shared ? 'bwp_plugins' : $this->plugin_key);
-	}
-
-	/**
-	 * Get cached value of a property
-	 *
-	 * @param string $key
-	 * @param bool $shared whether to get shared value
-	 * @uses wp_cache_get
-	 * @since rev 157
-	 */
-	public function get_cached_value($key, $shared = false)
-	{
-		return $this->bridge->wp_cache_get($key, $shared ? 'bwp_plugins' : $this->plugin_key);
+		return $this->cache;
 	}
 
 	/**
@@ -1298,7 +1291,7 @@ abstract class BWP_Framework_V3
 	 */
 	public function get_current_timezone()
 	{
-		if ($timezone = $this->get_cached_value('timezone', true))
+		if ($timezone = $this->cache->get('timezone', true))
 			return $timezone;
 
 		// use timezone_string if set
