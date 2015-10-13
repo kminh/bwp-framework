@@ -536,6 +536,16 @@ class BWP_Option_Page_V3
 		$pre   = !empty($data['pre']) ? $data['pre'] : '';
 		$post  = !empty($data['post']) ? $data['post'] : '';
 
+		$attributes = isset($this->form['attributes'][$name])
+			&& is_array($this->form['attributes'][$name])
+			? $this->form['attributes'][$name] : array();
+
+		foreach ($attributes as $attribute_name => &$attribute)
+			$attribute = esc_html($attribute_name) . '="' . esc_attr($attribute) . '"';
+
+		$attributes = implode(' ', $attributes);
+		$attributes = !empty($attributes) ? $attributes . ' ' : '';
+
 		$param = empty($this->form['params'][$name])
 			? false : $this->form['params'][$name];
 
@@ -562,8 +572,8 @@ class BWP_Option_Page_V3
 			case 'select':
 			case 'select_multi':
 				$pre_html_field = 'select_multi' == $type
-					? '%pre%<select id="' . $name_attr . '" name="' . $name_attr . '[]" multiple>' . "\n"
-					: '%pre%<select id="' . $name_attr . '" name="' . $name_attr . '">' . "\n";
+					? '%pre%<select %attributes%id="' . $name_attr . '" name="' . $name_attr . '[]" multiple>' . "\n"
+					: '%pre%<select %attributes%id="' . $name_attr . '" name="' . $name_attr . '">' . "\n";
 
 				$html_field = '<option %selected%value="%value%">%option%</option>';
 
@@ -572,16 +582,16 @@ class BWP_Option_Page_V3
 
 			case 'checkbox':
 				$html_field = '<label for="%name%">'
-					. '<input %checked%type="checkbox" id="%name%" name="%name%" value="yes" /> %label%</label>';
+					. '<input %attributes%%checked%type="checkbox" id="%name%" name="%name%" value="yes" /> %label%</label>';
 			break;
 
 			case 'checkbox_multi':
 				$html_field = '<label for="%name%-%value%">'
-					. '<input %checked%type="checkbox" id="%name%-%value%" name="%name%[]" value="%value%" /> %label%</label>';
+					. '<input %attributes%%checked%type="checkbox" id="%name%-%value%" name="%name%[]" value="%value%" /> %label%</label>';
 			break;
 
 			case 'radio':
-				$html_field = '<label>' . '<input %checked%type="radio" '
+				$html_field = '<label>' . '<input %attributes%%checked%type="radio" '
 					. 'name="' . $name_attr . '" value="%value%" /> %label%</label>';
 			break;
 
@@ -612,8 +622,8 @@ class BWP_Option_Page_V3
 					if ($this->form_options[$name] == 'yes')
 					{
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $name_attr, $key, $checked),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
+							array($value, $name_attr, $key, $checked, $attributes),
 							$html_field
 						);
 
@@ -623,8 +633,8 @@ class BWP_Option_Page_V3
 					else
 					{
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $name_attr, $key, ''),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
+							array($value, $name_attr, $key, '', $attributes),
 							$html_field
 						);
 
@@ -640,8 +650,8 @@ class BWP_Option_Page_V3
 						&& in_array($value, $this->form_options[$name])
 					) {
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $name_attr, $key, $checked),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
+							array($value, $name_attr, $key, $checked, $attributes),
 							$html_field
 						);
 
@@ -651,8 +661,8 @@ class BWP_Option_Page_V3
 					else
 					{
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%'),
-							array($value, $name_attr, $key, ''),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
+							array($value, $name_attr, $key, '', $attributes),
 							$html_field
 						);
 
@@ -717,6 +727,9 @@ class BWP_Option_Page_V3
 		$post = !empty($this->form['post'][$name])
 			? ' ' . $this->form['post'][$name]
 			: $post;
+
+		// support for custom html attributes
+		$pre_html_field = str_replace('%attributes%', $attributes, $pre_html_field);
 
 		return str_replace('%pre%', $pre, $pre_html_field) . $return_html . str_replace('%post%', $post, $post_html_field) . $inline_html;
 	}
