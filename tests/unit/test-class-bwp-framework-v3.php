@@ -511,7 +511,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	 * @covers BWP_Framework_V3::update_some_options
 	 * @dataProvider get_update_some_options_data
 	 */
-	public function test_update_some_options($db_options, $new_options, $update)
+	public function test_update_some_options($db_options, $new_options)
 	{
 		$option_key = 'bwp_plugin_general';
 
@@ -521,22 +521,20 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 			->andReturn($db_options)
 			->byDefault();
 
-		if ($update) {
-			$updated_options = array_merge($db_options, $new_options);
+		$db_options = !$db_options || !is_array($db_options)
+			? array() : $db_options;
 
-			$this->framework
-				->shouldReceive('update_options')
-				->with($option_key, $updated_options)
-				->once();
+		$updated_options = array_merge($db_options, $new_options);
 
-			$this->framework
-				->shouldReceive('update_site_options')
-				->with($option_key, $updated_options)
-				->once();
-		} else {
-			$this->framework->shouldNotReceive('update_options');
-			$this->framework->shouldNotReceive('update_site_options');
-		}
+		$this->framework
+			->shouldReceive('update_options')
+			->with($option_key, $updated_options)
+			->once();
+
+		$this->framework
+			->shouldReceive('update_site_options')
+			->with($option_key, $updated_options)
+			->once();
 
 		$this->call_protected_method('update_some_options', array($option_key, $new_options));
 	}
@@ -549,7 +547,6 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 				array(
 					'option1' => 'value1_new'
 				),
-				false
 			),
 
 			'update both blog and site options' => array(
@@ -563,7 +560,6 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 					'option1'      => 'value1_new',
 					'site_option1' => 'site_value1_new'
 				),
-				true
 			)
 		);
 	}

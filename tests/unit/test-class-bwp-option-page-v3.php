@@ -229,12 +229,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		);
 
 		$this->plugin
-			->shouldReceive('update_options')
-			->with($this->form_name, $merged_options)
-			->once();
-
-		$this->plugin
-			->shouldReceive('update_site_options')
+			->shouldReceive('update_some_options')
 			->with($this->form_name, $merged_options)
 			->once();
 
@@ -370,8 +365,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 
 		// all fields are hidden so the options used to update are the same
 		// ones that are feed to the form from the beginning
-		$this->plugin->shouldReceive('update_options')->with($this->form_name, $form_options)->once();
-		$this->plugin->shouldReceive('update_site_options')->with($this->form_name, $form_options)->once();
+		$this->plugin->shouldReceive('update_some_options')->with($this->form_name, $form_options)->once();
 
 		$util = Mockery::mock('alias:BWP_Framework_Util');
 		$util->shouldReceive('is_multisite')->andReturn($flags['is_multisite'])->byDefault();
@@ -514,8 +508,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		$util->shouldReceive('is_on_main_blog')->andReturn(true)->byDefault();
 
 		$this->plugin->shouldReceive('get_options_by_keys')->with($form_option_keys)->andReturn($form_options)->byDefault();
-		$this->plugin->shouldReceive('update_options')->with($this->form_name, $post_options)->once();
-		$this->plugin->shouldReceive('update_site_options')->with($this->form_name, $post_options)->once();
+		$this->plugin->shouldReceive('update_some_options')->with($this->form_name, $post_options)->once();
 
 		$this->op->init($form, $form_option_keys);
 		$this->op->submit_html_form();
@@ -538,8 +531,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 		// use a custom form name to save options
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_option_page_submit_form_name', $this->form_name)->andReturn('bwp_op_general')->byDefault();
 
-		$this->plugin->shouldReceive('update_options')->with('bwp_op_general', Mockery::type('array'))->once();
-		$this->plugin->shouldReceive('update_site_options')->with('bwp_op_general', Mockery::type('array'))->once();
+		$this->plugin->shouldReceive('update_some_options')->with('bwp_op_general', Mockery::type('array'))->once();
 
 		$this->op->init();
 		$this->op->submit_html_form();
@@ -579,13 +571,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 
 		// should update filtered options
 		$this->plugin
-			->shouldReceive('update_options')
-			->with($this->form_name, $merged_options)
-			->once();
-
-		// should update filtered site options
-		$this->plugin
-			->shouldReceive('update_site_options')
+			->shouldReceive('update_some_options')
 			->with($this->form_name, $merged_options)
 			->once();
 
@@ -679,8 +665,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			->once();
 
 		if ('submit_bwp_op' == $post_action) {
-			$this->plugin->shouldReceive('update_options')->once();
-			$this->plugin->shouldReceive('update_site_options')->once();
+			$this->plugin->shouldReceive('update_some_options')->once();
 
 			$this->bridge
 				->shouldReceive('apply_filters')
@@ -743,8 +728,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 			->with('bwp_option_page_submit_options', Mockery::type('array'))
 			->andReturn(false);
 
-		$this->plugin->shouldNotReceive('update_options');
-		$this->plugin->shouldNotReceive('update_site_options');
+		$this->plugin->shouldNotReceive('update_some_options');
 
 		$this->plugin
 			->shouldNotReceive('add_notice_flash')

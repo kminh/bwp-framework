@@ -697,12 +697,12 @@ abstract class BWP_Framework_V3
 	 * @param string $option_key
 	 * @param array $new_options only the new options that need updating
 	 */
-	protected function update_some_options($option_key, array $new_options)
+	public function update_some_options($option_key, array $new_options)
 	{
 		$db_options = $this->bridge->get_option($option_key);
 
-		if (!$db_options || !is_array($db_options))
-			return;
+		$db_options = !$db_options || !is_array($db_options)
+			? array() : $db_options;
 
 		$db_options = array_merge($db_options, $new_options);
 

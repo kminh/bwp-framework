@@ -389,11 +389,10 @@ class BWP_Option_Page_V3
 		if ($options === false || !is_array($options))
 			return false;
 
-		// update per-blog options
-		$this->plugin->update_options($form_name, $options);
-
-		// update site options
-		$this->plugin->update_site_options($form_name, $options);
+		// @since rev 159 update some options only to allow splitting an
+		// option key across multiple option pages. This should update site
+		// options as well
+		$this->plugin->update_some_options($form_name, $options);
 
 		return true;
 	}
