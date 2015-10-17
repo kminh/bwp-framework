@@ -771,8 +771,10 @@ class BWP_Option_Page_V3
 				if (!isset($this->form[$name]) || !is_array($this->form[$name]))
 					return;
 
-				$item_label = '<span class="bwp-opton-page-label">'
-					. $this->form_item_labels[$item_key[0]]
+				$item_label = $this->form_item_labels[$item_key[0]];
+
+				$item_label_html = '<span class="bwp-opton-page-label">'
+					. $item_label
 					. $inline
 					. '</span>';
 
@@ -793,17 +795,23 @@ class BWP_Option_Page_V3
 					|| ($type != 'heading' && !is_array($this->form[$type][$name])))
 					return;
 
-				$item_label = $type != 'checkbox' && $type != 'checkbox_multi' && $type != 'radio'
+				$item_label = $this->form_item_labels[$item_key[0]];
+
+				$item_label_html = $type != 'checkbox' && $type != 'checkbox_multi' && $type != 'radio'
 					? '<label class="bwp-opton-page-label" for="' . $name . '">'
-						. $this->form_item_labels[$item_key[0]] . $inline
+						. $item_label
+						. $inline
 						. '</label>'
 					: '<span class="bwp-opton-page-label type-' . $type . '">'
-						. $this->form_item_labels[$item_key[0]] . $inline
+						. $item_label
+						. $inline
 						. '</span>';
 
-				$item_label = $type == 'heading'
-					? '<h3>' . $this->form_item_labels[$item_key[0]] . '</h3>' . $inline
-					: $item_label;
+				$heading_id = strtolower(str_replace(array(' ', '_'), '-', $item_label));
+
+				$item_label_html = $type == 'heading'
+					? '<h3 id="' . esc_attr($heading_id) . '">' . $item_label . '</h3>' . $inline
+					: $item_label_html;
 
 				if (isset($this->form[$type]))
 					$return_html = $this->generate_html_field($type, $this->form[$type][$name], $name);
@@ -832,11 +840,11 @@ class BWP_Option_Page_V3
 
 		if (empty($pure_return) && $type == 'heading')
 		{
-			return $item_label . $containers;
+			return $item_label_html . $containers;
 		}
 		else
 		{
-			return $item_label . '<p class="' . $input_class . '">'
+			return $item_label_html . '<p class="' . $input_class . '">'
 				. $return_html . '</p>'
 				. $containers;
 		}

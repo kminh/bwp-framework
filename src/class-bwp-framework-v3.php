@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 158;
+	public $revision = 159;
 
 	/**
 	 * Text domain
