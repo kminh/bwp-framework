@@ -204,21 +204,44 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	protected static function reset_users()
 	{
 		global $wpdb;
+
 		$wpdb->query("DELETE FROM $wpdb->users WHERE user_login != 'admin'");
+		$wpdb->query("ALTER TABLE $wpdb->users AUTO_INCREMENT = 2");
+
 		self::commit_transaction();
 	}
 
 	protected static function reset_posts()
 	{
 		global $wpdb;
-		$wpdb->query("DELETE FROM $wpdb->posts WHERE 1=1");
+
+		$wpdb->query("TRUNCATE $wpdb->posts");
+		$wpdb->query("TRUNCATE $wpdb->postmeta");
+
 		self::commit_transaction();
+	}
+
+	protected static function reset_terms()
+	{
+		global $wpdb;
+
+		$wpdb->query("TRUNCATE $wpdb->term_relationships");
+		$wpdb->query("TRUNCATE $wpdb->term_taxonomy");
+		$wpdb->query("TRUNCATE $wpdb->terms");
+
+		self::commit_transaction();
+	}
+
+	protected static function reset_posts_terms()
+	{
+		self::reset_terms();
+		self::reset_posts();
 	}
 
 	protected static function reset_comments()
 	{
 		global $wpdb;
-		$wpdb->query("DELETE FROM $wpdb->comments WHERE 1=1");
+		$wpdb->query("TRUNCATE $wpdb->comments");
 		self::commit_transaction();
 	}
 

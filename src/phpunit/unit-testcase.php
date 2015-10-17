@@ -15,13 +15,16 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 {
 	protected $bridge;
 
+	protected $cache;
+
 	protected $plugin_slug = 'bwp-plugin';
 
 	protected $plugin;
 
 	protected function setUp()
 	{
-		$this->bridge = Mockery::mock('BWP_WP_Bridge');
+		$this->bridge = Mockery::mock('BWP_WP_Bridge')
+			->shouldIgnoreMissing();
 
 		$plugin_slug   = $this->plugin_slug;
 		$plugin_wp_url = 'http://example.com/wp-content/plugins/' . $plugin_slug . '/';
@@ -77,6 +80,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 		$this->bridge->shouldReceive('load_plugin_textdomain')->byDefault();
 		$this->bridge->shouldReceive('t')->andReturn(create_function('$key', 'return $key;'))->byDefault();
 		$this->bridge->shouldReceive('te')->andReturn(create_function('$key', 'return $key;'))->byDefault();
+
+		$this->cache = Mockery::mock('BWP_Cache');
 	}
 
 	protected function tearDown()
