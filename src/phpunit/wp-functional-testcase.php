@@ -25,6 +25,16 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	protected static $cache_dir;
 
 	/**
+	 * @var array
+	 */
+	protected static $wp_original_options = array();
+
+	/**
+	 * @var array
+	 */
+	protected static $wp_options = array();
+
+	/**
 	 * Prepare the WP environment
 	 *
 	 * This will prepare the environment for the current session as well as any
@@ -60,6 +70,9 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 
 	public function tearDown()
 	{
+		// reset wp options to their original values
+		static::set_wp_options(self::$wp_original_options);
+
 		parent::tearDown();
 	}
 
@@ -127,10 +140,30 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 
 	/**
 	 * Set WP options that are used for all tests
+	 *
+	 * We backup the orignal WP options so we can reset the options in db
+	 * after every test
 	 */
 	protected static function set_wp_default_options()
 	{
-		// to be implemented in child classes
+		$options = static::$wp_options;
+
+		foreach ($options as $key => $value) {
+			self::$wp_original_options[$key] = get_option($key);
+			self::update_option($key, $value);
+		}
+	}
+
+	/**
+	 * Set WP options that are used for a specific test
+	 *
+	 * @param array $options an associative array of key => value
+	 */
+	protected static function set_wp_options(array $options)
+	{
+		foreach ($options as $key => $value) {
+			self::update_option($key, $value);
+		}
 	}
 
 	/**
