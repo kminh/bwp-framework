@@ -236,7 +236,15 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	protected static function update_option($key, $value)
 	{
 		update_option($key, $value);
+		self::commit_transaction();
+	}
 
+	/**
+	 * @param string $key
+	 */
+	protected static function delete_option($key)
+	{
+		delete_option($key);
 		self::commit_transaction();
 	}
 
