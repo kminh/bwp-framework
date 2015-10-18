@@ -19,6 +19,11 @@ class BWP_Framework_PHPUnit_WP_Functional_TestListener extends PHPUnit_Framework
 			return;
 		}
 
+		// only showing testsuite's name for functional tests
+		if (stripos($suite->getName(), 'functional') === false) {
+			return;
+		}
+
 		printf("\n" . 'Running TestSuite: %s', $suite->getName());
 	}
 
