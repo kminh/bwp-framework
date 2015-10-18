@@ -102,7 +102,15 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 
 	protected static function prepare_htaccess_file()
 	{
-		// intentionally left blank
+		global $_core_dir;
+
+		$htaccess_file = $_core_dir . '/.htaccess';
+
+		// remove current htaccess file if any to force tests to manually
+		// create htaccess file when needed
+		if (file_exists($htaccess_file)) {
+			unlink($htaccess_file);
+		}
 	}
 
 	/**
