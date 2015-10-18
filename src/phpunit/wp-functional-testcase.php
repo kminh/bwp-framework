@@ -40,8 +40,6 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		static::prepare_cache_directory();
 		static::prepare_asset_directories();
 
-		$this->load_plugins();
-
 		parent::setUp();
 	}
 
@@ -56,8 +54,6 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 
 		static::prepare_cache_directory();
 		static::prepare_asset_directories();
-
-		$this->load_plugins();
 
 		parent::setUp();
 	}
@@ -162,7 +158,7 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	/**
 	 * Activate specific plugins
 	 *
-	 * Activated plugins are only fully available in next request
+	 * This only affect actual requests made to the test site
 	 *
 	 * @param array $plugins
 	 */
@@ -171,6 +167,13 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		self::update_option('active_plugins', $plugins);
 	}
 
+	/**
+	 * Deactivate plugins
+	 *
+	 * This only affect actual requests made to the test site
+	 *
+	 * @param array $plugins optional, default is to deactivate all plugins
+	 */
 	protected static function deactivate_plugins(array $plugins = array())
 	{
 		// only deactivate some plugins
@@ -311,7 +314,9 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	 */
 	protected function prepare_default_values()
 	{
-		static::activate_plugins(array_values($this->get_plugins()));
+		// activate required plugins for any following requests
+		static::activate_plugins(array_values($this->get_all_plugins()));
+
 		static::set_wp_default_options();
 		static::set_plugin_default_options();
 	}

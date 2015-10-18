@@ -78,7 +78,10 @@ abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BW
 	protected static function reset_blogs()
 	{
 		global $wpdb;
+
 		$wpdb->query("DELETE FROM $wpdb->blogs WHERE 1=1 AND path <> '/'");
+		$wpdb->query("ALTER TABLE $wpdb->blogs AUTO_INCREMENT = 2");
+
 		self::commit_transaction();
 	}
 }

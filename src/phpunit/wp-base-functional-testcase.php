@@ -21,9 +21,36 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	}
 
 	/**
-	 * Get a list of plugins that should be loaded and activated for testing
+	 * Get the main plugin under test
+	 *
+	 * @return array
 	 */
-	abstract public function get_plugins();
+	abstract public function get_plugin_under_test();
+
+	/**
+	 * Get a list of extra plugins that should be loaded and activated for testing
+	 *
+	 * This can include fxitures if needed.
+	 *
+	 * @return array
+	 */
+	public function get_extra_plugins()
+	{
+		return array();
+	}
+
+	/**
+	 * Get a list of all plugins, including the plugin under test and extra ones
+	 *
+	 * @return array
+	 */
+	public function get_all_plugins()
+	{
+		return array_merge(
+			$this->get_plugin_under_test(),
+			$this->get_extra_plugins()
+		);
+	}
 
 	/**
 	 * Prepare plugin directories
@@ -36,7 +63,7 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	{
 		global $_core_dir;
 
-		$plugins = $this->get_plugins();
+		$plugins = $this->get_all_plugins();
 
 		foreach ($plugins as $plugin_file => $plugin_path) {
 			$target  = dirname($plugin_file);
@@ -49,14 +76,14 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	}
 
 	/**
-	 * Load all required plugins in order to test the plugin under test
+	 * Load all required plugins for current process
 	 *
-	 * This only loads actual plugins, not fixtures. This also sets default
-	 * values (WP options and plugin options) for testing.
+	 * This should be called by extending testcases explicitly.
+	 * This only loads actual plugins, not fixtures.
 	 */
-	public function load_plugins()
+	public function load_plugins_for_current_process()
 	{
-		$plugins = $this->get_plugins();
+		$plugins = $this->get_all_plugins();
 
 		foreach ($plugins as $plugin_file => $plugin_path) {
 			// dont include fixtures because they are not actually plugins
@@ -66,29 +93,54 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 
 			include_once $plugin_file;
 		}
+	}
 
-		// always prepare default values after all required plugins are loaded
-		$this->prepare_default_values();
+	/**
+	 * This should be used explicitly by extending testcases
+	 */
+	protected function load_fixtures($file_name = null)
+	{
+		$plugins = $this->get_extra_plugins();
+
+		foreach ($plugins as $plugin_file => $plugin_path) {
+			// only load fixtures
+			if (stripos($plugin_file, 'fixtures') === false) {
+				continue;
+			}
+
+			// only load correct fixture, if specified
+			if ($file_name && stripos($plugin_file, $file_name) === false) {
+				continue;
+			}
+
+			include_once $plugin_file;
+		}
 	}
 
 	protected function bootstrap_plugin()
 	{
 		global $_tests_dir;
 
+		// prepare plugin directories for the current session and any following requests
+		$this->prepare_plugin_directories();
+
 		if (!function_exists('tests_add_filter')) {
 			require_once $_tests_dir . '/includes/functions.php';
 
-			// prepare plugin directories for the current session and any
-			// following requests
-			tests_add_filter('muplugins_loaded', array($this, 'prepare_plugin_directories'));
-
-			// load plugin to use within this session, NOT for the next request
-			tests_add_filter('pre_option_active_plugins', array($this, 'get_plugins'));
+			// load all plugins to use within this process
+			// we need to do this here to make sure loaded plugins can make
+			// use of WordPress's init action. If a testcase needs a different
+			// set of plugins it should be run in a separate process because
+			// this is called only once.
+			tests_add_filter('pre_option_active_plugins', array($this, 'get_all_plugins'));
 
 			// bootstrap WordPress itself, this should provides the WP environment and
 			// drop/recreate tables
 			require $_tests_dir . '/includes/bootstrap.php';
 		}
+
+		// always prepare default values after all required plugins are loaded
+		$this->prepare_default_values();
 	}
 
 	/**
