@@ -137,6 +137,9 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 			// bootstrap WordPress itself, this should provides the WP environment and
 			// drop/recreate tables
 			require $_tests_dir . '/includes/bootstrap.php';
+
+			// mark as installed
+			touch($_tests_dir . '/installed.lock');
 		}
 
 		// always prepare default values after all required plugins are loaded

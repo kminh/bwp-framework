@@ -84,6 +84,13 @@ install_test_suite() {
 
 	cd $WP_TESTS_DIR/includes
 
+	# hack to allow loading bootstrap file without installing WP again
+	sed $ioption "s:^system( WP_PHP_BINARY.*install.php:if (!file_exists(dirname(dirname(__FILE__)) . '/installed.lock')) \0:" bootstrap.php
+
+	# hack to suppress useless WP messages
+	sed $ioption "s:^\s*echo \"Running as multisite://\0:" bootstrap.php
+	sed $ioption "s:^\s*echo sprintf( 'Not running://\0:" bootstrap.php
+
 	# hack to allow using wp testcase class before we bootstrap WP
 	sed $ioption "s:require dirname( __FILE__ ) . '/testcase.php':require_once dirname( __FILE__ ) . '/testcase.php';:" bootstrap.php
 	sed $ioption "s/^class WP_UnitTestCase/abstract class WP_UnitTestCase/" testcase.php
