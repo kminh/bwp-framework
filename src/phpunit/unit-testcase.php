@@ -86,10 +86,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 
 	protected function tearDown()
 	{
-		global $wpdb;
-
-		if (isset($wpdb)) {
-			unset($wpdb);
+		if (isset($GLOBALS['wpdb'])) {
+			unset($GLOBALS['wpdb']);
 		}
 	}
 
