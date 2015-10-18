@@ -89,6 +89,7 @@ install_test_suite() {
 
 	# hack to suppress useless WP messages
 	sed $ioption "s:^\s*echo \"Running as multisite://\0:" bootstrap.php
+	sed $ioption "s:^\s*echo \"Running as single site://\0:" bootstrap.php
 	sed $ioption "s:^\s*echo sprintf( 'Not running://\0:" bootstrap.php
 
 	# hack to allow using wp testcase class before we bootstrap WP
