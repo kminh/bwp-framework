@@ -26,7 +26,8 @@ class BWP_Framework_Functional_Test extends PHPUnit_Framework_TestCase
 			$not_php_52 = array(
 				'BWP_Framework_PHPUnit_Unit_TestCase',
 				'BWP_Framework_PHPUnit_WP_Functional_TestCase',
-				'BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase'
+				'BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase',
+				'BWP_Framework_PHPUnit_WP_Functional_TestListener',
 			);
 
 			// do not load certain testcase classes if PHP version is less than 5.3
