@@ -12,6 +12,11 @@ class BWP_Framework_Util
 {
 	private function __construct() {}
 
+	public static function is_debugging()
+	{
+		return defined('WP_DEBUG') && WP_DEBUG;
+	}
+
 	public static function is_multisite()
 	{
 		if (defined('BWP_MULTISITE'))

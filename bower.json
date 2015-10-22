@@ -1,6 +1,6 @@
 {
   "name": "BWP_Framework",
-  "version": "3.0.12",
+  "version": "3.2.0",
   "homepage": "http://betterwp.net",
   "authors": [
     "Khang Minh <kminhfoss@gmail.com>"
@@ -19,8 +19,10 @@
     "test",
     "tests"
   ],
-  "dependencies": {
+  "devDependencies": {
     "select2": "~4.0.0",
-    "datatables": "~1.10.9"
+    "datatables": "~1.10.9",
+    "bootstrap": "~3.3.5",
+    "placeholders": "~4.0.1"
   }
 }

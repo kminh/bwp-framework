@@ -16,6 +16,28 @@ class BWP_Framework_Util_Test extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_Util::is_debugging
+	 * @dataProvider get_test_is_debugging_cases
+	 */
+	public function test_is_debugging($wp_debug_constant, $expected)
+	{
+		if (isset($wp_debug_constant)) {
+			define('WP_DEBUG', $wp_debug_constant);
+		}
+
+		$this->assertEquals($expected, BWP_Framework_Util::is_debugging());
+	}
+
+	public function get_test_is_debugging_cases()
+	{
+		return array(
+			array(null, false),
+			array(false, false),
+			array(true, true)
+		);
+	}
+
+	/**
 	 * @covers BWP_Framework_Util::is_site_admin
 	 * @dataProvider get_is_site_admin_cases
 	 */

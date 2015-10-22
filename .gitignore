@@ -4,3 +4,6 @@
 bower_components/
 node_modules/
 vendor/
+assets/vendor
+assets/option-page/css/style.*
+assets/option-page/dist/

@@ -124,6 +124,15 @@ p.bwp-option-page-inputs {
 .wp-core-ui .button-inline {
 	vertical-align: middle;
 }
+
+.bwp-button {
+	.dashicons {
+		width: auto;
+		height: 14px;
+		font-size: 14px;
+		vertical-align: middle;
+	}
+}
 /*--- End Button ---*/
 
 /*--- Table ---*/
@@ -259,29 +268,85 @@ table.dataTable, table.dataTable th, table.dataTable td {
 	margin-top: 1em;
 }
 
-.bwp-form-group label {
-	display: inline-block;
-	margin-bottom: 5px;
-	max-width: 100%;
+.bwp-form-group {
+	label {
+		display: inline-block;
+		margin-bottom: 5px;
+		max-width: 100%;
+	}
+
+	select {
+		display: block;
+		width: 100%;
+	}
 }
 
-.bwp-form-group select {
-	display: block;
-	width: 100%;
+.bwp-form-group-sm {
+	label {
+		max-width: 50%;
+	}
+
+	select {
+		width: 50%;
+	}
+
+	.bwp-form-control {
+		width: 50%;
+	}
+}
+
+.bwp-form-group-xs {
+	label {
+		max-width: 25%;
+	}
+
+	select {
+		width: 25%;
+	}
+
+	.bwp-form-control {
+		width: 25%;
+	}
 }
 
 .bwp-button-group {
 	margin-bottom: 1em;
+
+	.button-secondary {
+		vertical-align: baseline;
+	}
 }
 
-.bwp-inline-form-wrapper .select2-container input,
-.bwp-inline-form-wrapper .select2-container input:focus {
-	box-shadow: none;
-	padding: 0;
+.bwp-inline-form-wrapper {
+	.select2-container {
+		input, input:focus {
+			box-shadow: none;
+			padding: 0;
+		}
+
+		li {
+			margin: 0;
+		}
+	}
 }
 
-.bwp-inline-form-wrapper .select2-container li {
-	margin: 0;
+.bwp-form-control {
+	display: block;
+	width: 100%;
+}
+
+.bwp-form-help-block {
+	display: block;
+	margin: 1em 0;
+	color: lighten(@text-color, 25%);
+}
+
+.bwp-form-help-block-first {
+	margin-top: 0;
+}
+
+.bwp-form-help-block-last {
+	margin-bottom: 0;
 }
 /*--- End inline form ---*/
 

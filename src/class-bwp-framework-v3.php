@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 159;
+	public $revision = 160;
 
 	/**
 	 * Text domain
@@ -183,6 +183,14 @@ abstract class BWP_Framework_V3
 	 * @since rev 158
 	 */
 	protected $cache;
+
+	/**
+	 * Combined assets used for production environment
+	 *
+	 * @var array
+	 * @since rev 160
+	 */
+	protected $combined_assets = array();
 
 	/**
 	 * Construct a new plugin with appropriate meta
@@ -816,18 +824,32 @@ abstract class BWP_Framework_V3
 	 * @param string $prod_src the source used in production environment, this
 	 *                         will be used instead of replacing $dev_src's
 	 *                         extension when provided
-	 * @return string
+	 * @return mixed string|bool false if the src is not needed for current environment
 	 */
 	protected function get_src_by_environment($dev_src, $prod_src = null)
 	{
-		return defined('WP_DEBUG') && WP_DEBUG
-			? $dev_src : ($prod_src
+		$debugging = BWP_Framework_Util::is_debugging();
+
+		if (!$debugging)
+		{
+			$prod_src = $prod_src
 				? $prod_src
 				: str_replace(
 					array('.js', '.css'),
 					array('.min.js', '.min.css'),
 					$dev_src
-				));
+				);
+
+			// combined assets should only be added once
+			if (in_array($prod_src, $this->combined_assets))
+				return false;
+
+			$this->combined_assets[] = $prod_src;
+
+			return $prod_src;
+		}
+
+		return $dev_src;
 	}
 
 	/**
@@ -892,6 +914,17 @@ abstract class BWP_Framework_V3
 		$this->register_media_file('bwp-datatables',
 			$asset_url . '/vendor/datatables/css/jquery.dataTables.css',
 			array(), $this->revision
+		);
+
+		$this->register_media_file('bwp-bootstrap',
+			$asset_url . '/vendor/bootstrap/js/bootstrap.js',
+			array('jquery'), $this->revision
+		);
+
+		$this->register_media_file('bwp-op-modal',
+			$asset_url . '/option-page/js/modal.js',
+			array('bwp-bootstrap'), $this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js'
 		);
 
 		$this->register_media_file('bwp-op-toggle',
@@ -1265,7 +1298,6 @@ abstract class BWP_Framework_V3
 
 		return '';
 	}
-
 
 	/**
 	 * @return BWP_WP_Bridge
