@@ -291,7 +291,11 @@ class BWP_Option_Page_V3
 			. $this->form_name . '" value="' . $this->bridge->t('Save Changes') . '" /></p>') . "\n";
 
 		$return_str .= '</form>' . "\n";
-		$return_str .= '</div>' . "\n";
+
+		echo $return_str;
+		do_action('bwp_option_action_after_form');
+
+		$return_str = '</div>' . "\n";
 
 		echo $return_str;
 	}
