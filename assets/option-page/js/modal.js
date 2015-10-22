@@ -1,6 +1,6 @@
 /*global jQuery,ajaxurl*/
 jQuery(function($) {
-	"use strict";
+	'use strict';
 
 	var message_timeout;
 
@@ -42,25 +42,24 @@ jQuery(function($) {
 		}
 	});
 
-	$('.bwp-modal').on('click', '.bwp-button-modal-submit', function(e) {
+	$('.bwp-modal').on('submit', 'form', function(e) {
 		e.preventDefault();
 
-		var $t = $(this);
+		var $form = $(this);
+		var $btn  = $form.parents('.bwp-modal').find('.bwp-button-modal-submit');
 
-		var callback       = $t.data('ajaxCallback');
-		var error_callback = $t.data('ajaxErrorCallback');
-
-		var $form = $t.parents('.bwp-modal').find('form');
+		var callback       = $btn.data('ajaxCallback');
+		var error_callback = $btn.data('ajaxErrorCallback');
 
 		// get data from the form by serializing it. It is important that the form
 		// contains the ajax 'action' and the nonce parameter.
-		var data  = $form.serialize();
+		var data = $form.serialize();
 
 		// disable all inputs
 		$form.find(':input').prop('disabled', true);
 
 		// reset and show loading message
-		var $loader = $t
+		var $loader = $btn
 			.parents('.bwp-modal-footer')
 			.find('.bwp-modal-message');
 
@@ -73,11 +72,11 @@ jQuery(function($) {
 		// should contain the data added/updated, and it is expected to be an array
 		$.post(ajaxurl, data, function(r) {
 			if (typeof callback !== 'undefined') {
-				window[callback]($, r, $t, $form);
+				window[callback]($, r, $btn, $form);
 			}
 
 			// reset the form if there's no reset button
-			if ($t.parents('.bwp-modal-footer').find('.bwp-button-modal-reset').length === 0) {
+			if ($btn.parents('.bwp-modal-footer').find('.bwp-button-modal-reset').length === 0) {
 				$form.trigger('reset');
 			}
 
@@ -90,7 +89,7 @@ jQuery(function($) {
 		}, 'json')
 			.fail(function(r) {
 				if (typeof error_callback !== 'undefined') {
-					window[error_callback]($, r, $t, $form);
+					window[error_callback]($, r, $btn, $form);
 				}
 
 				$loader.addClass('text-danger');
@@ -115,6 +114,16 @@ jQuery(function($) {
 					$loader.fadeOut('fast');
 				}
 			});
+	});
+
+	$('.bwp-modal').on('click', '.bwp-button-modal-submit', function(e) {
+		e.preventDefault();
+
+		var $form = $(this)
+			.parents('.bwp-modal')
+			.find('form');
+
+		$form.submit();
 	});
 
 	$('.bwp-modal').on('click', '.bwp-button-modal-reset', function(e) {

@@ -1,6 +1,6 @@
 /* global jQuery */
 jQuery(function($) {
-	"use strict";
+	'use strict';
 
 	function toggle_field($t) {
 		var target_id     = $t.data('target');
