@@ -1418,6 +1418,27 @@ abstract class BWP_Framework_V3
 		$this->plugin_cap = $cap;
 	}
 
+	/**
+	 * Get contents from a template file, with data filled with provided $data
+	 *
+	 * @param string $template_file_path path to template file, starting from
+	 *                                   plugin's src directory, a leading
+	 *                                   slash is not required.
+	 * @param array $data
+	 *
+	 * @since rev 160
+	 */
+	protected function get_template_contents($template_file_path, array $data = array())
+	{
+		ob_start();
+
+		include_once constant($this->plugin_ckey . '_PLUGIN_SRC') . '/' . ltrim($template_file_path, '/');
+
+		$output = ob_get_clean();
+
+		return $output;
+	}
+
 	protected static function normalize_options($options)
 	{
 		return $options && is_array($options) ? $options : array();
