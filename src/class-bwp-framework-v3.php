@@ -921,15 +921,27 @@ abstract class BWP_Framework_V3
 			array('jquery'), $this->revision
 		);
 
+		$this->register_media_file('bwp-op-functions',
+			$asset_url . '/option-page/js/functions.js',
+			array('jquery'), $this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js'
+		);
+
 		$this->register_media_file('bwp-op-modal',
 			$asset_url . '/option-page/js/modal.js',
-			array('bwp-bootstrap'), $this->revision,
+			array('bwp-bootstrap', 'bwp-op-functions'), $this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
 
 		$this->register_media_file('bwp-op-toggle',
 			$asset_url . '/option-page/js/toggle.js',
 			array('jquery'), $this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js'
+		);
+
+		$this->register_media_file('bwp-op-misc',
+			$asset_url . '/option-page/js/misc.js',
+			array('bwp-op-functions'), $this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
 	}

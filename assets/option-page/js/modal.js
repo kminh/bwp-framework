@@ -29,6 +29,8 @@ jQuery(function($) {
 					.find('.bwp-modal-content')
 					.html(r);
 
+				bwp_enhance_form_fields($, $(target_id));
+
 				if (typeof callback !== 'undefined') {
 					window[callback]($, r, $t);
 				}
