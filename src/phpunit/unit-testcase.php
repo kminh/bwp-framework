@@ -81,7 +81,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 		$this->bridge->shouldReceive('t')->andReturn(create_function('$key', 'return $key;'))->byDefault();
 		$this->bridge->shouldReceive('te')->andReturn(create_function('$key', 'return $key;'))->byDefault();
 
-		$this->cache = Mockery::mock('BWP_Cache');
+		$this->cache = Mockery::mock('BWP_Cache')
+			->shouldIgnoreMissing();
 	}
 
 	protected function tearDown()
