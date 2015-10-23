@@ -15,6 +15,8 @@ module.exports = function(grunt) {
 							.replace(/class="tooltip/g, 'class="bwp-tooltip')
 							.replace(/'\.popover/g, '\'.bwp-popover')
 							.replace(/class="popover/g, 'class="bwp-popover')
+							.replace(/'\.arrow/g, '\'.bwp-arrow')
+							.replace(/class="arrow/g, 'class="bwp-arrow')
 						;
 					}
 				},
@@ -37,6 +39,7 @@ module.exports = function(grunt) {
 							.replace(/\.btn/g, '.bwp-btn')
 							.replace(/\.close/g, '.bwp-close')
 							.replace(/\.tooltip/g, '.bwp-tooltip')
+							.replace(/\.arrow/g, '.bwp-arrow')
 							.replace(/\.popover/g, '.bwp-popover')
 						;
 					}
