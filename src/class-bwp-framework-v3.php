@@ -933,6 +933,12 @@ abstract class BWP_Framework_V3
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
 
+		$this->register_media_file('bwp-op-popover',
+			$asset_url . '/option-page/js/popover.js',
+			array('bwp-bootstrap'), $this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js'
+		);
+
 		$this->register_media_file('bwp-op-toggle',
 			$asset_url . '/option-page/js/toggle.js',
 			array('jquery'), $this->revision,
