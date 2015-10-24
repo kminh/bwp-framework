@@ -77,6 +77,10 @@ module.exports = function(grunt) {
 				cwd: 'bower_components/select2/dist',
 				src: '**/*.*',
 				dest: 'assets/vendor/select2',
+			},
+			inputmask: {
+				src: 'bower_components/jquery.inputmask/dist/jquery.inputmask.bundle.js',
+				dest: 'assets/vendor/inputmask/jquery.inputmask.bundle.js'
 			}
 		},
 		uglify: {
@@ -95,6 +99,13 @@ module.exports = function(grunt) {
 				files: {
 					'assets/vendor/bootstrap/js/bootstrap.min.js': [
 						'assets/vendor/bootstrap/js/bootstrap.js'
+					]
+				}
+			},
+			inputmask: {
+				files: {
+					'assets/vendor/inputmask/jquery.inputmask.bundle.min.js': [
+						'assets/vendor/inputmask/jquery.inputmask.bundle.js'
 					]
 				}
 			}

@@ -891,60 +891,69 @@ abstract class BWP_Framework_V3
 	{
 		$asset_url = $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets';
 
+		// select2
 		$this->register_media_file('bwp-placeholders',
 			$asset_url . '/vendor/placeholders/placeholders.js',
 			array(), $this->revision
 		);
-
 		$this->register_media_file('bwp-select2',
 			$asset_url . '/vendor/select2/js/select2.js',
 			array('bwp-placeholders'), $this->revision
 		);
-
 		$this->register_media_file('bwp-select2',
 			$asset_url . '/vendor/select2/css/select2.css',
 			array('wp-admin'), $this->revision
 		);
 
+		// datatables
 		$this->register_media_file('bwp-datatables',
 			$asset_url . '/vendor/datatables/js/jquery.dataTables.js',
 			array('jquery'), $this->revision
 		);
-
 		$this->register_media_file('bwp-datatables',
 			$asset_url . '/vendor/datatables/css/jquery.dataTables.css',
 			array(), $this->revision
 		);
 
+		// bootstrap
 		$this->register_media_file('bwp-bootstrap',
 			$asset_url . '/vendor/bootstrap/js/bootstrap.js',
 			array('jquery'), $this->revision
 		);
 
+		// jquery ui
+		$this->register_media_file('bwp-jquery-ui',
+			$asset_url . '/option-page/css/jquery-ui/jquery-ui.css',
+			array(), $this->revision
+		);
+
+		// input mask
+		$this->register_media_file('bwp-inputmask',
+			$asset_url . '/vendor/inputmask/jquery.inputmask.bundle.js',
+			array('jquery'), $this->revision
+		);
+
+		// bwp scripts
 		$this->register_media_file('bwp-op-functions',
 			$asset_url . '/option-page/js/functions.js',
 			array('jquery'), $this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
-
 		$this->register_media_file('bwp-op-modal',
 			$asset_url . '/option-page/js/modal.js',
 			array('bwp-bootstrap', 'bwp-op-functions'), $this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
-
 		$this->register_media_file('bwp-op-popover',
 			$asset_url . '/option-page/js/popover.js',
 			array('bwp-bootstrap'), $this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
-
 		$this->register_media_file('bwp-op-toggle',
 			$asset_url . '/option-page/js/toggle.js',
 			array('jquery'), $this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
-
 		$this->register_media_file('bwp-op-misc',
 			$asset_url . '/option-page/js/misc.js',
 			array('bwp-op-functions'), $this->revision,
