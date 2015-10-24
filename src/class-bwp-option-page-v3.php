@@ -747,7 +747,7 @@ class BWP_Option_Page_V3
 			break;
 
 			case 'textarea':
-				$html_field = '%pre%<textarea%disabled% '
+				$html_field = '%pre%<textarea %attributes%%disabled% '
 					. 'id="' . $name_attr . '" '
 					. 'name="' . $name_attr . '" cols="%cols%" rows="%rows%">'
 					. $value . '</textarea>%post%';
