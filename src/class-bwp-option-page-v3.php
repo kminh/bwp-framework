@@ -566,15 +566,18 @@ class BWP_Option_Page_V3
 			break;
 
 			case 'input':
+				$data['label'] = !empty($data['label']) ? ' <em>' . $data['label'] . '</em>' : '';
 				$html_field = !$in_section
-					? '%pre%<input%disabled% size="%size%" type="text" '
+					? '%pre%<input %attributes%%disabled% size="%size%" type="text" '
 						. 'id="' . $name_attr . '" '
 						. 'name="' . $name_attr . '" '
-						. 'value="' . $value . '" /> <em>%label%</em>'
-					: '<label for="' . $name_attr . '">%pre%<input%disabled% size="%size%" type="text" '
+						. 'value="' . $value . '" />%label%'
+					: '<label for="' . $name_attr . '">%pre%<input %attributes%%disabled% size="%size%" type="text" '
 						. 'id="' . $name_attr . '" '
 						. 'name="' . $name_attr . '" '
-						. 'value="' . $value . '" /> <em>%label%</em></label>';
+						. 'value="' . $value . '" />%label%</label>';
+
+				$post_html_field = '%post%';
 			break;
 
 			case 'select':
@@ -709,10 +712,10 @@ class BWP_Option_Page_V3
 			{
 				$array_replace[$keyword] = '';
 
-				if (!empty($data[$keyword]))
-				{
+				if ($keyword == 'attributes')
+					$array_replace[$keyword] = $attributes;
+				elseif (!empty($data[$keyword]))
 					$array_replace[$keyword] = $data[$keyword];
-				}
 
 				$keyword = '%' . $keyword . '%';
 			}
