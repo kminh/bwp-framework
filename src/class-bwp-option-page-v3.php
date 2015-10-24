@@ -592,18 +592,24 @@ class BWP_Option_Page_V3
 			break;
 
 			case 'checkbox':
-				$html_field = '<label for="%name%">'
+				$html_field = '<label %label_attributes%for="%name%">'
 					. '<input %attributes%%checked%type="checkbox" id="%name%" name="%name%" value="yes" /> %label%</label>';
+
+				$post_html_field = '%post%';
 			break;
 
 			case 'checkbox_multi':
-				$html_field = '<label for="%name%-%value%">'
+				$html_field = '<label %label_attributes%for="%name%-%value%">'
 					. '<input %attributes%%checked%type="checkbox" id="%name%-%value%" name="%name%[]" value="%value%" /> %label%</label>';
+
+				$post_html_field = '%post%';
 			break;
 
 			case 'radio':
-				$html_field = '<label>' . '<input %attributes%%checked%type="radio" '
+				$html_field = '<label %label_attributes%>' . '<input %attributes%%checked%type="radio" '
 					. 'name="' . $name_attr . '" value="%value%" /> %label%</label>';
+
+				$post_html_field = '%post%';
 			break;
 
 			case 'textarea':
@@ -633,8 +639,8 @@ class BWP_Option_Page_V3
 					if ($this->form_options[$name] == 'yes')
 					{
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
-							array($value, $name_attr, $key, $checked, $attributes),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%', '%label_attributes%'),
+							array($value, $name_attr, $key, $checked, $attributes, $label_attributes),
 							$html_field
 						);
 
@@ -644,8 +650,8 @@ class BWP_Option_Page_V3
 					else
 					{
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
-							array($value, $name_attr, $key, '', $attributes),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%', '%label_attributes%'),
+							array($value, $name_attr, $key, '', $attributes, $label_attributes),
 							$html_field
 						);
 
@@ -661,8 +667,8 @@ class BWP_Option_Page_V3
 						&& in_array($value, $this->form_options[$name])
 					) {
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
-							array($value, $name_attr, $key, $checked, $attributes),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%', '%label_attributes%'),
+							array($value, $name_attr, $key, $checked, $attributes, $label_attributes),
 							$html_field
 						);
 
@@ -672,8 +678,8 @@ class BWP_Option_Page_V3
 					else
 					{
 						$return_html .= str_replace(
-							array('%value%', '%name%', '%label%', '%checked%', '%attributes%'),
-							array($value, $name_attr, $key, '', $attributes),
+							array('%value%', '%name%', '%label%', '%checked%', '%attributes%', '%label_attributes%'),
+							array($value, $name_attr, $key, '', $attributes, $label_attributes),
 							$html_field
 						);
 
