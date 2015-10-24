@@ -6,6 +6,7 @@ module.exports = function(grunt) {
 				options: {
 					process: function(content) {
 						return content
+							.replace(/'fade/g, '\'bwp-fade')
 							.replace(/'\.modal/g, '\'.bwp-modal')
 							.replace(/'modal-open/g, '\'bwp-modal-open')
 							.replace(/'modal-backdrop/g, '\'bwp-modal-backdrop')
@@ -22,6 +23,7 @@ module.exports = function(grunt) {
 				},
 				files: [{
 					src: [
+						'bower_components/bootstrap/js/transition.js',
 						'bower_components/bootstrap/js/modal.js',
 						'bower_components/bootstrap/js/tooltip.js',
 						'bower_components/bootstrap/js/popover.js',
@@ -35,9 +37,12 @@ module.exports = function(grunt) {
 				options: {
 					process: function(content) {
 						return content
+							.replace(/\.fade/g, '.bwp-fade')
+							.replace(/\.collapse/g, '.bwp-collapse')
+							.replace(/\.collapsing/g, '.bwp-collapsing')
+							.replace(/\.close/g, '.bwp-close')
 							.replace(/\.modal/g, '.bwp-modal')
 							.replace(/\.btn/g, '.bwp-btn')
-							.replace(/\.close/g, '.bwp-close')
 							.replace(/\.tooltip/g, '.bwp-tooltip')
 							.replace(/\.arrow/g, '.bwp-arrow')
 							.replace(/\.popover/g, '.bwp-popover')
@@ -48,6 +53,7 @@ module.exports = function(grunt) {
 				cwd: 'bower_components/bootstrap/less',
 				src: [
 					'close.less',
+					'component-animations.less',
 					'modals.less',
 					'tooltip.less',
 					'popovers.less'
@@ -109,6 +115,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 
+	grunt.registerTask('default', ['copy-assets', 'minify']);
 	grunt.registerTask('copy-assets', ['copy', 'concat']);
 	grunt.registerTask('minify', ['uglify', 'cssmin']);
 };
