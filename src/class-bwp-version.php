@@ -18,8 +18,8 @@ class BWP_Version
 	/**
 	 * Default version constraints
 	 */
-	public static $php_ver = '5.1.2';
-	public static $wp_ver  = '3.0';
+	public static $php_ver = '5.2.0';
+	public static $wp_ver  = '3.6';
 
 	private function __construct() {}
 
