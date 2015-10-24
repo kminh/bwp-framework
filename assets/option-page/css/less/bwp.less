@@ -348,6 +348,41 @@ table.dataTable, table.dataTable th, table.dataTable td {
 .bwp-form-help-block-last {
 	margin-bottom: 0;
 }
+
+.bwp-field-help-link {
+	// color: #444;
+	text-decoration: none;
+
+	&:focus {
+		box-shadow: none;
+		// color: #00a0d2;
+	}
+}
+
+.bwp-field-help {
+	vertical-align: middle;
+
+	color: #0073aa;
+
+	&:hover, &:active, &:focus {
+		cursor: pointer;
+		color: #00a0d2;
+	}
+
+	&:focus {
+		color: #124964;
+	}
+
+	// height: 18px;
+	// font-size: 18px;
+}
+
+select, input[type="text"], textarea {
+	& + .bwp-field-help, & + .bwp-field-help-link span {
+		display: inline-block;
+		margin-bottom: 5px;
+	}
+}
 /*--- End inline form ---*/
 
 #icon-betterwp-net {

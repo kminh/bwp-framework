@@ -200,6 +200,27 @@ class BWP_Option_Page_V3
 	}
 
 	/**
+	 * @param string $name
+	 * @since rev 161
+	 */
+	protected function is_field_checkbox_or_radio($name)
+	{
+		$types = array('checkbox', 'checkbox_multi', 'radio');
+		foreach ($types as $type)
+		{
+			if (!isset($this->form[$type]) || !is_array($this->form[$type]))
+				continue;
+
+			if (!isset($this->form[$type][$name]))
+				continue;
+
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
 	 * Generate HTML form
 	 */
 	public function generate_html_form()
@@ -482,6 +503,123 @@ class BWP_Option_Page_V3
 	}
 
 	/**
+	 * @param string $name
+	 * @param array $attributes attributes to merge with
+	 * @since rev 161
+	 */
+	protected function generate_field_help_attributes($name, array &$attributes = array())
+	{
+		$help_data = isset($this->form['helps'][$name])
+			&& is_array($this->form['helps'][$name])
+			? $this->form['helps'][$name] : array();
+
+		if (! $help_data)
+			return;
+
+		$help_defaults = array(
+			'type'      => 'hover',
+			'target'    => 'self', // add attributes to the current field
+			'title'     => null,
+			'content'   => null,
+			'placement' => 'auto top',
+			'size'      => 'auto'
+		);
+
+		$size_map = array(
+			'auto'   => null,
+			'full'   => 'bwp-popover-full',
+			'large'  => 'bwp-popover-lg',
+			'medium' => 'bwp-popover-md',
+			'small'  => 'bwp-popover-sm'
+		);
+
+		$help_data = array_merge($help_defaults, $help_data);
+		$help_class = '';
+		$help_attributes = array();
+
+		switch ($help_data['type'])
+		{
+			case 'focus':
+			case 'hover':
+			case 'switch':
+				$help_class = 'bwp-popover-' . $help_data['type'];
+				break;
+		}
+
+		$help_attributes = array(
+			'class'              => $help_class,
+			'title'              => $help_data['title'],
+			'data-content'       => $help_data['content'],
+			'data-placement'     => $help_data['placement'],
+			'data-popover-class' => $size_map[$help_data['size']]
+		);
+
+		// need to add a new icon to after the field to hold the help attributes
+		if ($help_data['target'] == 'icon' || $help_data['type'] == 'link')
+		{
+			$post_html = $this->generate_html_field('help', array(
+				'url'        => $help_data['type'] == 'link' ? $help_data['content'] : false,
+				'attributes' => $help_attributes
+			), 'help_' . $name);
+
+			$this->form['post'][$name] = !empty($this->form['post'][$name])
+				? $this->form['post'][$name] . ' ' . $post_html
+				: $post_html;
+
+			return;
+		}
+
+		// add attributes to the current field, merging with any existing
+		// attributes if found
+		foreach ($help_attributes as $attribute_name => $attribute)
+		{
+			if (! $attribute)
+				continue;
+
+			// append help attribute
+			$attributes[$attribute_name] = !empty($attributes[$attribute_name])
+				? $attributes[$attribute_name] . ' ' . $attribute
+				: $attribute;
+		}
+	}
+
+	/**
+	 * @since rev 161
+	 */
+	protected function generate_attribute_string(array $attributes)
+	{
+		foreach ($attributes as $attribute_name => &$attribute)
+		{
+			if (! $attribute)
+				continue;
+
+			$attribute = esc_html($attribute_name) . '="' . esc_attr($attribute) . '"';
+		}
+
+		$attributes = implode(' ', $attributes);
+		$attributes = !empty($attributes) ? $attributes . ' ' : '';
+
+		return $attributes;
+	}
+
+	/**
+	 * @since rev 161
+	 */
+	protected function generate_field_attributes($name)
+	{
+		$attributes = isset($this->form['attributes'][$name])
+			&& is_array($this->form['attributes'][$name])
+			? $this->form['attributes'][$name] : array();
+
+		// populate help attributes for fields that are not checkbox/radiobox
+		// as their help attributes should be added later on to their labels
+		if (! $this->is_field_checkbox_or_radio($name))
+			$this->generate_field_help_attributes($name, $attributes);
+
+		return $this->generate_attribute_string($attributes);
+	}
+
+	/**
 	 * Generate HTML field
 	 */
 	protected function generate_html_field($type = '', $data = array(), $name = '', $in_section = false)
@@ -531,28 +669,24 @@ class BWP_Option_Page_V3
 			'label',
 			'disabled',
 			'pre',
-			'post'
+			'post',
+			'attributes',
+			'label_attributes'
 		);
 
 		$return_html   = '';
 
-		$br = isset($this->form['inline_fields'][$name])
-			&& is_array($this->form['inline_fields'][$name])
+		$attributes = $this->generate_field_attributes($name);
+		$label_attributes = '';
+
+		$br = (isset($this->form['inline_fields'][$name])
+				&& is_array($this->form['inline_fields'][$name]))
+			|| !empty($this->form['post'][$name])
 			? ''
 			: "<br />\n";
 
 		$pre   = !empty($data['pre']) ? $data['pre'] : '';
 		$post  = !empty($data['post']) ? $data['post'] : '';
-
-		$attributes = isset($this->form['attributes'][$name])
-			&& is_array($this->form['attributes'][$name])
-			? $this->form['attributes'][$name] : array();
-
-		foreach ($attributes as $attribute_name => &$attribute)
-			$attribute = esc_html($attribute_name) . '="' . esc_attr($attribute) . '"';
-
-		$attributes = implode(' ', $attributes);
-		$attributes = !empty($attributes) ? $attributes . ' ' : '';
 
 		$param = empty($this->form['params'][$name])
 			? false : $this->form['params'][$name];
@@ -618,6 +752,43 @@ class BWP_Option_Page_V3
 					. 'name="' . $name_attr . '" cols="%cols%" rows="%rows%">'
 					. $value . '</textarea>%post%';
 			break;
+
+			// @since rev 161 add a help field
+			case 'help':
+				$html_field_class = 'bwp-field-help';
+				$html_field_inner = '&nbsp;<span %attributes%>(?)</span>';
+
+				// use nice font icon for WP 3.8+
+				if ($this->plugin->get_current_wp_version('3.8'))
+				{
+					$html_field_class = 'dashicons dashicons-editor-help bwp-field-help';
+					$html_field_inner = '&nbsp;<span %attributes%></span>';
+				}
+
+				// use explicitly set attributes for this field when needed
+				if (empty($data['url']))
+				{
+					$attributes = isset($data['attributes']) && is_array($data['attributes'])
+						? $data['attributes']
+						: array('class' => '');
+
+					$attributes['class'] .= ' ' . $html_field_class;
+					$attributes = $this->generate_attribute_string($attributes);
+
+					$html_field = $html_field_inner;
+				}
+				else
+				{
+					$attributes = $this->generate_attribute_string(array(
+						'class' => $html_field_class
+					));
+
+					$html_field = '<a class="bwp-field-help-link" target="_blank" href="'
+						. esc_url($data['url']) . '">'
+						. $html_field_inner
+						. '</a>';
+				}
+			break;
 		}
 
 		if (!isset($data))
@@ -631,6 +802,18 @@ class BWP_Option_Page_V3
 			|| $type == 'checkbox' || $type == 'checkbox_multi'
 			|| $type == 'select' || $type == 'select_multi'
 		) {
+			// generate label attributes for checkbox/radiobox if any
+			if (strpos($type, 'select') === false)
+			{
+				$label_attributes = array();
+				$this->generate_field_help_attributes($name, $label_attributes);
+				$label_attributes = $this->generate_attribute_string($label_attributes);
+
+				// generating label attributes might add some post HTML, so we
+				// need to reassign br here
+				$br = !empty($this->form['post'][$name]) ? '' : "<br />\n";
+			}
+
 			foreach ($data as $key => $value)
 			{
 				if ($type == 'checkbox')
