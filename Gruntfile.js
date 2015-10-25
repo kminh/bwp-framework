@@ -18,6 +18,7 @@ module.exports = function(grunt) {
 							.replace(/class="popover/g, 'class="bwp-popover')
 							.replace(/'\.arrow/g, '\'.bwp-arrow')
 							.replace(/class="arrow/g, 'class="bwp-arrow')
+							.replace(/\/\* =/g, '/*! =') // for copyright notice
 						;
 					}
 				},
@@ -88,13 +89,13 @@ module.exports = function(grunt) {
 			placeholders: {
 				expand: true,
 				cwd: 'bower_components/placeholders/dist',
-				src: '**/*.*',
+				src: 'placeholders.jquery.js',
 				dest: 'assets/vendor/placeholders',
 			},
 			select2: {
 				expand: true,
 				cwd: 'bower_components/select2/dist',
-				src: '**/*.*',
+				src: 'js/select2.js',
 				dest: 'assets/vendor/select2',
 			},
 			inputmask: {
@@ -104,7 +105,8 @@ module.exports = function(grunt) {
 		},
 		uglify: {
 			options: {
-				mangle: true
+				mangle: true,
+				preserveComments: 'some'
 			},
 			common: {
 				files: {
