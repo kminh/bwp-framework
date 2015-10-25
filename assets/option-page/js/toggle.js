@@ -18,7 +18,7 @@ jQuery(function($) {
 
 		// the target of this toggling can be a standalone element, or an element
 		// contained in a standard BWP form item
-		var $target = ! $('#' + target_id).is(':input')
+		var $target = ! $('#' + target_id).is(':input') && ! $('#' + target_id).is('h3')
 			? $('#' + target_id) : $('#' + target_id).parents('.bwp-clear');
 
 		// no toggle value, just show the target immediately when the selected
