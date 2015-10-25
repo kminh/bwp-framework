@@ -783,8 +783,9 @@ class BWP_Option_Page_V3
 						'class' => $html_field_class
 					));
 
-					$html_field = '<a class="bwp-field-help-link" target="_blank" href="'
-						. esc_url($data['url']) . '">'
+					$html_field = '<a class="bwp-field-help-link" target="_blank" '
+						. 'title="' . __('View more info in a separate tab', $this->domain) . '" '
+						. 'href="' . esc_url($data['url']) . '">'
 						. $html_field_inner
 						. '</a>';
 				}
