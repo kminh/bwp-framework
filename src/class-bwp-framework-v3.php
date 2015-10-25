@@ -949,12 +949,16 @@ abstract class BWP_Framework_V3
 
 		// select2
 		$this->register_media_file('bwp-placeholders',
-			$asset_url . '/vendor/placeholders/placeholders.js',
-			array(), $this->revision
+			$asset_url . '/vendor/placeholders/placeholders.jquery.js',
+			array(), $this->revision,
+			$asset_url . '/vendor/select2/js/select2.min.js',
+			'bwp-select2'
 		);
 		$this->register_media_file('bwp-select2',
 			$asset_url . '/vendor/select2/js/select2.js',
-			array('bwp-placeholders'), $this->revision
+			array('bwp-placeholders'), $this->revision,
+			$asset_url . '/vendor/select2/js/select2.min.js',
+			'bwp-select2'
 		);
 		$this->register_media_file('bwp-select2',
 			$asset_url . '/vendor/select2/css/select2.css',
@@ -976,15 +980,32 @@ abstract class BWP_Framework_V3
 			$asset_url . '/vendor/bootstrap/js/bootstrap.js',
 			array('jquery'), $this->revision
 		);
+
+		// bootstrap modal
 		$this->register_media_file('bwp-bootbox',
 			$asset_url . '/vendor/bootbox.js/bootbox.js',
 			array('bwp-bootstrap'), $this->revision,
-			$asset_url . '/vendor/bootstrap/js/bootstrap.min.js'
+			$asset_url . '/option-page/dist/js/modal.min.js',
+			'bwp-op-modal'
 		);
 		$this->register_media_file('bwp-op-bootbox',
 			$asset_url . '/option-page/js/bootbox.js',
 			array('jquery', 'bwp-bootbox'), $this->revision,
-			$asset_url . '/vendor/bootstrap/js/bootstrap.min.js'
+			$asset_url . '/option-page/dist/js/modal.min.js',
+			'bwp-op-modal'
+		);
+		$this->register_media_file('bwp-op-modal',
+			$asset_url . '/option-page/js/modal.js',
+			array('bwp-op-bootbox', 'bwp-op-common'),
+			$this->revision,
+			$asset_url . '/option-page/dist/js/modal.min.js',
+			'bwp-op-modal'
+		);
+
+		// anchorjs
+		$this->register_media_file('bwp-anchorjs',
+			$asset_url . '/vendor/anchorjs/anchor.js',
+			array(), $this->revision
 		);
 
 		// jquery ui
@@ -999,32 +1020,37 @@ abstract class BWP_Framework_V3
 			array('jquery'), $this->revision
 		);
 
-		// bwp scripts
-		$this->register_media_file('bwp-op-functions',
-			$asset_url . '/option-page/js/functions.js',
+		// bwp common
+		$this->register_media_file('bwp-op-common',
+			$asset_url . '/option-page/js/common.js',
 			array('jquery'), $this->revision,
-			$asset_url . '/option-page/dist/js/op.min.js'
+			$asset_url . '/option-page/dist/js/common.min.js'
 		);
-		$this->register_media_file('bwp-op-modal',
-			$asset_url . '/option-page/js/modal.js',
-			array('bwp-bootstrap', 'bwp-op-bootbox', 'bwp-op-functions'),
-			$this->revision,
-			$asset_url . '/option-page/dist/js/op.min.js'
-		);
+
+		// bwp op
 		$this->register_media_file('bwp-op-popover',
 			$asset_url . '/option-page/js/popover.js',
 			array('bwp-bootstrap'), $this->revision,
-			$asset_url . '/option-page/dist/js/op.min.js'
+			$asset_url . '/option-page/dist/js/op.min.js',
+			'bwp-op'
 		);
 		$this->register_media_file('bwp-op-toggle',
 			$asset_url . '/option-page/js/toggle.js',
 			array('jquery'), $this->revision,
-			$asset_url . '/option-page/dist/js/op.min.js'
+			$asset_url . '/option-page/dist/js/op.min.js',
+			'bwp-op'
 		);
-		$this->register_media_file('bwp-op-misc',
-			$asset_url . '/option-page/js/misc.js',
-			array('bwp-op-functions'), $this->revision,
-			$asset_url . '/option-page/dist/js/op.min.js'
+		$this->register_media_file('bwp-op',
+			$asset_url . '/option-page/js/op.js',
+			array(
+				'bwp-op-common',
+				'bwp-anchorjs',
+				'bwp-op-popover',
+				'bwp-op-toggle'
+			),
+			$this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js',
+			'bwp-op'
 		);
 	}
 

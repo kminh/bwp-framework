@@ -106,12 +106,27 @@ module.exports = function(grunt) {
 			options: {
 				mangle: true
 			},
+			common: {
+				files: {
+					'assets/option-page/dist/js/common.min.js': [
+						'assets/option-page/js/common.js'
+					]
+				}
+			},
 			op: {
 				files: {
 					'assets/option-page/dist/js/op.min.js': [
-						'assets/option-page/js/*.js',
-						'!assets/option-page/js/bootbox.js',
-						'!assets/option-page/js/paypal.js'
+						'assets/option-page/js/popover.js',
+						'assets/option-page/js/toggle.js',
+						'assets/option-page/js/op.js'
+					]
+				}
+			},
+			select2: {
+				files: {
+					'assets/vendor/select2/js/select2.min.js': [
+						'assets/vendor/placeholders/placeholders.jquery.js',
+						'assets/vendor/select2/js/select2.js'
 					]
 				}
 			},
@@ -119,8 +134,15 @@ module.exports = function(grunt) {
 				files: {
 					'assets/vendor/bootstrap/js/bootstrap.min.js': [
 						'assets/vendor/bootstrap/js/bootstrap.js',
+					]
+				}
+			},
+			bootstrap_modal: {
+				files: {
+					'assets/option-page/dist/js/modal.min.js': [
 						'assets/vendor/bootbox.js/bootbox.js',
-						'assets/option-page/js/bootbox.js'
+						'assets/option-page/js/bootbox.js',
+						'assets/option-page/js/modal.js'
 					]
 				}
 			},
