@@ -1002,12 +1002,6 @@ abstract class BWP_Framework_V3
 			'bwp-op-modal'
 		);
 
-		// anchorjs
-		$this->register_media_file('bwp-anchorjs',
-			$asset_url . '/vendor/anchorjs/anchor.js',
-			array(), $this->revision
-		);
-
 		// jquery ui
 		$this->register_media_file('bwp-jquery-ui',
 			$asset_url . '/option-page/css/jquery-ui/jquery-ui.css',
@@ -1028,6 +1022,12 @@ abstract class BWP_Framework_V3
 		);
 
 		// bwp op
+		$this->register_media_file('bwp-anchorjs',
+			$asset_url . '/vendor/anchorjs/anchor.js',
+			array(), $this->revision,
+			$asset_url . '/option-page/dist/js/op.min.js',
+			'bwp-op'
+		);
 		$this->register_media_file('bwp-op-popover',
 			$asset_url . '/option-page/js/popover.js',
 			array('bwp-bootstrap'), $this->revision,

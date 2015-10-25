@@ -101,6 +101,10 @@ module.exports = function(grunt) {
 			inputmask: {
 				src: 'bower_components/jquery.inputmask/dist/jquery.inputmask.bundle.js',
 				dest: 'assets/vendor/inputmask/jquery.inputmask.bundle.js'
+			},
+			anchorjs: {
+				src: 'bower_components/anchor-js/anchor.js',
+				dest: 'assets/vendor/anchorjs/anchor.js'
 			}
 		},
 		uglify: {
@@ -118,6 +122,7 @@ module.exports = function(grunt) {
 			op: {
 				files: {
 					'assets/option-page/dist/js/op.min.js': [
+						'assets/vendor/anchorjs/anchor.js',
 						'assets/option-page/js/popover.js',
 						'assets/option-page/js/toggle.js',
 						'assets/option-page/js/op.js'
