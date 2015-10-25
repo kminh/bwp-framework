@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 161;
+	public $revision = 162;
 
 	/**
 	 * Text domain
@@ -471,6 +471,18 @@ abstract class BWP_Framework_V3
 		$this->bridge->add_action('admin_menu', array($this, 'init_admin_menu'), 1);
 	}
 
+	public function build_wp_properties()
+	{
+		// set the plugin WP url here so it can be filtered
+		if (defined('BWP_USE_SYMLINKS'))
+			// make use of symlinks on development environment
+			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugins_url($this->plugin_folder));
+		else
+			// this should allow other package to include BWP plugins while
+			// retaining correct URLs pointing to assets
+			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugin_dir_url($this->plugin_file));
+	}
+
 	public function init()
 	{
 		$this->bridge->do_action($this->plugin_key . '_pre_init');
@@ -493,18 +505,6 @@ abstract class BWP_Framework_V3
 			$this->bridge->add_filter('bwp-admin-plugin-version', array($this, 'show_version'));
 			$this->bridge->add_action('bwp_option_action_before_form', array($this, 'show_donation'), 12);
 		}
-	}
-
-	public function build_wp_properties()
-	{
-		// set the plugin WP url here so it can be filtered
-		if (defined('BWP_USE_SYMLINKS'))
-			// make use of symlinks on development environment
-			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugins_url($this->plugin_folder));
-		else
-			// this should allow other package to include BWP plugins while
-			// retaining correct URLs pointing to assets
-			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugin_dir_url($this->plugin_file));
 	}
 
 	protected function pre_init_build_constants()
@@ -818,19 +818,20 @@ abstract class BWP_Framework_V3
 	}
 
 	/**
-	 * Get correct media src based on WP_DEBUG
+	 * Get correct media src based on environment
 	 *
-	 * @param string $dev_src the source used in development environment
-	 * @param string $prod_src the source used in production environment, this
-	 *                         will be used instead of replacing $dev_src's
-	 *                         extension when provided
-	 * @return mixed string|bool false if the src is not needed for current environment
+	 * @param string $handle      media handle
+	 * @param string $dev_src     the source used in development environment
+	 * @param string $prod_src    the source used in production environment, this
+	 *                            will be used instead of replacing $dev_src's
+	 *                            extension when provided
+	 * @param string $prod_handle the handle used in production environment
+	 *
+	 * @return mixed string
 	 */
-	protected function get_src_by_environment($dev_src, $prod_src = null)
+	protected function get_src_by_environment($handle, $dev_src, $prod_src = null, $prod_handle = null)
 	{
-		$debugging = BWP_Framework_Util::is_debugging();
-
-		if (!$debugging)
+		if (! BWP_Framework_Util::is_debugging())
 		{
 			$prod_src = $prod_src
 				? $prod_src
@@ -840,11 +841,17 @@ abstract class BWP_Framework_V3
 					$dev_src
 				);
 
-			// combined assets should only be added once
-			if (in_array($prod_src, $this->combined_assets))
-				return false;
+			if ($prod_handle)
+			{
+				// init combined asset to hold combined dependencies later on
+				if (!isset($this->combined_assets[$prod_handle]))
+					$this->combined_assets[$prod_handle] = array();
 
-			$this->combined_assets[] = $prod_src;
+				// combined assets should be added for the handle matching
+				// prod_handle only
+				if ($handle !== $prod_handle)
+					return false;
+			}
 
 			return $prod_src;
 		}
@@ -853,18 +860,57 @@ abstract class BWP_Framework_V3
 	}
 
 	/**
+	 * Get dependencies based on environment
+	 *
+	 * @param array $deps current dependencies of the item being checked
+	 * @param string $prod_handle the handle used in production environment
+	 *
+	 * @return array
+	 */
+	protected function get_deps_by_environment(array $deps, $prod_handle = null)
+	{
+		if ($prod_handle && ! BWP_Framework_Util::is_debugging())
+		{
+			// due to a bug in the enqueueing system, we need to merge
+			// dependencies for combined assets for the prod_handle because
+			// any dependencies attached to other handles that have the same
+			// prod_handle will not be taken into account when their sources
+			// are set to false
+			//
+			// @link https://core.trac.wordpress.org/ticket/25247
+			$this->combined_assets[$prod_handle] = array_merge(
+				$deps, $this->combined_assets[$prod_handle]
+			);
+
+			return $this->combined_assets[$prod_handle];
+		}
+
+		return $deps;
+	}
+
+	/**
 	 * Register a BWP media file
 	 *
 	 * @param string $prod_src the source to use when debug is off
+	 * @param string $prod_handle the handle to use when debug is off
 	 */
-	protected function register_media_file($handle, $src, array $deps = array(), $version = false, $prod_src = null)
-	{
+	protected function register_media_file(
+		$handle,
+		$src,
+		array $deps = array(),
+		$version = false,
+		$prod_src = null,
+		$prod_handle = null
+	) {
 		$method = strpos($src, '.js') !== false ? 'wp_register_script' : 'wp_register_style';
 		$group  = strpos($src, '.js') !== false ? true : 'all'; // in footer or 'all' media
 
 		$this->bridge->$method(
-			$handle, $this->get_src_by_environment($src, $prod_src),
-			$deps, $version ? $version : $this->plugin_ver, $group
+			$handle,
+			$this->get_src_by_environment($handle, $src, $prod_src, $prod_handle),
+			$this->get_deps_by_environment($deps, $prod_handle),
+			$version ? $version : $this->plugin_ver,
+			$group
 		);
 	}
 
@@ -872,15 +918,25 @@ abstract class BWP_Framework_V3
 	 * Enqueue a BWP media file
 	 *
 	 * @param string $prod_src the source to use when debug is off
+	 * @param string $prod_handle the handle to use when debug is off
 	 */
-	protected function enqueue_media_file($handle, $src, array $deps = array(), $version = false, $prod_src = null)
-	{
+	protected function enqueue_media_file(
+		$handle,
+		$src,
+		array $deps = array(),
+		$version = false,
+		$prod_src = null,
+		$prod_handle = null
+	) {
 		$method = strpos($src, '.js') !== false ? 'wp_enqueue_script' : 'wp_enqueue_style';
 		$group  = strpos($src, '.js') !== false ? true : 'all'; // in footer or 'all' media
 
 		$this->bridge->$method(
-			$handle, $this->get_src_by_environment($src, $prod_src),
-			$deps, $version ? $version : $this->plugin_ver, $group
+			$handle,
+			$this->get_src_by_environment($handle, $src, $prod_src, $prod_handle),
+			$this->get_deps_by_environment($deps, $prod_handle),
+			$version ? $version : $this->plugin_ver,
+			$group
 		);
 	}
 
