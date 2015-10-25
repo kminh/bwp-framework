@@ -60,6 +60,25 @@ module.exports = function(grunt) {
 				],
 				dest: 'assets/vendor/bootstrap/less'
 			},
+			bootbox: {
+				options: {
+					process: function(content) {
+						return content
+							.replace(/modal-/g, 'bwp-modal-')
+							.replace(/bootbox modal/g, 'bootbox bwp-modal')
+							.replace(/bootbox-close-button close/g, 'bootbox-close-button bwp-close')
+							.replace(/"btn-primary"/g, '"bwp-btn-primary button-primary"')
+							.replace(/\.btn-primary/g, '.bwp-btn-primary')
+							.replace(/"btn-default"/g, '"bwp-btn-default button-secondary"')
+							.replace(/\.btn-default/g, '.bwp-btn-default')
+							.replace(/class=\'btn/g, 'class=\'bwp-btn')
+							.replace(/"<button/g, '" <button')
+						;
+					}
+				},
+				src: 'bower_components/bootbox.js/bootbox.js',
+				dest: 'assets/vendor/bootbox.js/bootbox.js'
+			},
 			datatables: {
 				expand: true,
 				cwd: 'bower_components/datatables/media',
@@ -91,6 +110,7 @@ module.exports = function(grunt) {
 				files: {
 					'assets/option-page/dist/js/op.min.js': [
 						'assets/option-page/js/*.js',
+						'!assets/option-page/js/bootbox.js',
 						'!assets/option-page/js/paypal.js'
 					]
 				}
@@ -98,7 +118,9 @@ module.exports = function(grunt) {
 			bootstrap: {
 				files: {
 					'assets/vendor/bootstrap/js/bootstrap.min.js': [
-						'assets/vendor/bootstrap/js/bootstrap.js'
+						'assets/vendor/bootstrap/js/bootstrap.js',
+						'assets/vendor/bootbox.js/bootbox.js',
+						'assets/option-page/js/bootbox.js'
 					]
 				}
 			},

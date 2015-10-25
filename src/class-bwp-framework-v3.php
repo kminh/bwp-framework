@@ -920,6 +920,16 @@ abstract class BWP_Framework_V3
 			$asset_url . '/vendor/bootstrap/js/bootstrap.js',
 			array('jquery'), $this->revision
 		);
+		$this->register_media_file('bwp-bootbox',
+			$asset_url . '/vendor/bootbox.js/bootbox.js',
+			array('bwp-bootstrap'), $this->revision,
+			$asset_url . '/vendor/bootstrap/js/bootstrap.min.js'
+		);
+		$this->register_media_file('bwp-op-bootbox',
+			$asset_url . '/option-page/js/bootbox.js',
+			array('jquery', 'bwp-bootbox'), $this->revision,
+			$asset_url . '/vendor/bootstrap/js/bootstrap.min.js'
+		);
 
 		// jquery ui
 		$this->register_media_file('bwp-jquery-ui',
@@ -941,7 +951,8 @@ abstract class BWP_Framework_V3
 		);
 		$this->register_media_file('bwp-op-modal',
 			$asset_url . '/option-page/js/modal.js',
-			array('bwp-bootstrap', 'bwp-op-functions'), $this->revision,
+			array('bwp-bootstrap', 'bwp-op-bootbox', 'bwp-op-functions'),
+			$this->revision,
 			$asset_url . '/option-page/dist/js/op.min.js'
 		);
 		$this->register_media_file('bwp-op-popover',
