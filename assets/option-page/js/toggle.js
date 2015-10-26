@@ -32,7 +32,7 @@ jQuery(function($) {
 				$target.toggleClass('bwp-no-display', '' === current_value);
 			}
 		} else if (!$t.is(':button')) {
-			$target.toggleClass('bwp-no-display', toggle_value === current_value);
+			$target.toggleClass('bwp-no-display', toggle_value !== current_value);
 		}
 
 		$t.prop('disabled', false);
