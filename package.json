@@ -1,6 +1,6 @@
 {
   "name": "BWP_Framework",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "config": {
     "phpunit_suite": ""
   },
@@ -24,7 +24,8 @@
     "build:ci": "export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:all",
     "build:legacy": "export PHPUNIT_CMD='test:php:legacy' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:functional:all",
     "build:php55": "export PHPUNIT_CMD='test:php' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm test",
-    "update": "php composer update"
+    "init": "composer install && npm install && bower install && npm run build:assets",
+    "update": "composer update"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
