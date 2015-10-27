@@ -5,6 +5,12 @@
  * @license http://www.gnu.org/licenses/gpl.html GNU GENERAL PUBLIC LICENSE VERSION 3.0 OR LATER
  */
 
+// temporary workaround to install multisite when testing multisite
+// functionality. For this to work multisite tests must be run in separate
+// processes, either by using PHPUnit's process isolation feature or using
+// separate testsuite.
+define('WP_TESTS_MULTISITE', 1);
+
 /**
  * @author Khang Minh <contact@betterwp.net>
  */

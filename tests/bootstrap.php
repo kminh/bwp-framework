@@ -29,7 +29,6 @@ function _bwp_framework_test_autoloader($class_name)
 	putenv("WP_CORE_DIR=$_core_dir/");
 
 	define('WP_RUN_CORE_TESTS', 1);
-	/* define('WP_TESTS_MULTISITE', 1); */
 	define('WP_TESTS_FORCE_KNOWN_BUGS', false);
 
 	// use symlinks for dev
