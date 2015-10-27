@@ -321,11 +321,13 @@ abstract class BWP_Framework_V3
 	 */
 	public function get_current_wp_version($version = null)
 	{
+		$wp_version = $this->bridge->get_bloginfo('version');
+
 		if ($version) {
-			return version_compare($this->get_current_wp_version(), $version, '>=');
+			return version_compare($wp_version, $version, '>=');
 		}
 
-		return $this->bridge->get_bloginfo('version');
+		return $wp_version;
 	}
 
 	protected function check_required_versions()
