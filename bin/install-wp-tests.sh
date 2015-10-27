@@ -86,6 +86,7 @@ install_test_suite() {
 
 	# hack to allow loading bootstrap file without installing WP again
 	sed $ioption "s:^system( WP_PHP_BINARY.*install.php:if (!file_exists(dirname(dirname(__FILE__)) . '/installed.lock')) \0:" bootstrap.php
+	sed $ioption "s:^_delete_all_posts():if (!file_exists(dirname(dirname(__FILE__)) . '/installed.lock')) \0:" bootstrap.php
 
 	# hack to suppress useless WP messages
 	sed $ioption "s:^\s*echo \"Running as multisite://\0:" bootstrap.php
