@@ -16,6 +16,24 @@ define('WP_TESTS_MULTISITE', 1);
  */
 abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BWP_Framework_PHPUnit_WP_Functional_TestCase
 {
+	/**
+	 * @var array
+	 */
+	protected static $wp_original_site_options = array();
+
+	/**
+	 * @var array
+	 */
+	protected static $wp_site_options = array();
+
+	public function tearDown()
+	{
+		// reset wp site options to their original values
+		static::set_wp_site_options(self::$wp_original_site_options);
+
+		parent::tearDown();
+	}
+
 	public static function tearDownAfterClass()
 	{
 		global $_tests_dir, $_core_dir;
@@ -67,6 +85,35 @@ abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BW
 		if (!file_exists($htaccess_file)
 			|| stripos($htaccess, 'RewriteEngine On') === false) {
 			exec('echo ' . escapeshellarg($htaccess) . ' > ' . escapeshellarg($htaccess_file));
+		}
+	}
+
+	/**
+	 * Set WP site options that are used for all tests
+	 *
+	 * {@inheritDoc}
+	 */
+	protected static function set_wp_default_options()
+	{
+		parent::set_wp_default_options();
+
+		$options = static::$wp_site_options;
+
+		foreach ($options as $key => $value) {
+			self::$wp_original_site_options[$key] = get_site_option($key);
+			self::update_site_option($key, $value);
+		}
+	}
+
+	/**
+	 * Set WP site options that are used for a specific test
+	 *
+	 * {@inheritDoc}
+	 */
+	protected static function set_wp_site_options(array $options)
+	{
+		foreach ($options as $key => $value) {
+			self::update_site_option($key, $value);
 		}
 	}
 
