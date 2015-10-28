@@ -51,6 +51,9 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		static::prepare_asset_directories();
 
 		parent::setUp();
+
+		// parent::setUp() must be called before this
+		$this->prepare_default_values();
 	}
 
 	/**
@@ -66,6 +69,9 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		static::prepare_asset_directories();
 
 		parent::setUp();
+
+		// parent::setUp() must be called before this
+		$this->prepare_default_values();
 	}
 
 	public function tearDown()

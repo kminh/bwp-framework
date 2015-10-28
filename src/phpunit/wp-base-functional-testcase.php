@@ -141,9 +141,6 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 			// mark as installed
 			touch($_tests_dir . '/installed.lock');
 		}
-
-		// always prepare default values after all required plugins are loaded
-		$this->prepare_default_values();
 	}
 
 	/**
