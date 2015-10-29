@@ -620,6 +620,20 @@ class BWP_Option_Page_V3
 	}
 
 	/**
+	 * @since rev 163
+	 */
+	protected function is_compound_field($name)
+	{
+		if (isset($this->form['inline_fields'][$name])
+			&& is_array($this->form['inline_fields'][$name])
+		) {
+			return true;
+		}
+
+		return !empty($this->form['post'][$name]);
+	}
+
+	/**
 	 * Generate HTML field
 	 */
 	protected function generate_html_field($type = '', $data = array(), $name = '', $in_section = false)
@@ -679,14 +693,10 @@ class BWP_Option_Page_V3
 		$attributes = $this->generate_field_attributes($name);
 		$label_attributes = '';
 
-		$br = (isset($this->form['inline_fields'][$name])
-				&& is_array($this->form['inline_fields'][$name]))
-			|| !empty($this->form['post'][$name])
-			? ''
-			: "<br />\n";
+		$br = $this->is_compound_field($name) ? '' : "<br />\n";
 
-		$pre   = !empty($data['pre']) ? $data['pre'] : '';
-		$post  = !empty($data['post']) ? $data['post'] : '';
+		$pre  = !empty($data['pre']) ? $data['pre'] : '';
+		$post = !empty($data['post']) ? $data['post'] : '';
 
 		$param = empty($this->form['params'][$name])
 			? false : $this->form['params'][$name];
@@ -812,7 +822,7 @@ class BWP_Option_Page_V3
 
 				// generating label attributes might add some post HTML, so we
 				// need to reassign br here
-				$br = !empty($this->form['post'][$name]) ? '' : "<br />\n";
+				$br = $this->is_compound_field($name) ? '' : "<br />\n";
 			}
 
 			foreach ($data as $key => $value)
