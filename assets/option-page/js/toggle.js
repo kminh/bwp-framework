@@ -27,7 +27,12 @@ jQuery(function($) {
 			if ($t.is(':button')) {
 				$target.toggleClass('bwp-no-display');
 			} else if ($t.is(':checkbox')) {
-				$target.toggleClass('bwp-no-display', ! $t.prop('checked'));
+				var cb_invert = $t.data('checkboxInvert');
+				if (cb_invert) {
+					$target.toggleClass('bwp-no-display', $t.prop('checked'));
+				} else {
+					$target.toggleClass('bwp-no-display', ! $t.prop('checked'));
+				}
 			} else {
 				$target.toggleClass('bwp-no-display', '' === current_value);
 			}
