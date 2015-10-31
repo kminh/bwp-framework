@@ -95,7 +95,10 @@ module.exports = function(grunt) {
 			select2: {
 				expand: true,
 				cwd: 'bower_components/select2/dist',
-				src: 'js/select2.js',
+				src: [
+					'js/select2.js',
+					'css/*.css'
+				],
 				dest: 'assets/vendor/select2',
 			},
 			inputmask: {
