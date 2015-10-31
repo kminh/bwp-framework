@@ -1,6 +1,6 @@
 {
   "name": "BWP_Framework",
-  "version": "3.2.8",
+  "version": "3.2.9",
   "config": {
     "phpunit_suite": ""
   },
@@ -17,12 +17,13 @@
     "test:php:stable": "npm run test:php:unit && npm run test:php:functional:stable",
     "test:php:all": "npm run test:php:unit && npm run test:php:functional:all",
     "test": "npm run test:php:stable",
-    "prebuild:assets": "grunt copy-assets",
+    "prebuild:assets": "npm install && bower install && grunt copy-assets",
     "build:assets": "grunt minify",
-    "init": "composer install && npm install && bower install && npm run build:assets",
+    "setup": "composer install && npm run build:assets",
     "update": "composer update",
-    "prebuild": "npm run init",
+    "prebuild": "npm run setup",
     "build": "npm run test:php:all",
+    "build:dist": "composer install --no-dev && npm run build:assets",
     "build:ci": "export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:all",
     "build:legacy": "export PHPUNIT_CMD='test:php:legacy' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm run test:php:functional:all",
     "build:php55": "export PHPUNIT_CMD='test:php' && export WP_DB_USER=root && export WP_DB_PASS=wordpress && npm test"
