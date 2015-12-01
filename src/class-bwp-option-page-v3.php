@@ -934,6 +934,11 @@ class BWP_Option_Page_V3
 			}
 		}
 
+		// html before field
+		$pre = !empty($this->form['pre'][$name])
+			? ' ' . $this->form['pre'][$name]
+			: $pre;
+
 		// html after field
 		$post = !empty($this->form['post'][$name])
 			? ' ' . $this->form['post'][$name]
