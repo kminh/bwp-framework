@@ -88,16 +88,26 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 
 		$wp_config_file          = $_core_dir . '/wp-config.php';
 		$wp_config_file_original = $_core_dir . '/wp-config-original.php';
-		$wp_config_file_content  = file_get_contents($wp_config_file);
+
+		$wp_config_need_update = false;
 
 		// if config file is missing or its contents are missing
 		// wp-settings.php OR the its current contents are for multisite
 		// installation add/adjust it so we can browse the test WP installation
 		// later on
-		if (!file_exists($wp_config_file)
-			|| stripos($wp_config_file_content, 'wp-settings.php') === false
-			|| stripos($wp_config_file_content, 'WP_ALLOW_MULTISITE') !== false
-		) {
+		if (!file_exists($wp_config_file)) {
+			$wp_config_need_update = true;
+		} else {
+			$wp_config_file_content  = file_get_contents($wp_config_file);
+
+			if (stripos($wp_config_file_content, 'wp-settings.php') === false
+				|| stripos($wp_config_file_content, 'WP_ALLOW_MULTISITE') !== false
+			) {
+				$wp_config_need_update = true;
+			}
+		}
+
+		if ($wp_config_need_update) {
 			$root_dir  = dirname(dirname(__DIR__));
 			$wp_config = file_get_contents($root_dir . '/tests/functional/data/wp-config');
 
