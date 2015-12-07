@@ -175,8 +175,8 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	public function test_pre_init_actions_should_call_necessary_functions_when_build_properties()
 	{
 		$this->framework->shouldReceive('pre_init_build_constants')->ordered()->once();
-		$this->framework->shouldReceive('update_plugin')->with('pre_init')->ordered()->once();
 		$this->framework->shouldReceive('build_options')->ordered()->once();
+		$this->framework->shouldReceive('update_plugin')->with('pre_init')->ordered()->once();
 		$this->framework->shouldReceive('pre_init_properties')->ordered()->once();
 		$this->framework->shouldReceive('load_libraries')->ordered()->once();
 		$this->framework->shouldReceive('pre_init_hooks')->ordered()->once();
@@ -236,14 +236,6 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->framework->shouldReceive('build_constants')->globally()->ordered()->once();
 		$this->framework->shouldReceive('update_plugin')->with('init')->globally()->ordered()->once();
 
-		// need to build options if options have been changed in the pre init phase
-		if ($options_changed) {
-			$this->framework->options = array('option1' => 'value1');
-			$this->framework->current_options = array('option1' => 'value2');
-
-			$this->framework->shouldReceive('build_options')->globally()->ordered()->once();
-		}
-
 		$this->framework->shouldReceive('init_shared_properties')->globally()->ordered()->once();
 		$this->framework->shouldReceive('init_properties')->globally()->ordered()->once();
 		$this->framework->shouldReceive('init_hooks')->globally()->ordered()->once();
@@ -251,8 +243,19 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 
 		$this->bridge->shouldReceive('do_action')->with('bwp_plugin_loaded')->globally()->ordered()->once();
 
+		// options have changed
+		if ($options_changed) {
+			$this->framework->options = array('option1' => 'value1');
+			$this->framework->current_options = array('option1' => 'value2');
+		}
+
 		$this->build_properties();
 		$this->framework->init();
+
+		$this->assertTrue(
+			$this->framework->options == $this->framework->current_options,
+			'current options and options must always be the same after the init phase'
+		);
 	}
 
 	public function get_init_case()

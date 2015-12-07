@@ -448,8 +448,8 @@ abstract class BWP_Framework_V3
 	protected function pre_init_actions()
 	{
 		$this->pre_init_build_constants();
-		$this->pre_init_update_plugin();
 		$this->pre_init_build_options();
+		$this->pre_init_update_plugin();
 		$this->pre_init_properties();
 		$this->load_libraries();
 		$this->pre_init_hooks();
@@ -573,12 +573,8 @@ abstract class BWP_Framework_V3
 
 	protected function init_build_options()
 	{
-		// don't rebuild options if there's no different between current
-		// options and the actual options
-		if ($this->options == $this->current_options)
-			return;
-
-		$this->build_options();
+		// make sure at this stage current options and options are the same
+		$this->current_options = $this->options;
 	}
 
 	protected function build_options()
