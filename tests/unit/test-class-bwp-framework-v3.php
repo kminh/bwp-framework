@@ -340,7 +340,11 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->bridge->shouldReceive('get_option')->with('bwp_plugin_general')->andReturn($db_options)->byDefault();
 
 		if ($obsolete) {
-			$this->bridge->shouldReceive('update_option')->with('bwp_plugin_general', $merged_options)->once();
+			foreach (array_diff_key($db_options, $options_default) as $obsolete_key => $value) {
+				unset($db_options[$obsolete_key]);
+			}
+
+			$this->bridge->shouldReceive('update_option')->with('bwp_plugin_general', $db_options)->once();
 		}
 
 		$this->build_properties($options_default);
@@ -353,7 +357,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	public function get_plugin_options()
 	{
 		return array(
-			array(
+			'no obsolete options' => array(
 				array(
 					'option1' => 'value1',
 					'option2' => 'value2',
@@ -370,7 +374,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 				),
 				false
 			),
-			array(
+			'with obsolete options' => array(
 				array(
 					'option1' => 'value1',
 					'option3' => 'value3'

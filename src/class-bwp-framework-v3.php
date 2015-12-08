@@ -586,7 +586,6 @@ abstract class BWP_Framework_V3
 		{
 			$db_options = $this->bridge->get_option($option);
 			$db_options = self::normalize_options($db_options);
-			$option_need_update = false;
 
 			// check for obsolete keys and remove them from db
 			if ($obsolete_keys = array_diff_key($db_options, $this->options_default))
@@ -595,12 +594,11 @@ abstract class BWP_Framework_V3
 					unset($db_options[$obsolete_key]);
 				}
 
-				$option_need_update = true;
+				// commit the removal
+				$this->bridge->update_option($option, $db_options);
 			}
 
 			$options = array_merge($options, $db_options);
-			if ($option_need_update)
-				$this->bridge->update_option($option, $options);
 
 			// also check for global options if in Multi-site
 			if (self::is_multisite())
