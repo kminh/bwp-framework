@@ -46,11 +46,19 @@ class BWP_Cache
 	 *
 	 * @param string $key
 	 * @param bool $shared whether to get shared value
+	 * @param mixed $not_found_value value to return when key not found in cache
+	 *
 	 * @uses wp_cache_get
 	 * @return mixed
 	 */
-	public function get($key, $shared = false)
+	public function get($key, $shared = false, $not_found_value = null)
 	{
-		return $this->bridge->wp_cache_get($key, $shared ? 'bwp_plugins' : $this->group);
+		$value = $this->bridge->wp_cache_get($key, $shared ? 'bwp_plugins' : $this->group, false, $found);
+
+		if ($found) {
+			return $value;
+		}
+
+		return $not_found_value;
 	}
 }

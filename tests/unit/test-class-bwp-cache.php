@@ -1,11 +1,12 @@
 <?php
 
 use \Mockery as Mockery;
+use \Mockery\Adapter\Phpunit\MockeryTestCase;
 
 /**
  * @covers BWP_Cache
  */
-class BWP_Cache_Test extends PHPUnit_Framework_TestCase
+class BWP_Cache_Test extends MockeryTestCase
 {
 	protected $bridge;
 
@@ -44,7 +45,7 @@ class BWP_Cache_Test extends PHPUnit_Framework_TestCase
 	{
 		$this->bridge
 			->shouldReceive('wp_cache_get')
-			->with('key', $expected_group)
+			->with('key', $expected_group, false, Mockery::any())
 			->once();
 
 		$this->cache->get('key', $shared);
@@ -55,6 +56,34 @@ class BWP_Cache_Test extends PHPUnit_Framework_TestCase
 		return array(
 			array(false, 'bwp_plugin'),
 			array(true, 'bwp_plugins')
+		);
+	}
+
+	/**
+	 * @covers BWP_Cache::get
+	 * @dataProvider get_test_get_should_return_correct_not_found_value_cases
+	 */
+	public function test_get_should_return_correct_not_found_value($found, $not_found_value = null)
+	{
+		$this->bridge
+			->shouldReceive('wp_cache_get')
+			->with('key', 'bwp_plugin', false, Mockery::on(function(&$f) use ($found) {
+				$f = $found;
+				return true;
+			}))
+			->andReturn($found ? 'found' : $not_found_value)
+			->byDefault();
+
+		$this->assertEquals($found ? 'found' : $not_found_value, $this->cache->get('key', false, $not_found_value));
+	}
+
+	public function get_test_get_should_return_correct_not_found_value_cases()
+	{
+		return array(
+			array(true),
+			array(false, null),
+			array(false, false),
+			array(false, 1)
 		);
 	}
 }

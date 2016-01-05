@@ -48,4 +48,14 @@ class BWP_WP_Bridge
 	{
 		_e($key, $domain);
 	}
+
+	/**
+	 * A wrapper for @see wp_cache_get()
+	 *
+	 * @since rev 165
+	 */
+	public function wp_cache_get($key, $group = '', $force = false, &$found = null)
+	{
+		return wp_cache_get($key, $group, $force, $found);
+	}
 }
