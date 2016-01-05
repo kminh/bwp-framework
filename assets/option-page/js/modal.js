@@ -149,4 +149,16 @@ jQuery(function($) {
 			.removeClass('text-success text-danger')
 			.hide();
 	});
+
+	// vertically center any modal
+	$('body').on('shown.bs.modal', '.bwp-modal', function(e) {
+		var $dialog = $(this).find('.bwp-modal-dialog');
+
+		$dialog.css({
+			top: '50%',
+			'margin-top': function() {
+				return -($dialog.height() / 2);
+			}
+		});
+	});
 });
