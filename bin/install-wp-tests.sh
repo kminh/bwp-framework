@@ -16,16 +16,20 @@ WP_TESTS_DOMAIN=${WP_TESTS_DOMAIN-127.0.0.1}
 WP_CORE_DIR=${WP_CORE_DIR-/tmp/wordpress/}
 
 download() {
-    if [ `which curl` ]; then
-        curl -s "$1" > "$2";
-    elif [ `which wget` ]; then
-        wget -nv -O "$2" "$1"
-    fi
+	if [ `which curl` ]; then
+		curl -s "$1" > "$2";
+	elif [ `which wget` ]; then
+		wget -nv -O "$2" "$1"
+	fi
 }
 
 # special versions that can only use test libs from trunk
-if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' || $WP_VERSION =~ 'RC' || $WP_VERSION =~ 'rc' || $WP_VERSION =~ 'beta' ]]; then
+if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' || $WP_VERSION =~ 'RC' \
+   || $WP_VERSION =~ 'rc' || $WP_VERSION =~ 'beta' ]]; then
 	WP_TESTS_TAG="trunk"
+# latest is currently 4.4, but its test libs are buggy, so use 4.3 for now
+elif [[ $WP_VERSION == 'latest' ]]; then
+	WP_TESTS_TAG="tags/4.3"
 elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
 	WP_TESTS_TAG="tags/$WP_VERSION"
 else

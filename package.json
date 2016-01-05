@@ -11,7 +11,7 @@
     "test:php:functional": "npm run ${PHPUNIT_CMD-'test:php'} --BWP_Framework:phpunit_suite='functional'",
     "test:php:functional:3.7": "export WP_VERSION=3.7 && npm run test:php:functional",
     "test:php:functional:stable": "export WP_VERSION=latest && npm run test:php:functional",
-    "test:php:functional:beta": "export WP_VERSION=4.4-RC1 && npm run test:php:functional",
+    "test:php:functional:beta": "echo \"No beta version\"",
     "test:php:functional:all": "npm run test:php:functional:stable && npm run test:php:functional:3.7 && npm run test:php:functional:beta",
     "test:php:unit": "npm run test:php --BWP_Framework:phpunit_suite='unit'",
     "test:php:stable": "npm run test:php:unit && npm run test:php:functional:stable",
