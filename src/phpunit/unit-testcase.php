@@ -13,6 +13,10 @@ use \Mockery\Adapter\Phpunit\MockeryTestCase;
  */
 abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 {
+	protected $scheme = 'http';
+
+	protected $http_host = 'example.com';
+
 	protected $bridge;
 
 	protected $cache;
@@ -23,19 +27,16 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 
 	protected function setUp()
 	{
+		$_SERVER['HTTP_HOST'] = $this->http_host;
+
 		$this->bridge = Mockery::mock('BWP_WP_Bridge')
 			->shouldIgnoreMissing();
 
 		$plugin_slug   = $this->plugin_slug;
-		$plugin_wp_url = 'http://example.com/wp-content/plugins/' . $plugin_slug . '/';
+		$plugin_wp_url = $this->scheme . '://' . $this->http_host . '/wp-content/plugins/' . $plugin_slug . '/';
 
-		$this->bridge->shouldReceive('plugins_url')->andReturnUsing(function() use ($plugin_wp_url) {
-			return $plugin_wp_url;
-		})->byDefault();
-
-		$this->bridge->shouldReceive('plugin_dir_url')->andReturnUsing(function() use ($plugin_wp_url) {
-			return $plugin_wp_url;
-		})->byDefault();
+		$this->bridge->shouldReceive('plugins_url')->andReturn($plugin_wp_url)->byDefault();
+		$this->bridge->shouldReceive('plugin_dir_url')->andReturn($plugin_wp_url)->byDefault();
 
 		$this->bridge
 			->shouldReceive('plugin_dir_path')
@@ -90,6 +91,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 		if (isset($GLOBALS['wpdb'])) {
 			unset($GLOBALS['wpdb']);
 		}
+
+		$_SERVER['http_host'] = null;
 	}
 
 	/**

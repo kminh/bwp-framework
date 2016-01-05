@@ -334,6 +334,9 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 			self::$client = $client;
 		}
 
+		// do not verify SSL certificate
+		$client->getClient()->setDefaultOption('verify', false);
+
 		return $client;
 	}
 
