@@ -1579,6 +1579,22 @@ abstract class BWP_Framework_V3
 		return new DateTimeZone('UTC');
 	}
 
+	/**
+	 * Check whether an option key is valid
+	 *
+	 * @param string $key
+	 * @return bool
+	 */
+	public function is_option_key_valid($key)
+	{
+		$options = $this->bridge->get_option($key);
+
+		if ($options && is_array($options))
+			return true;
+
+		return false;
+	}
+
 	public static function is_multisite()
 	{
 		return BWP_Framework_Util::is_multisite();

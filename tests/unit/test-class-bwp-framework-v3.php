@@ -773,6 +773,30 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->assertEquals($timezone, $this->framework->get_current_timezone());
 	}
 
+	/**
+	 * @covers BWP_Framework_V3::is_option_key_valid
+	 * @dataProvider get_test_is_option_key_valid_cases
+	 */
+	public function test_is_option_key_valid($options, $valid)
+	{
+		$this->bridge
+			->shouldReceive('get_option')
+			->andReturn($options)
+			->byDefault();
+
+		$this->assertEquals($valid, $this->framework->is_option_key_valid('key'));
+	}
+
+	public function get_test_is_option_key_valid_cases()
+	{
+		return array(
+			array(false, false),
+			array(null, false),
+			array(array(), false),
+			array(array('option1' => 'value1', 'option2' => 'value2'), true)
+		);
+	}
+
 	protected function build_properties(array $options = array())
 	{
 		$reflection = new ReflectionClass('BWP_Framework_V3');
