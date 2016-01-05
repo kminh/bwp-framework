@@ -1416,6 +1416,17 @@ abstract class BWP_Framework_V3
 		return $flashes;
 	}
 
+	protected function show_dismiss_button()
+	{
+		if ($this->get_current_wp_version('4.2')) :
+?>
+<button class="notice-dismiss" type="button">
+	<span class="screen-reader-text"><?php _e('Dismiss this notice.'); ?></span>
+</button>
+<?php
+		endif;
+	}
+
 	public function add_notice($notice)
 	{
 		if (!in_array($notice, $this->notices))
@@ -1431,8 +1442,15 @@ abstract class BWP_Framework_V3
 		{
 			foreach ($this->notices as $notice)
 			{
-				echo '<div class="updated fade"><p>' . $notice . '</p></div>';
+				$first = !isset($first) ? ' first ' : '';
+?>
+<div class="updated notice is-dismissible below-h2<?php echo $first ?>">
+	<p><?php echo $notice; ?></p>
+	<?php $this->show_dismiss_button(); ?>
+</div>
+<?php
 			}
+
 			$this->notice_shown = true;
 		}
 	}
@@ -1457,8 +1475,15 @@ abstract class BWP_Framework_V3
 		{
 			foreach ($this->errors as $error)
 			{
-				echo '<div class="error"><p>' . $error . '</p></div>';
+				$first = !isset($first) ? ' first ' : '';
+?>
+<div class="error notice is-dismissible below-h2<?php echo $first ?>">
+	<p><?php echo $error; ?></p>
+	<?php $this->show_dismiss_button(); ?>
+</div>
+<?php
 			}
+
 			$this->error_shown = true;
 		}
 	}
