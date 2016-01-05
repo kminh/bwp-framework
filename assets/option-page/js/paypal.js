@@ -5,7 +5,7 @@ jQuery(document).ready(function($){
 			$(this).hide();
 
 			$('.paypal-alternate-input')
-				.append('<input type="text" style="padding: 3px; width: 70px; text-align: right; line-height: 1;" name="amount" value="15.00" /> <code>$</code>')
+				.append('$ <input type="text" style="width: 70px; text-align: right;" name="amount" value="15.00" />')
 				.show();
 		}
 	});
