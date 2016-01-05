@@ -226,36 +226,29 @@ class BWP_Option_Page_V3
 	public function generate_html_form()
 	{
 		$return_str = '<div class="wrap" style="padding-bottom: 20px;">' . "\n";
+		echo $return_str;
 
-		if (sizeof($this->form_tabs) >= 2)
-			$return_str .= apply_filters('bwp-admin-form-icon', '<div class="icon32" id="icon-options-general"><br></div>'  . "\n");
-		else
-			$return_str .= '<div class="icon32" id="icon-options-general"><br></div>';
+		do_action('bwp_option_action_before_main');
 
-		if (sizeof($this->form_tabs) >= 2)
+		$return_str = '<div id="bwp-main">' . "\n";
+		echo $return_str;
+
+		do_action('bwp_option_action_before_tabs');
+
+		$return_str = '';
+
+		// @since rev 164 always show tabs, even when there's only one
+		$count = 0;
+		$return_str .= '<h2 class="nav-tab-wrapper bwp-option-page-tabs">' . "\n";
+		foreach ($this->form_tabs as $title => $link)
 		{
-			$count = 0;
+			$count++;
 
-			$return_str .= '<h2 class="bwp-option-page-tabs">' . "\n";
-			$return_str .= apply_filters('bwp-admin-plugin-version', '') . "\n";
-
-			foreach ($this->form_tabs as $title => $link)
-			{
-				$count++;
-
-				$active      = $count == $this->current_tab ? ' nav-tab-active' : '';
-				$return_str .= '<a class="nav-tab' . $active . '" href="' . $link . '">' . $title . '</a>' . "\n";
-			}
-
-			$return_str .= '</h2>' . "\n";
+			$active      = $count == $this->current_tab ? ' nav-tab-active' : '';
+			$return_str .= '<a class="nav-tab' . $active . '" href="' . $link . '">' . $title . '</a>' . "\n";
 		}
-		elseif (!isset($this->form_tabs[0]))
-		{
-			$title       = array_keys($this->form_tabs);
-			$return_str .= '<h2>' . $title[0] . '</h2>'  . "\n";
-		}
-		else
-			$return_str .= '<h2>' . $this->form_tabs[0] . '</h2>'  . "\n";
+
+		$return_str .= '</h2>' . "\n";
 
 		$return_str .= apply_filters('bwp_option_before_form', '');
 		echo $return_str;
@@ -274,7 +267,7 @@ class BWP_Option_Page_V3
 			$return_str = '';
 		}
 
-		$return_str .= '<ul>' . "\n";
+		$return_str .= '<ul class="bwp-fields">' . "\n";
 
 		// generate filled form
 		if (isset($this->form_items) && is_array($this->form_items))
@@ -316,7 +309,8 @@ class BWP_Option_Page_V3
 		echo $return_str;
 		do_action('bwp_option_action_after_form');
 
-		$return_str = '</div>' . "\n";
+		$return_str  = '</div>' . "\n"; // end #bwp-main
+		$return_str .= '</div>' . "\n"; // end .wrap
 
 		echo $return_str;
 	}
@@ -706,6 +700,7 @@ class BWP_Option_Page_V3
 		switch ($type)
 		{
 			case 'heading':
+			case 'heading4':
 				$html_field = '%s';
 			break;
 
@@ -805,7 +800,7 @@ class BWP_Option_Page_V3
 		if (!isset($data))
 			return;
 
-		if ($type == 'heading' && !is_array($data))
+		if (strpos($type, 'heading') === 0 && !is_array($data))
 		{
 			$return_html .= sprintf($html_field, $data) . $br;
 		}
@@ -960,7 +955,7 @@ class BWP_Option_Page_V3
 
 		$item_key = array_keys($this->form_item_names, $name);
 
-		$input_class = $type == 'heading'
+		$input_class = strpos($type, 'heading') === 0
 			? 'bwp-option-page-heading-desc'
 			: 'bwp-option-page-inputs';
 
@@ -991,25 +986,29 @@ class BWP_Option_Page_V3
 
 				foreach ($this->form[$name] as $section_field)
 				{
-					$type = $section_field[0];
-					$name = $section_field['name'];
+					$section_item_type = $section_field[0];
+					$section_item_name = $section_field['name'];
 
-					if (isset($this->form[$section_field[0]]))
+					if (isset($this->form[$section_item_type]))
 					{
-						$return_html .= $this->generate_html_field($section_field[0], $this->form[$type][$name], $name, true);
+						$return_html .= $this->generate_html_field(
+							$section_item_type,
+							$this->form[$section_item_type][$section_item_name],
+							$section_item_name, true
+						);
 					}
 				}
 			break;
 
 			default:
 				if (!isset($this->form[$type][$name])
-					|| ($type != 'heading' && !is_array($this->form[$type][$name])))
+					|| (strpos($type, 'heading') !== 0 && !is_array($this->form[$type][$name])))
 					return;
 
 				$item_label = $this->form_item_labels[$item_key[0]];
 
 				$item_label_html = $type != 'checkbox' && $type != 'checkbox_multi' && $type != 'radio'
-					? '<label class="bwp-opton-page-label" for="' . $name . '">'
+					? '<label class="bwp-opton-page-label type-' . $type . '" for="' . $name . '">'
 						. $item_label
 						. $inline
 						. '</label>'
@@ -1020,9 +1019,11 @@ class BWP_Option_Page_V3
 
 				$heading_id = strtolower(str_replace(array(' ', '_'), '-', $item_label));
 
-				$item_label_html = $type == 'heading'
-					? '<h3 id="' . esc_attr($heading_id) . '">' . $item_label . '</h3>' . $inline
-					: $item_label_html;
+				if (strpos($type, 'heading') === 0)
+				{
+					$heading_tag = $type == 'heading4' ? 'h4' : 'h3';
+					$item_label_html = '<' . $heading_tag . ' id="' . esc_attr($heading_id) . '">' . $item_label . '</' . $heading_tag . '>' . $inline;
+				}
 
 				if (isset($this->form[$type]))
 					$return_html = $this->generate_html_field($type, $this->form[$type][$name], $name);
@@ -1049,7 +1050,7 @@ class BWP_Option_Page_V3
 
 		$pure_return = trim(strip_tags($return_html));
 
-		if (empty($pure_return) && $type == 'heading')
+		if (empty($pure_return) && strpos($type, 'heading') === 0)
 		{
 			return $item_label_html . $containers;
 		}

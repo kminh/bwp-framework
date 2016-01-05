@@ -1,114 +1,28 @@
-/* For WordPress of older versions */
-.nav-tab{
-    border-style:solid;
-    border-color:#ccc #ccc #f9f9f9;
-    border-width:1px 1px 0;
-    color:#c1c1c1;
-    text-shadow:rgba(255,255,255,1) 0 1px 0;
-    font-size:12px;
-    line-height:16px;
-    display:inline-block;
-    padding:4px 14px 6px;
-    text-decoration:none;
-    margin:0 3px -1px 0;
-    /* -moz-border-radius:5px 5px 0 0; */
-    /* -webkit-border-top-left-radius:5px; */
-    /* -webkit-border-top-right-radius:5px; */
-    /* -khtml-border-top-left-radius:5px; */
-    /* -khtml-border-top-right-radius:5px; */
-    /* border-top-left-radius:5px; */
-    /* border-top-right-radius:5px; */
-}
-.nav-tab-active{
-    border-width:1px;
-    border-bottom-color: transparent;
-    color: #000000;
-}
-h2.nav-tab-wrapper, h3.nav-tab-wrapper{
-    border-bottom:1px solid #ccc;
-    padding-bottom:0;
-}
-h2 .nav-tab{padding:6px 15px 6px;}
-
+/*--- Common ---*/
 .bwp-option-page {
 	margin-top: 1em;
-}
+	padding-bottom: 1em;
 
-/*--- Common ---*/
-.bwp-option-page h4 {
-	font-size: 1em;
-	margin: 1em 0;
-}
+	h4 {
+		font-size: 1.1em;
+		margin: 1em 0;
+	}
 
-.bwp-option-page p {
-	margin-top: 0px;
-	margin-bottom: 0px;
-	zoom: 1;
-}
+	p {
+		margin-top: 0px;
+		margin-bottom: 0px;
+		zoom: 1;
+	}
 
-.bwp-option-page .bwp-paragraph {
-	margin: 1em 0;
-}
+	.bwp-paragraph {
+		margin: 1em 0;
+	}
 
-.bwp-option-page li.bwp-clear, .bwp-option-page div.bwp-clear {
-	clear: left;
-	/* display: block; */
-	margin: 1em 0 0 0;
-	zoom: 1;
-}
-
-.bwp-option-page p.submit {
-	/* clear: both; */
-	padding-top: 1.5em;
-}
-
-.wrap .bwp-option-page-tabs {
-	border-bottom: 1px solid #CCCCCC;
-	padding-bottom: 0px;
-	margin-bottom: 20px;
-}
-
-.bwp-option-page-tabs a {
-	font-size: 18px;
-    line-height: 24px;
-    font-style: italic;
-}
-
-.bwp-option-page-tabs a.version {
-	font-size: 14px;
-	line-height: 14px;
-}
-
-.bwp-opton-page-label {
-	display: block;
-	float: left;
-	width: 200px;
-	margin: 5px 0 1em 0;
-}
-
-.type-checkbox {
-	margin-top: 0px;
-}
-
-p.bwp-option-page-inputs {
-	margin: 0 0 0 220px;
-	padding: 0;
-}
-
-.bwp-option-page-inputs input[type="text"], .bwp-option-page-inputs select {
-	margin: 0 0 5px 0;
-}
-
-.bwp-option-page-inputs label {
-	margin: 0;
-}
-
-.bwp-option-page-inputs select {
-	/* margin: 1px 0 0 0; */
-}
-
-.bwp-option-page-inputs input[type="checkbox"] {
-	margin-left: 2px;
+	li.bwp-clear, div.bwp-clear {
+		clear: left;
+		margin: 1em 0 0 0;
+		zoom: 1;
+	}
 }
 
 .bwp-no-display {
@@ -120,6 +34,71 @@ p.bwp-option-page-inputs {
 }
 /*--- End Common ---*/
 
+/*--- Main ---*/
+#bwp-main {
+	width: auto;
+	overflow: hidden;
+
+	.updated, .error {
+		margin-top: 15px;
+		margin-bottom: 0;
+
+		&.first {
+			margin-top: 20px;
+		}
+	}
+}
+/*--- End Main ---*/
+
+/*--- Header ---*/
+#bwp-header {
+    margin-bottom: 15px;
+	padding-top: 5px;
+
+    h1 {
+		padding: 0;
+		margin-top: 0;
+		margin-bottom: 15px;
+
+		color: #32373c;
+		font-size: 2em;
+		font-weight: 400;
+		line-height: 1.2em;
+    }
+}
+
+#bwp-donation {
+	max-width: 500px;
+	margin-top: 15px;
+	margin-bottom: 0;
+
+	.inside {
+		padding-bottom: 0;
+	}
+}
+/*--- End Header ---*/
+
+/*--- Tabs ---*/
+.bwp-option-page-tabs {
+	a {
+		padding-left: 15px;
+		padding-right: 15px;
+
+		color: #c1c1c1;
+		font-size: 18px;
+		font-weight: 600;
+	}
+
+	a.nav-tab-active {
+		color: #000;
+	}
+}
+
+.wrap .bwp-option-page-tabs {
+	padding-left: 6px;
+}
+/*--- End Tabs ---*/
+
 /*--- Button ---*/
 .wp-core-ui .button-inline {
 	vertical-align: middle;
@@ -128,83 +107,104 @@ p.bwp-option-page-inputs {
 .bwp-button {
 	.dashicons {
 		width: auto;
-		height: 14px;
+		height: 18px;
 		font-size: 14px;
 		vertical-align: middle;
 	}
 }
+
+.bwp-button-paypal {
+	.bwp-mixin-button(#003580; #ffe3b7; #ffc975) !important;
+
+	font-weight: 600;
+
+	.paypal-pay, .paypal-pal {
+		font-weight: bold;
+		font-style: italic;
+	}
+
+	.paypal-pay {
+		color: #003580;
+	}
+
+	.paypal-pal {
+		color: #009DD8;
+	}
+}
 /*--- End Button ---*/
 
-#icon-betterwp-net {
-	background: url("betterwp.jpg") no-repeat transparent;
-	border: 1px solid #E3E3E3;
-	height: 32px;
-	width: 32px;
+/*--- Sidebars ---*/
+#bwp-sidebar-right {
+	float: right;
+	margin: 0 0 10px 20px;
+
+	.postbox {
+		.inside {
+			max-width: 250px;
+
+			padding-bottom: 0;
+
+			line-height: 1;
+		}
+
+		.hndle {
+			margin: 0;
+			padding: 8px 12px;
+
+			font-size: 14px;
+			line-height: 1.4;
+
+			cursor: default;
+		}
+	}
 }
 
+#bwp-ads {
+	margin-top: 10px;
+
+	a {
+		line-height: 1;
+	}
+}
+
+.bwp-button-rss {
+	.bwp-mixin-button(#fff; @brand-color-rss) !important;
+}
+
+.bwp-button-twitter {
+	.bwp-mixin-button(#fff; @brand-color-twitter) !important;
+}
+
+.bwp-feed {
+	list-style: outside none none;
+	margin: 0;
+	padding: 0;
+
+	li {
+		margin-bottom: 8px;
+		line-height: 1.5em;
+	}
+
+	a {
+		font-size: 13px;
+		font-weight: 400;
+		text-decoration: none;
+	}
+}
+
+.bwp-feed-buttons {
+	padding: 12px;
+
+	background-color: #fafafa;
+	border-top: 1px solid #eee;
+}
+/*--- End Sidebars ---*/
+
+/*--- Icons ---*/
 #icon-bwp-plugin {
 	background-repeat: no-repeat;
 	background-position: left center;
 	margin-top: 21px; margin-left: 5px;
 	width: 36px;
 }
-
-#bwp-info-place {
-	float: right;
-	margin: 0 0 10px 10px;
-}
-
-#bwp-donation, #bwp-contact, #bwp-ads {
-	width: 255px;
-	padding: 7px; padding-bottom: 0px;
-	background-color: #ffffff;
-	border: 1px solid #cccccc;
-	text-align: center;
-}
-
-#bwp-donation p, #bwp-ads p {
-	margin: 0.5em 0 1em 0;
-}
-
-#bwp-ads {
-	padding-bottom: 5px;
-}
-
-#bwp-ads p {
-	text-decoration: underline;
-}
-
-#bwp-info-place small {
-	font-size: 0.8em;
-}
-
-#bwp-donation .paypal-submit {
-	vertical-align: bottom;
-	display: inline-block;
-	margin: 0 0 1px 2px;
-	padding: 0px;
-}
-
-.bwp-separator {
-	width: 271px;
-}
-
-#bwp-contact  {
-	text-align: left;
-	padding: 7px;
-}
-
-#bwp-contact a {
-	display: block;
-	height: 20px;
-	font-size: 0.8em;
-	padding-left: 25px;
-}
-
-#bwp-contact .bwp-rss {
-	background: transparent url("../images/icon-rss.png") no-repeat left center;
-}
-
-#bwp-contact .bwp-twitter {
-	background: transparent url("../images/icon-twitter.png") no-repeat left center;
-}
+/*--- End Icons ---*/

@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 163;
+	public $revision = 164;
 
 	/**
 	 * Text domain
@@ -270,6 +270,13 @@ abstract class BWP_Framework_V3
 		$this->option_pages[$key] = $title;
 	}
 
+	protected function get_dashicon($name, $fallback_text = '')
+	{
+		return $this->get_current_wp_version('3.8')
+			? '<span class="dashicons dashicons-' . $name . '"></span>'
+			: $fallback_text;
+	}
+
 	public function add_icon()
 	{
 		return '<div class="icon32" id="icon-bwp-plugin" '
@@ -351,85 +358,145 @@ abstract class BWP_Framework_V3
 		BWP_Version::warn_required_versions($this->plugin_title, $this->domain, $this->php_ver, $this->wp_ver);
 	}
 
-	public function show_donation()
+	public function show_header()
 	{
-		$info_showable     = $this->bridge->apply_filters('bwp_info_showable', true);
-		$donation_showable = $this->bridge->apply_filters('bwp_donation_showable', true);
-		$ad_showable       = $this->bridge->apply_filters('bwp_ad_showable', true);
-
-		if (true == $info_showable || self::is_multisite_admin())
-		{
 ?>
-<div id="bwp-info-place">
-<div id="bwp-donation" style="margin-bottom: 0px;">
-<a href="<?php echo $this->plugin_url; ?>"><?php echo $this->plugin_title; ?></a> <small>v<?php echo $this->plugin_ver; ?></small><br />
-<small>
-	<a href="https://wordpress.org/support/plugin/<?php echo $this->plugin_full_key ?>" title="<?php _e('Got a problem? Send me a feedback!', $this->domain) ?>"><?php _e('Support', $this->domain); ?></a>
-	&ndash;
-	<a href="https://wordpress.org/support/view/plugin-reviews/<?php echo $this->plugin_full_key ?>?filter=5" title="<?php _e('Rate this plugin 5 stars!', $this->domain) ?>"><?php _e('Reviews', $this->domain); ?></a>
-	&ndash;
-	<a href="<?php echo $this->plugin_url . 'faq/'; ?>" title="<?php _e('Frequently Asked Questions', $this->domain) ?>"><?php _e('FAQ', $this->domain); ?></a>
-</small>
-<br />
+<div id="bwp-header">
+	<h1 id="bwp-plugin-title"><?php esc_html_e($this->plugin_title); ?> (<?php echo $this->plugin_ver; ?>)</h1>
+
+	<div id="bwp-plugin-info">
+		<a class="button-secondary bwp-button" target="_blank"
+			href="https://wordpress.org/support/view/plugin-reviews/<?php echo $this->domain; ?>?filter=5"
+			title="<?php _e('Rate this plugin 5 stars if you like it, thank you!', $this->domain) ?>"
+			><span class="dashicons dashicons-star-filled"></span> <?php _e('Rate this plugin 5 stars!', $this->domain); ?></a> &nbsp;
+		<a class="button-secondary bwp-button" target="_blank"
+			href="<?php echo $this->plugin_url . 'faq/?utm_source=' . $this->plugin_full_key . '&utm_campaign=header-2015&utm_medium=button'; ?>"
+			title="<?php _e('Read this first before asking any question!', $this->domain) ?>"
+			><span class="dashicons dashicons-editor-help"></span> <?php _e('FAQ', $this->domain); ?></a> &nbsp;
+		<a class="button-secondary bwp-button" target="_blank"
+			href="https://wordpress.org/support/plugin/<?php echo $this->domain; ?>"
+			title="<?php _e('Got a problem with this plugin? Please say it out loud!', $this->domain) ?>"
+			><span class="dashicons dashicons-sos"></span> <?php _e('Plugin Support', $this->domain); ?></a> &nbsp;
+	</div>
 <?php
+		$donation_showable = $this->bridge->apply_filters('bwp_donation_showable', true);
 		if (true == $donation_showable || self::is_multisite_admin())
 		{
 ?>
-<small><?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->domain); ?></small>
-<form class="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
-<p>
-<input type="hidden" name="cmd" value="_xclick">
-<input type="hidden" name="business" value="NWBB8JUDW5VSY">
-<input type="hidden" name="lc" value="VN">
-<input type="hidden" name="button_subtype" value="services">
-<input type="hidden" name="no_note" value="0">
-<input type="hidden" name="cn" value="Would you like to say anything to me?">
-<input type="hidden" name="no_shipping" value="1">
-<input type="hidden" name="rm" value="1">
-<input type="hidden" name="return" value="http://betterwp.net">
-<input type="hidden" name="currency_code" value="USD">
-<input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
-<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->domain), $this->plugin_title); ?>" />
-<select name="amount">
-	<option value="5.00"><?php _e('One cup $5.00', $this->domain); ?></option>
-	<option value="10.00"><?php _e('Two cups $10.00', $this->domain); ?></option>
-	<option value="25.00"><?php _e('Five cups! $25.00', $this->domain); ?></option>
-	<option value="50.00"><?php _e('One LL-cup!!! $50.00', $this->domain); ?></option>
-	<option value="100.00"><?php _e('... or any amount!', $this->domain); ?></option>
-</select>
-<span class="paypal-alternate-input" style="display: none;"><!-- --></span>
-<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
-<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</p>
-</form>
+	<div id="bwp-donation" class="postbox">
+		<div class="inside">
+			<?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->domain); ?>
+			<form class="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<p>
+				<input type="hidden" name="cmd" value="_xclick">
+				<input type="hidden" name="business" value="NWBB8JUDW5VSY">
+				<input type="hidden" name="lc" value="VN">
+				<input type="hidden" name="button_subtype" value="services">
+				<input type="hidden" name="no_note" value="0">
+				<input type="hidden" name="cn" value="Would you like to say anything to me?">
+				<input type="hidden" name="no_shipping" value="1">
+				<input type="hidden" name="rm" value="1">
+				<!-- <input type="hidden" name="return" value="http://betterwp.net"> -->
+				<input type="hidden" name="currency_code" value="USD">
+				<input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
+				<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->domain), $this->plugin_title); ?>" />
+				<select name="amount">
+					<option value="5.00"><?php _e('One cup $5.00', $this->domain); ?></option>
+					<option value="10.00"><?php _e('Two cups $10.00', $this->domain); ?></option>
+					<option value="25.00"><?php _e('Five cups! $25.00', $this->domain); ?></option>
+					<option value="50.00"><?php _e('One LL-cup!!! $50.00', $this->domain); ?></option>
+					<option value="100.00"><?php _e('... or any amount!', $this->domain); ?></option>
+				</select>
+				<span class="paypal-alternate-input" style="display: none;"><!-- --></span>
+				&nbsp;
+				<button class="bwp-button-paypal button-secondary" type="submit" name="submit">
+					<span class="paypal-via"><?php _e('Via', $this->domain); ?></span>
+					<span class="paypal-pay">Pay</span><span class="paypal-pal">Pal</span>
+				</button>
+				<!--<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />-->
+				<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+			</p>
+			</form>
+		</div>
+	</div>
 <?php
 		}
 ?>
 </div>
-<div class="bwp-separator">
-	<div style="height: 10px; width: 5px; background-color: #cccccc; margin: 0 auto;"><!-- --></div>
-</div>
-<div id="bwp-contact">
-	<a class="bwp-rss" href="http://feeds.feedburner.com/BetterWPnet"><?php _e('Latest updates from BetterWP.net!', $this->domain); ?></a>
-	<a class="bwp-twitter" href="http://twitter.com/0dd0ne0ut"><?php _e('Follow me on Twitter!', $this->domain); ?></a>
-</div>
 <?php
-		if (true == $ad_showable)
+	}
+
+	public function show_sidebar_right()
+	{
+		$sidebar_showable = $this->bridge->apply_filters('bwp_info_showable', true); // @deprecated rev 164
+		$sidebar_showable = $this->bridge->apply_filters('bwp_sidebar_showable', $sidebar_showable); // @since rev 164
+		$feed_showable    = $this->bridge->apply_filters('bwp_feed_showable', true); // @since rev 164
+		$ad_showable      = $this->bridge->apply_filters('bwp_ad_showable', true);
+
+		$heading_level = $this->get_current_wp_version('4.4') ? 'h2' : 'h3';
+
+		if (true == $sidebar_showable || self::is_multisite_admin())
 		{
 ?>
-<div class="bwp-separator">
-	<div style="height: 10px; width: 5px; background-color: #cccccc; margin: 0 auto;"><!-- --></div>
-</div>
-<div id="bwp-ads">
-	<p><strong><?php _e('This Plugin is Proudly Sponsored By', $this->domain); ?></strong></p>
-	<div style="width: 250px; margin: 0 auto;">
-		<a href="http://bit.ly/bwp-layer-themes" target="_blank">
-			<img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/ad_lt_250x250.png'; ?>" />
-		</a>
-	</div>
-</div>
+<div id="bwp-sidebar-right">
 <?php
-		}
+			if (true == $ad_showable)
+			{
+?>
+
+	<div id="bwp-ads" class="postbox">
+		<<?php echo $heading_level; ?> class="hndle">
+			<span><?php _e('Plugin Sponsors', $this->domain); ?></span>
+		</<?php echo $heading_level; ?>>
+		<div class="inside">
+			<div style="width: 250px; margin: 0 auto;">
+				<a href="http://bit.ly/bwp-layer-themes"
+					target="_blank"><img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/ad_lt_250x250.png'; ?>"
+				/></a>
+			</div>
+		</div>
+	</div>
+<?php
+			}
+
+			if (true == $feed_showable)
+			{
+?>
+	<div id="bwp-gems" class="postbox" data-plugin-key="<?php echo $this->plugin_full_key; ?>">
+		<<?php echo $heading_level; ?> class="hndle">
+			<span><?php _e('BWP Gems', $this->domain); ?></span>
+		</<?php echo $heading_level; ?>>
+		<div class="inside">
+			<em class="bwp-loader"><?php _e('loading...', $this->domain); ?></em>
+			<ul class="bwp-feed"><!-- --></ul>
+		</div>
+	</div>
+
+	<div id="bwp-news" class="postbox" data-plugin-key="<?php echo $this->plugin_full_key; ?>">
+		<<?php echo $heading_level; ?> class="hndle">
+			<span><?php _e('BWP News', $this->domain); ?></span>
+		</<?php echo $heading_level; ?>>
+		<div class="inside">
+			<em class="bwp-loader"><?php _e('loading...', $this->domain); ?></em>
+			<ul class="bwp-feed"><!-- --></ul>
+		</div>
+
+		<div class="bwp-feed-buttons">
+			<a class="button-secondary bwp-button bwp-button-rss" href="http://feeds.feedburner.com/BetterWPnet">
+				<span class="dashicons dashicons-rss"></span>
+				<?php _e('Subscribe', $this->domain); ?>
+			</a>
+
+			&nbsp;
+
+			<a class="button-secondary bwp-button bwp-button-twitter" href="http://twitter.com/0dd0ne0ut">
+				<span class="dashicons dashicons-twitter"></span>
+				<?php _e('Follow', $this->domain); ?>
+			</a>
+		</div>
+	</div>
+<?php
+			}
 ?>
 </div>
 <?php
@@ -498,15 +565,18 @@ abstract class BWP_Framework_V3
 		$this->register_framework_media();
 		$this->enqueue_media();
 
-		$this->bridge->do_action($this->plugin_key . '_loaded');
-
-		// icon 32px
 		if ($this->is_admin_page())
 		{
-			$this->bridge->add_filter('bwp-admin-form-icon', array($this, 'add_icon'));
-			$this->bridge->add_filter('bwp-admin-plugin-version', array($this, 'show_version'));
-			$this->bridge->add_action('bwp_option_action_before_form', array($this, 'show_donation'), 12);
+			// @since rev 164 enqueue common javascript when inside an admin
+			// page by default
+			$this->bridge->wp_enqueue_script('bwp-op');
+
+			// @since rev 164 split the sidebar
+			$this->bridge->add_action('bwp_option_action_before_main', array($this, 'show_sidebar_right'), 12);
+			$this->bridge->add_action('bwp_option_action_before_tabs', array($this, 'show_header'), 12);
 		}
+
+		$this->bridge->do_action($this->plugin_key . '_loaded');
 	}
 
 	protected function pre_init_build_constants()
