@@ -370,7 +370,7 @@ abstract class BWP_Framework_V3
 			title="<?php _e('Rate this plugin 5 stars if you like it, thank you!', $this->domain) ?>"
 			><span class="dashicons dashicons-star-filled"></span> <?php _e('Rate this plugin 5 stars!', $this->domain); ?></a> &nbsp;
 		<a class="button-secondary bwp-button" target="_blank"
-			href="<?php echo $this->plugin_url . 'faq/?utm_source=' . $this->plugin_full_key . '&utm_campaign=header-2015&utm_medium=button'; ?>"
+			href="<?php echo $this->plugin_url . 'faq/?utm_source=' . $this->plugin_full_key . '&utm_campaign=header-2016&utm_medium=button'; ?>"
 			title="<?php _e('Read this first before asking any question!', $this->domain) ?>"
 			><span class="dashicons dashicons-editor-help"></span> <?php _e('FAQ', $this->domain); ?></a> &nbsp;
 		<a class="button-secondary bwp-button" target="_blank"
