@@ -595,6 +595,17 @@ a.bg-danger:focus {
 .bwp-hidden {
   visibility: hidden;
 }
+.bwp-meta {
+  color: #999;
+}
+.bwp-justin {
+  display: inline-block;
+  position: relative;
+  bottom: 0.5em;
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #f26522;
+}
 /*--- End Common ---*/
 /*--- Main ---*/
 #bwp-main {
@@ -712,6 +723,9 @@ a.bg-danger:focus {
 }
 #bwp-ads a {
   line-height: 1;
+}
+#bwp-news a {
+  margin-right: 5px;
 }
 .bwp-button-rss {
   color: #ffffff !important;
