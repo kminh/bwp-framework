@@ -384,8 +384,51 @@ abstract class BWP_Framework_V3
 		{
 ?>
 	<div id="bwp-donation" class="postbox">
+		<h2 class="hndle"><span><?php _e('Like this plugin? Share the love!', $this->domain); ?></span></h2>
 		<div class="inside">
-			<?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->domain); ?>
+			<div id="bwp-social-buttons" class="clearfix">
+				<!-- Twitter buttons -->
+				<div class="bwp-twitter-buttons">
+					<a href="https://twitter.com/share"
+						class="twitter-share-button"
+						data-url="<?php echo $this->plugin_url ?>"
+						data-text="<?php _e('Check out this cool plugin', $this->domain); ?> <?php echo $this->plugin_title; ?>"
+						data-via="0dd0ne0ut"
+						data-hashtags="bwp"
+						data-dnt="true">Tweet</a>
+					<a href="https://twitter.com/0dd0ne0ut"
+						class="twitter-follow-button"
+						data-show-screen-name="false"
+						data-show-count="true"
+						data-dnt="true">Follow Me!</a>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+				</div>
+
+				<!-- Google plus -->
+				<div class="bwp-gplus-buttons">
+					<div class="g-plusone" data-size="medium" data-href="<?php echo $this->plugin_url; ?>"></div>
+					<script src="https://apis.google.com/js/platform.js" async defer></script>
+				</div>
+
+				<!-- Facebook button -->
+				<div class="bwp-fb-buttons">
+					<div class="fb-like"
+						data-href="<?php echo $this->plugin_url; ?>"
+						data-layout="button_count"
+						data-action="like"
+						data-share="false"></div>
+					<div id="fb-root"></div>
+					<script>(function(d, s, id) {
+						var js, fjs = d.getElementsByTagName(s)[0];
+						if (d.getElementById(id)) return;
+						js = d.createElement(s); js.id = id;
+						js.src = "//connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v2.5";
+						fjs.parentNode.insertBefore(js, fjs);
+						}(document, 'script', 'facebook-jssdk'));</script>
+				</div>
+			</div>
+
+			<?php _e('Or buy me some special coffees, thank you!', $this->domain); ?>
 			<form class="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
 			<p>
 				<input type="hidden" name="cmd" value="_xclick">
