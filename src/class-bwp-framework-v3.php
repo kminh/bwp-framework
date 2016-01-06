@@ -489,7 +489,7 @@ abstract class BWP_Framework_V3
 
 	<div id="bwp-ads" class="postbox">
 		<<?php echo $heading_level; ?> class="hndle">
-			<span><?php _e('Plugin Sponsors', $this->domain); ?></span>
+			<span><?php _e('Need a highly customizable theme?', $this->domain); ?></span>
 		</<?php echo $heading_level; ?>>
 		<div class="inside">
 			<div style="width: 250px; margin: 0 auto;">
