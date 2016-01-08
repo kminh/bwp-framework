@@ -366,10 +366,6 @@ abstract class BWP_Framework_V3
 
 	<div id="bwp-plugin-info">
 		<a class="button-secondary bwp-button" target="_blank"
-			href="https://wordpress.org/support/view/plugin-reviews/<?php echo $this->domain; ?>?filter=5"
-			title="<?php _e('Rate this plugin 5 stars if you like it, thank you!', $this->domain) ?>"
-			><span class="dashicons dashicons-star-filled"></span> <?php _e('Rate this plugin 5 stars!', $this->domain); ?></a> &nbsp;
-		<a class="button-secondary bwp-button" target="_blank"
 			href="<?php echo $this->plugin_url . 'faq/?utm_source=' . $this->plugin_full_key . '&utm_campaign=header-2016&utm_medium=button'; ?>"
 			title="<?php _e('Read this first before asking any question!', $this->domain) ?>"
 			><span class="dashicons dashicons-editor-help"></span> <?php _e('FAQ', $this->domain); ?></a> &nbsp;
@@ -377,14 +373,62 @@ abstract class BWP_Framework_V3
 			href="https://wordpress.org/support/plugin/<?php echo $this->domain; ?>"
 			title="<?php _e('Got a problem with this plugin? Please say it out loud!', $this->domain) ?>"
 			><span class="dashicons dashicons-sos"></span> <?php _e('Plugin Support', $this->domain); ?></a> &nbsp;
+		<a class="button-secondary bwp-button" target="_blank"
+			href="https://wordpress.org/support/view/plugin-reviews/<?php echo $this->domain; ?>?filter=5"
+			title="<?php _e('Rate this plugin 5 stars if you like it, thank you!', $this->domain) ?>"
+			><span class="dashicons dashicons-star-filled"></span> <?php _e('Rate this plugin 5 stars!', $this->domain); ?></a> &nbsp;
+
+		<button class="bwp-button-paypal bwp-button button-secondary bwp-popover-switch"
+			data-content-id="bwp-donation"
+			data-placement="auto right"
+			data-popover-class="bwp-popover-sm"
+			type="button">
+			<span class="via"><span class="dashicons dashicons-thumbs-up"></span> Send</span>
+			<span class="paypal-pal">Coffees</span>!
+		</button>
+
+		<div id="bwp-donation">
+			<?php _e('You can buy me some special coffees if you appreciate my work, thank you!', $this->domain); ?>
+			<form class="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+			<p style="margin-bottom: 3px;">
+				<input type="hidden" name="cmd" value="_xclick">
+				<input type="hidden" name="business" value="NWBB8JUDW5VSY">
+				<input type="hidden" name="lc" value="VN">
+				<input type="hidden" name="button_subtype" value="services">
+				<input type="hidden" name="no_note" value="0">
+				<input type="hidden" name="cn" value="Would you like to say anything to me?">
+				<input type="hidden" name="no_shipping" value="1">
+				<input type="hidden" name="rm" value="1">
+				<!-- <input type="hidden" name="return" value="http://betterwp.net"> -->
+				<input type="hidden" name="currency_code" value="USD">
+				<input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
+				<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->domain), $this->plugin_title); ?>" />
+				<select name="amount">
+					<option value="5.00"><?php _e('One cup $5.00', $this->domain); ?></option>
+					<option value="10.00"><?php _e('Two cups $10.00', $this->domain); ?></option>
+					<option value="25.00"><?php _e('Five cups! $25.00', $this->domain); ?></option>
+					<option value="50.00"><?php _e('One LL-cup!!! $50.00', $this->domain); ?></option>
+					<option value="100.00"><?php _e('... or any amount!', $this->domain); ?></option>
+				</select>
+				<span class="paypal-alternate-input" style="display: none;"><!-- --></span>
+				&nbsp;
+				<button class="bwp-button-paypal button-secondary" type="submit" name="submit">
+					<span class="paypal-via"><?php _e('Via', $this->domain); ?></span>
+					<span class="paypal-pay">Pay</span><span class="paypal-pal">Pal</span>
+				</button>
+				<!--<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />-->
+				<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+			</p>
+			</form>
+		</div>
 	</div>
 <?php
 		$donation_showable = $this->bridge->apply_filters('bwp_donation_showable', true);
 		if (true == $donation_showable || self::is_multisite_admin())
 		{
 ?>
-	<div id="bwp-donation" class="postbox">
-		<h2 class="hndle"><span><?php _e('Like this plugin? Share the love!', $this->domain); ?></span></h2>
+	<div id="bwp-get-social" class="postbox">
+		<h2 class="hndle"><span><?php _e('Share the love for this plugin!', $this->domain); ?></span></h2>
 		<div class="inside">
 			<div id="bwp-social-buttons" class="clearfix">
 				<!-- Twitter buttons -->
@@ -427,39 +471,6 @@ abstract class BWP_Framework_V3
 						}(document, 'script', 'facebook-jssdk'));</script>
 				</div>
 			</div>
-
-			<?php _e('Or buy me some special coffees, thank you!', $this->domain); ?>
-			<form class="paypal-form" action="https://www.paypal.com/cgi-bin/webscr" method="post">
-			<p>
-				<input type="hidden" name="cmd" value="_xclick">
-				<input type="hidden" name="business" value="NWBB8JUDW5VSY">
-				<input type="hidden" name="lc" value="VN">
-				<input type="hidden" name="button_subtype" value="services">
-				<input type="hidden" name="no_note" value="0">
-				<input type="hidden" name="cn" value="Would you like to say anything to me?">
-				<input type="hidden" name="no_shipping" value="1">
-				<input type="hidden" name="rm" value="1">
-				<!-- <input type="hidden" name="return" value="http://betterwp.net"> -->
-				<input type="hidden" name="currency_code" value="USD">
-				<input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
-				<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->domain), $this->plugin_title); ?>" />
-				<select name="amount">
-					<option value="5.00"><?php _e('One cup $5.00', $this->domain); ?></option>
-					<option value="10.00"><?php _e('Two cups $10.00', $this->domain); ?></option>
-					<option value="25.00"><?php _e('Five cups! $25.00', $this->domain); ?></option>
-					<option value="50.00"><?php _e('One LL-cup!!! $50.00', $this->domain); ?></option>
-					<option value="100.00"><?php _e('... or any amount!', $this->domain); ?></option>
-				</select>
-				<span class="paypal-alternate-input" style="display: none;"><!-- --></span>
-				&nbsp;
-				<button class="bwp-button-paypal button-secondary" type="submit" name="submit">
-					<span class="paypal-via"><?php _e('Via', $this->domain); ?></span>
-					<span class="paypal-pay">Pay</span><span class="paypal-pal">Pal</span>
-				</button>
-				<!--<input class="paypal-submit" type="image" src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/icon-paypal.gif'; ?>" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />-->
-				<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-			</p>
-			</form>
 		</div>
 	</div>
 <?php

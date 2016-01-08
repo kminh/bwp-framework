@@ -1,10 +1,13 @@
+/* global jQuery*/
 jQuery(document).ready(function($){
 	/* Paypal form */
-	$('.paypal-form select[name="amount"]').change(function() {
-		if ($(this).val() == '100.00') {
-			$(this).hide();
+	$('.wrap').on('change', '.paypal-form select[name="amount"]', function() {
+		var $t = $(this);
+		if ($t.val() == '100.00') {
+			$t.hide();
 
-			$('.paypal-alternate-input')
+			$t.parent()
+				.find('.paypal-alternate-input')
 				.append('$ <input type="text" style="width: 70px; text-align: right;" name="amount" value="15.00" />')
 				.show();
 		}
