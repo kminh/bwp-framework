@@ -31,7 +31,8 @@ if [[ $WP_VERSION == 'nightly' || $WP_VERSION == 'trunk' || $WP_VERSION =~ 'RC' 
 elif [[ $WP_VERSION == 'latest' ]]; then
 	WP_TESTS_TAG="tags/4.3"
 elif [[ $WP_VERSION =~ [0-9]+\.[0-9]+(\.[0-9]+)? ]]; then
-	WP_TESTS_TAG="tags/$WP_VERSION"
+	# WP_TESTS_TAG="tags/$WP_VERSION"
+	WP_TESTS_TAG="tags/4.3"
 else
 	# http serves a single offer, whereas https serves multiple. we only want one
 	download http://api.wordpress.org/core/version-check/1.7/ /tmp/wp-latest.json
