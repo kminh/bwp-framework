@@ -802,7 +802,7 @@ class BWP_Option_Page_V3
 
 		if (strpos($type, 'heading') === 0 && !is_array($data))
 		{
-			$return_html .= sprintf($html_field, $data) . $br;
+			$return_html .= sprintf($html_field, $data);
 		}
 		elseif ($type == 'radio'
 			|| $type == 'checkbox' || $type == 'checkbox_multi'

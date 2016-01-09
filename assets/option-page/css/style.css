@@ -929,7 +929,8 @@ table.dataTable td {
 }
 .bwp-option-page p.submit {
   clear: left;
-  padding-top: 1.5em;
+  margin-top: 2em;
+  padding-top: 0;
 }
 .bwp-option-page p.submit button,
 .bwp-option-page p.submit input {
