@@ -1093,6 +1093,10 @@ textarea + .bwp-field-help-link span {
   display: inline-block;
   margin-bottom: 5px;
 }
+.bwp-code-editor {
+  display: block;
+  max-height: 200px;
+}
 .bwp-modal-header h4 {
   margin: 0;
   font-size: 1.1em;
@@ -1169,5 +1173,39 @@ textarea + .bwp-field-help-link span {
 }
 .ui-datepicker-trigger {
   display: none;
+}
+.CodeMirror {
+  border: 1px solid #ddd;
+  height: auto;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07) inset;
+  -khtml-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07) inset;
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07) inset;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.07) inset;
+  font-size: 12px;
+}
+.CodeMirror-readonly {
+  background-color: #eee !important;
+}
+.CodeMirror-scroll {
+  max-height: 200px;
+}
+.CodeMirror-lines {
+  padding: 4px;
+}
+.bwp-code-editor-large + .CodeMirror .CodeMirror-scroll {
+  max-height: 300px;
+}
+.bwp-option-page-inputs .CodeMirror,
+.bwp-option-page-inputs .bwp-code-editor {
+  margin: 1.3em 0 1.7em 0;
+}
+.CodeMirror + .bwp-form-help-block,
+.bwp-code-editor + .bwp-form-help-block {
+  margin-top: -0.85em;
+  margin-bottom: 1.2em;
+}
+.CodeMirror pre.CodeMirror-placeholder,
+.bwp-code-editor pre.CodeMirror-placeholder {
+  color: #999;
 }
 /*# sourceMappingURL=style.css.map */

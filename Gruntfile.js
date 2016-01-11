@@ -108,6 +108,38 @@ module.exports = function(grunt) {
 			anchorjs: {
 				src: 'bower_components/anchor-js/anchor.js',
 				dest: 'assets/vendor/anchorjs/anchor.js'
+			},
+			codemirror: {
+				expand: true,
+				cwd: 'bower_components/codemirror/lib',
+				src: '*.*',
+				dest: 'assets/vendor/codemirror'
+			},
+			codemirror_modes: {
+				expand: true,
+				cwd: 'bower_components/codemirror/mode',
+				src: [
+					'css/*.js',
+					'htmlmixed/*.js'
+				],
+				dest: 'assets/vendor/codemirror/mode'
+			},
+			codemirror_addons: {
+				expand: true,
+				cwd: 'bower_components/codemirror/addon',
+				src: [
+					'display/placeholder.js',
+					'selection/active-line.js'
+				],
+				dest: 'assets/vendor/codemirror/addon'
+			},
+			codemirror_themes: {
+				expand: true,
+				cwd: 'bower_components/codemirror/theme',
+				src: [
+					'neo.css'
+				],
+				dest: 'assets/vendor/codemirror/theme'
 			}
 		},
 		uglify: {
@@ -162,6 +194,17 @@ module.exports = function(grunt) {
 						'assets/vendor/inputmask/jquery.inputmask.bundle.js'
 					]
 				}
+			},
+			codemirror: {
+				files: {
+					'assets/option-page/dist/js/code-editor.min.js' : [
+						'assets/vendor/codemirror/codemirror.js',
+						'assets/vendor/codemirror/mode/**/*.js',
+						'assets/vendor/codemirror/addon/display/placeholder.js',
+						'assets/vendor/codemirror/addon/selection/active-line.js',
+						'assets/option-page/js/codemirror.js'
+					]
+				}
 			}
 		},
 		cssmin: {
@@ -169,6 +212,14 @@ module.exports = function(grunt) {
 				files: {
 					'assets/option-page/dist/css/op.min.css': [
 						'assets/option-page/css/style.css',
+					]
+				}
+			},
+			codemirror: {
+				files: {
+					'assets/vendor/codemirror/codemirror.min.css' : [
+						'assets/vendor/codemirror/codemirror.css',
+						'assets/vendor/codemirror/theme/neo.css'
 					]
 				}
 			}

@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 164;
+	public $revision = 165;
 
 	/**
 	 * Text domain
@@ -1132,6 +1132,58 @@ abstract class BWP_Framework_V3
 		$this->register_media_file('bwp-inputmask',
 			$asset_url . '/vendor/inputmask/jquery.inputmask.bundle.js',
 			array('jquery'), $this->revision
+		);
+
+		// codemirror - css
+		$this->register_media_file('bwp-codemirror-base',
+			$asset_url . '/vendor/codemirror/codemirror.css',
+			array(), $this->revision,
+			$asset_url . '/vendor/codemirror/codemirror.min.css',
+			'bwp-codemirror'
+		);
+		$this->register_media_file('bwp-codemirror',
+			$asset_url . '/vendor/codemirror/theme/neo.css',
+			array('bwp-codemirror-base'), $this->revision,
+			$asset_url . '/vendor/codemirror/codemirror.min.css',
+			'bwp-codemirror'
+		);
+		// codemirror - js
+		$this->register_media_file('bwp-codemirror',
+			$asset_url . '/vendor/codemirror/codemirror.js',
+			array(), $this->revision,
+			$asset_url . '/option-page/dist/js/code-editor.min.js',
+			'bwp-op-codemirror'
+		);
+		$this->register_media_file('bwp-codemirror-css',
+			$asset_url . '/vendor/codemirror/mode/css/css.js',
+			array('bwp-codemirror'), $this->revision,
+			$asset_url . '/option-page/dist/js/code-editor.min.js',
+			'bwp-op-codemirror'
+		);
+		$this->register_media_file('bwp-codemirror-addon-placeholder',
+			$asset_url . '/vendor/codemirror/addon/display/placeholder.js',
+			array(), $this->revision,
+			$asset_url . '/option-page/dist/js/code-editor.min.js',
+			'bwp-op-codemirror'
+		);
+		$this->register_media_file('bwp-codemirror-addon-active-line',
+			$asset_url . '/vendor/codemirror/addon/selection/active-line.js',
+			array(), $this->revision,
+			$asset_url . '/option-page/dist/js/code-editor.min.js',
+			'bwp-op-codemirror'
+		);
+		$this->register_media_file('bwp-codemirror-htmlmixed',
+			$asset_url . '/vendor/codemirror/mode/htmlmixed/htmlmixed.js',
+			array('bwp-codemirror'), $this->revision,
+			$asset_url . '/option-page/dist/js/code-editor.min.js',
+			'bwp-op-codemirror'
+		);
+		$this->register_media_file('bwp-op-codemirror',
+			$asset_url . '/option-page/js/codemirror.js',
+			array('bwp-codemirror'),
+			$this->revision,
+			$asset_url . '/option-page/dist/js/code-editor.min.js',
+			'bwp-op-codemirror'
 		);
 
 		// bwp common
