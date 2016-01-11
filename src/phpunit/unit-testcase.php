@@ -17,6 +17,8 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 
 	protected $http_host = 'example.com';
 
+	protected $wp_path = '';
+
 	protected $bridge;
 
 	protected $cache;
@@ -32,23 +34,9 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 		$this->bridge = Mockery::mock('BWP_WP_Bridge')
 			->shouldIgnoreMissing();
 
-		$plugin_slug   = $this->plugin_slug;
-		$plugin_wp_url = $this->scheme . '://' . $this->http_host . '/wp-content/plugins/' . $plugin_slug . '/';
+		$this->setup_url_functions();
 
-		$this->bridge->shouldReceive('plugins_url')->andReturn($plugin_wp_url)->byDefault();
-		$this->bridge->shouldReceive('plugin_dir_url')->andReturn($plugin_wp_url)->byDefault();
-
-		$this->bridge
-			->shouldReceive('plugin_dir_path')
-			->andReturnUsing(function() use ($plugin_slug) {
-				return '/path/to/wordpress/wp-content/plugins/' . $plugin_slug . '/';
-			})
-			->byDefault();
-
-		$this->bridge->shouldReceive('home_url')->andReturn('http://example.com')->byDefault();
-		$this->bridge->shouldReceive('site_url')->andReturn('http://example.com')->byDefault();
 		$this->bridge->shouldReceive('is_ssl')->andReturn(false)->byDefault();
-
 		$this->bridge->shouldReceive('get_bloginfo')->andReturn('4.3')->byDefault();
 		$this->bridge->shouldReceive('get_option')->andReturn(false)->byDefault();
 		$this->bridge->shouldReceive('update_option')->byDefault();
@@ -109,5 +97,37 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 
 		$params = (array) $params;
 		$method->invokeArgs($this->plugin, $params);
+	}
+
+	protected function setup_url_functions()
+	{
+		$home_url      = $this->scheme . '://' . $this->http_host;
+		$site_url      = $this->wp_path ? $home_url . '/' . $this->wp_path : $home_url;
+		$plugin_slug   = $this->plugin_slug;
+		$plugin_wp_url = $home_url . '/wp-content/plugins/' . $plugin_slug . '/';
+
+		$this->bridge->shouldReceive('plugins_url')->andReturn($plugin_wp_url)->byDefault();
+		$this->bridge->shouldReceive('plugin_dir_url')->andReturn($plugin_wp_url)->byDefault();
+
+		$this->bridge
+			->shouldReceive('plugin_dir_path')
+			->andReturnUsing(function() use ($plugin_slug) {
+				return '/path/to/wordpress/wp-content/plugins/' . $plugin_slug . '/';
+			})
+			->byDefault();
+
+		$this->bridge
+			->shouldReceive('home_url')
+			->andReturnUsing(function($path = null) use ($home_url) {
+				return !empty($path) ? $home_url . '/' . $path : $home_url;
+			})
+			->byDefault();
+
+		$this->bridge
+			->shouldReceive('site_url')
+			->andReturnUsing(function($path = null) use ($site_url) {
+				return !empty($path) ? $site_url . '/' . $path : $site_url;
+			})
+			->byDefault();
 	}
 }
