@@ -662,22 +662,18 @@ a.bg-danger:focus {
   padding: 8px 12px;
 }
 #bwp-social-buttons {
+  height: 20px;
   padding-top: 3px;
 }
 #bwp-social-buttons .bwp-twitter-buttons,
 #bwp-social-buttons .bwp-gplus-buttons,
 #bwp-social-buttons .bwp-fb-buttons {
   float: left;
-}
-#bwp-social-buttons .bwp-fb-buttons {
-  max-width: 100px;
+  margin-right: 15px;
 }
 #bwp-social-buttons .bwp-gplus-buttons {
-  width: 80px;
-}
-#bwp-social-buttons .bwp-twitter-buttons {
-  width: 220px;
-  margin-right: 10px;
+  max-width: 80px;
+  margin-right: 0;
 }
 /*--- End Header ---*/
 /*--- Tabs ---*/

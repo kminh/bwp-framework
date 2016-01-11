@@ -448,12 +448,6 @@ abstract class BWP_Framework_V3
 					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
 				</div>
 
-				<!-- Google plus -->
-				<div class="bwp-gplus-buttons">
-					<div class="g-plusone" data-size="medium" data-href="<?php echo $this->plugin_url; ?>"></div>
-					<script src="https://apis.google.com/js/platform.js" async defer></script>
-				</div>
-
 				<!-- Facebook button -->
 				<div class="bwp-fb-buttons">
 					<div class="fb-like"
@@ -469,6 +463,12 @@ abstract class BWP_Framework_V3
 						js.src = "//connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v2.5";
 						fjs.parentNode.insertBefore(js, fjs);
 						}(document, 'script', 'facebook-jssdk'));</script>
+				</div>
+
+				<!-- Google plus -->
+				<div class="bwp-gplus-buttons">
+					<div class="g-plusone" data-size="medium" data-href="<?php echo $this->plugin_url; ?>"></div>
+					<script src="https://apis.google.com/js/platform.js" async defer></script>
 				</div>
 			</div>
 		</div>
