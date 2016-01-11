@@ -562,6 +562,19 @@ class BWP_Option_Page_V3
 
 			return;
 		}
+		elseif ($help_data['type'] == 'block')
+		{
+			$post_html = $help_data['content']
+				? '<span class="bwp-form-help-block">' . $help_data['content'] . '</span>'
+				: '';
+
+			// need to add a block of text after the field to hold the help contents
+			$this->form['post'][$name] = !empty($this->form['post'][$name])
+				? $this->form['post'][$name] . ' ' . $post_html
+				: $post_html;
+
+			return;
+		}
 
 		// add attributes to the current field, merging with any existing
 		// attributes if found
@@ -597,13 +610,32 @@ class BWP_Option_Page_V3
 	}
 
 	/**
-	 * @since rev 161
+	 * Get attributes set for a field.
+	 *
+	 * Should always return attributes with a "class" key
+	 *
+	 * @param string $name
+	 * @return array
+	 *
+	 * @since rev 165
 	 */
-	protected function generate_field_attributes($name)
+	protected function get_field_attributes($name)
 	{
 		$attributes = isset($this->form['attributes'][$name])
 			&& is_array($this->form['attributes'][$name])
 			? $this->form['attributes'][$name] : array();
+
+		$attributes['class'] = isset($attributes['class']) ? $attributes['class'] : '';
+
+		return $attributes;
+	}
+
+	/**
+	 * @since rev 161
+	 */
+	protected function generate_field_attributes($name)
+	{
+		$attributes = $this->get_field_attributes($name);
 
 		// populate help attributes for fields that are not checkbox/radiobox
 		// as their help attributes should be added later on to their labels
@@ -650,8 +682,7 @@ class BWP_Option_Page_V3
 			$value = $value ? $value : 'yes';
 		}
 
-		$value = !empty($this->domain)
-			&& ('textarea' == $type || 'input' == $type)
+		$value = !empty($this->domain) && ('textarea' == $type || 'input' == $type)
 			? $this->bridge->t($value, $this->domain)
 			: $value;
 
@@ -669,6 +700,8 @@ class BWP_Option_Page_V3
 
 		$array_replace = array();
 		$array_search  = array(
+			'type',
+			'text',
 			'size',
 			'name',
 			'value',
@@ -687,7 +720,7 @@ class BWP_Option_Page_V3
 		$attributes = $this->generate_field_attributes($name);
 		$label_attributes = '';
 
-		$br = $this->is_compound_field($name) ? '' : "<br />\n";
+		$br = $this->is_compound_field($name) || $type == 'textarea' ? '' : "<br />\n";
 
 		$pre  = !empty($data['pre']) ? $data['pre'] : '';
 		$post = !empty($data['post']) ? $data['post'] : '';
@@ -755,7 +788,9 @@ class BWP_Option_Page_V3
 				$html_field = '%pre%<textarea %attributes%%disabled% '
 					. 'id="' . $name_attr . '" '
 					. 'name="' . $name_attr . '" cols="%cols%" rows="%rows%">'
-					. $value . '</textarea>%post%';
+					. $value . '</textarea>';
+
+				$post_html_field = '%post%';
 			break;
 
 			// @since rev 161 add a help field
@@ -795,6 +830,27 @@ class BWP_Option_Page_V3
 						. '</a>';
 				}
 			break;
+
+			// @since rev 165 add button field
+			case 'button':
+				$data['type'] = empty($data['type']) ? 'button' : $data['type'];
+				$data['text'] = empty($data['text']) ? '' : $data['text'];
+
+				// set default button classes
+				$btn_class = !empty($data['is_primary']) ? 'button-primary' : 'button-secondary';
+				$attributes = $this->get_field_attributes($name);
+
+				$attributes['class'] = $btn_class . ' ' . $attributes['class'];
+				$attributes = $this->generate_attribute_string($attributes);
+
+				$html_field = '%pre%<button %attributes%%disabled% '
+					. 'id="' . $name_attr . '" '
+					. 'name="' . $name_attr . '" type="%type%">'
+					. '%text%'
+					. '</button>';
+
+				$post_html_field = '%post%';
+				break;
 		}
 
 		if (!isset($data))
