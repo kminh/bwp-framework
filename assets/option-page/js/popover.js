@@ -72,8 +72,11 @@ jQuery(function($) {
 				return;
 			}
 
-			// hide all popovers if the current target is not a popover switch itself
-			if (! $t.is('.bwp-popover-switch') && ! $t.is('.bwp-popover-focus')) {
+			// hide all popovers if the current target is not a popover switch
+			// itself, or it has a parent that is a popover switch
+			if (! $t.is('.bwp-popover-switch') && ! $t.is('.bwp-popover-focus')
+				&& ! $t.parents('.bwp-popover-switch').length > 0 && ! $t.parents('.bwp-popover-focus').length > 0
+			) {
 				$('.bwp-popover-switch').popover('hide');
 			}
 		})
