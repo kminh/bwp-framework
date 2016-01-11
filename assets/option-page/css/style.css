@@ -611,6 +611,9 @@ a.bg-danger:focus {
 }
 /*--- End Common ---*/
 /*--- Main ---*/
+.bwp-wrap {
+  clear: both;
+}
 #bwp-main {
   width: auto;
   overflow: hidden;
