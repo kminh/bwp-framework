@@ -1055,7 +1055,7 @@ p.bwp-option-page-inputs {
 }
 .bwp-form-help-block {
   display: block;
-  margin: 1em 0;
+  margin: -0.5em 0 1em 0;
   color: #737373;
 }
 .bwp-form-help-block-first {
