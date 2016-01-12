@@ -353,6 +353,8 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	}
 
 	/**
+	 * Get a Crawler instance from a URL.
+	 *
 	 * @param string $url
 	 * @param array $headers
 	 * @return \Symfony\Component\DomCrawler\Crawler
@@ -375,6 +377,17 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	protected static function get_crawler_from_post(WP_Post $post)
 	{
 		return self::get_crawler_from_url(get_permalink($post));
+	}
+
+	/**
+	 * Get the requested uri from a Client object.
+	 *
+	 * @param Client $client
+	 * @return string
+	 */
+	protected static function get_uri_from_client(Client $client)
+	{
+		return $client->getRequest()->getUri();
 	}
 
 	/**
