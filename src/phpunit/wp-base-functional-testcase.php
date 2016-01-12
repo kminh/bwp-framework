@@ -69,9 +69,7 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 			$target  = dirname($plugin_file);
 			$symlink = $_core_dir . '/wp-content/plugins/' . dirname($plugin_path);
 
-			if (!file_exists($symlink)) {
-				exec('ln -s ' . escapeshellarg($target) . ' ' . escapeshellarg($symlink));
-			}
+			exec('ln -sfn ' . escapeshellarg($target) . ' ' . escapeshellarg($symlink));
 		}
 	}
 
@@ -134,7 +132,7 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 			// this is called only once.
 			tests_add_filter('pre_option_active_plugins', array($this, 'get_all_plugins'));
 
-			// bootstrap WordPress itself, this should provides the WP environment and
+			// bootstrap WordPress itself, this should provide the WP environment and
 			// drop/recreate tables
 			require $_tests_dir . '/includes/bootstrap.php';
 

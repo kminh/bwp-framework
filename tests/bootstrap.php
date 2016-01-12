@@ -51,14 +51,22 @@ function _bwp_framework_test_autoloader($class_name)
 	// each functional test requires a doc root
 	$_tests_doc_root = getenv('WP_TESTS_DOCROOT') ? getenv('WP_TESTS_DOCROOT') : '/srv/http/sites/wptest';
 
-	// remove existing docroot, assuming that it is a symlink, the build
-	// script must take care of removing the docroot if it is a directory
-	if (file_exists($_tests_doc_root)) {
-		unlink($_tests_doc_root);
-	}
+	// copy WordPress core dir to use it as the test docroot, we need to use
+	// actual files to avoid symlink's caching issue, @link
+	// http://stackoverflow.com/questions/18450076/capistrano-symlinks-being-cached
+	exec('rm -rf ' . escapeshellarg($_tests_doc_root));
+	exec('cp -rf ' . escapeshellarg($_core_dir) . ' ' . escapeshellarg($_tests_doc_root));
 
-	// create a symlink to WordPress core dir to use it as the test docroot
-	symlink($_core_dir, $_tests_doc_root);
+	// change the core directory to the test docroot so we can later setup the
+	// correct environment for each test
+	$_core_dir = rtrim($_tests_doc_root, '/') . '/';
+
+	// need to update ABSPATH in BOTH wp-config file (for crawling) and
+	// wp-tests-config file (for in-process work)
+	$wp_config_file = rtrim($_core_dir, '/') . '/wp-config-original.php';
+	$wp_tests_config_file = rtrim($_tests_dir, '/') . '/wp-tests-config.php';
+	exec("sed -i \"s:define( 'ABSPATH', '.*':define( 'ABSPATH', '$_core_dir':\" \"$wp_config_file\"");
+	exec("sed -i \"s:define( 'ABSPATH', '.*':define( 'ABSPATH', '$_core_dir':\" \"$wp_tests_config_file\"");
 
 	// load WordPress UnitTestCase
 	require_once $_tests_dir . '/includes/testcase.php';
