@@ -24,7 +24,8 @@
         ]
     },
     "bin": [
-        "bin/install-wp-tests.sh"
+        "bin/install-wp-tests.sh",
+        "bin/build-translations"
     ],
     "extra": {
         "branch-alias": {

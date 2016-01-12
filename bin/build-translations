@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+LWD=$PWD
+SOURCES=${SOURCES-'src includes vendor/kminh/bwp-framework/src'}
+PACKAGE_NAME=${PACKAGE_NAME-'BWP'}
+PACKAGE_VERSION=${PACKAGE_VERSION-'1.0'}
+DOMAIN=${DOMAIN-'domain'}
+POT="$PWD/$DOMAIN.pot"
+POT_TEMP="$PWD/$DOMAIN_tmp.pot"
+LANG_DIR=$PWD/languages
+LANGS=${LANGS-'en_US'}
+
+# make sure that we always have en_US
+if ! [[ $LANGS =~ 'en_US' ]]; then
+	# prepend en_US to the language list
+	LANGS="en_US $LANGS"
+fi
+
+# Create template
+echo "Creating POT, removing previous file if found..."
+find $SOURCES -name "*.php" 2>/dev/null | xargs \
+xgettext \
+	--copyright-holder="Khang Minh" \
+	--package-name="$PACKAGE_NAME" \
+	--package-version="$PACKAGE_VERSION" \
+	--msgid-bugs-address="contact@betterwp.net" \
+	--language=PHP \
+	--sort-output \
+	--keyword=__ \
+	--keyword=_e \
+	--keyword=_x \
+	--keyword=_ex \
+	--keyword=_n \
+	--keyword=t \
+	--keyword=te \
+	--from-code=UTF-8 \
+	--output=$POT_TEMP \
+	--default-domain=$DOMAIN \
+
+# Create languages
+for LANG in $LANGS
+do
+	# if it's the default language, only create a fake POT file
+	if [ $LANG == 'en_US' ]; then
+		echo "Creating language template file in $LWD"
+		msginit --no-translator --locale=$LANG.UTF-8 --output-file=$POT --input=$POT_TEMP
+		continue
+	fi
+
+	if [ ! -e "$LANG_DIR/$DOMAIN-$LANG.po" ]; then
+		echo "Creating language file for $LANG in $LANG_DIR"
+		msginit --no-translator --locale=$LANG.UTF-8 --output-file=$LANG_DIR/$DOMAIN-$LANG.po --input=$POT_TEMP
+	fi
+
+	echo "Updating language file for $LANG in $LANG_DIR from $POT_TEMP"
+	msgmerge --sort-output --update --backup=off $LANG_DIR/$DOMAIN-$LANG.po $POT_TEMP
+
+	echo "Converting $LANG.po to $LANG.mo in $LANG_DIR"
+	msgfmt --check --verbose --output-file=$LANG_DIR/$DOMAIN-$LANG.mo $LANG_DIR/$DOMAIN-$LANG.po
+done
+
+# remove the temp template file
+rm -f $POT_TEMP
