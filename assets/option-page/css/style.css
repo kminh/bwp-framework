@@ -734,8 +734,9 @@ a.bg-danger:focus {
 /*--- End Button ---*/
 /*--- Sidebars ---*/
 #bwp-sidebar-right {
-  float: right;
+  width: 276px;
   margin: 0 0 10px 20px;
+  float: right;
 }
 #bwp-sidebar-right .postbox .inside {
   max-width: 250px;
