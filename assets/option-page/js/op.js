@@ -17,6 +17,9 @@ jQuery(function($) {
 			return;
 		}
 
+		// use jsonp
+		url = url + '?_jsonp=?';
+
 		$.get(url, function(posts) {
 			$.each(posts, function(i, post) {
 				var $li = $('<li>');
@@ -71,7 +74,7 @@ jQuery(function($) {
 			});
 
 			container.find('.bwp-loader').hide();
-		});
+		}, 'jsonp');
 	}
 
 	load_feed('http://betterwp.net/wp-json/bwp/v1/news', $('#bwp-news'));
