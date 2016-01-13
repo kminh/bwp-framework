@@ -6,7 +6,9 @@ jQuery(function($) {
 	bwp_common.enhance_form_fields();
 
 	// allow easy referencing inside admin pages
-	anchors.add('.bwp-option-page h3');
+	if (typeof anchors !== 'undefined') {
+		anchors.add('.bwp-option-page h3');
+	}
 
 	// load feeds
 	function load_feed(url, container) {
