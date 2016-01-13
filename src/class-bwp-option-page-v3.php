@@ -1094,13 +1094,44 @@ class BWP_Option_Page_V3
 			&& is_array($this->form['container'])
 			&& array_key_exists($name, $this->form['container'])
 		) {
+			// @since rev 165 allow setting container settings too
 			$container_array = (array) $this->form['container'][$name];
+
+			$container_settings = array(
+				'need_wrapper'    => true,
+				'wrapper_classes' => array('bwp-clear')
+			);
+
+			if (isset($container_array['_settings']) && is_array($container_array['_settings']))
+			{
+				$container_settings = array_merge(
+					$container_settings,
+					$container_array['_settings']
+				);
+			}
+
+			// remove the settings because it's not actual container contents
+			unset($container_array['_settings']);
 
 			foreach ($container_array as $container)
 			{
-				$containers .= empty($container)
-					? '<div style="display: none;"><!-- --></div>'
-					: '<div class="bwp-clear">' . $container . '</div>' . "\n";
+				if ($container_settings['need_wrapper'])
+				{
+					$container_template =  empty($container)
+						? '<div style="display: none;"><!-- --></div>'
+						: '<div class="'
+							. implode(' ', $container_settings['wrapper_classes'])
+							. '">'
+							. '%s'
+							. '</div>'
+							. "\n";
+				}
+				else
+				{
+					$container_template = '%s';
+				}
+
+				$containers .= sprintf($container_template, $container);
 			}
 		}
 
