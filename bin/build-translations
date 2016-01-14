@@ -6,18 +6,16 @@ PACKAGE_NAME=${PACKAGE_NAME-'BWP'}
 PACKAGE_VERSION=${PACKAGE_VERSION-'1.0'}
 DOMAIN=${DOMAIN-'domain'}
 POT="$PWD/$DOMAIN.pot"
-POT_TEMP="$PWD/$DOMAIN_tmp.pot"
+POT_TEMP="$PWD/${DOMAIN}_tmp.pot"
+POT_MSG_TMP="$PWD/${DOMAIN}_msginit_tmp.pot"
 LANG_DIR=$PWD/languages
-LANGS=${LANGS-'en_US'}
+LANGS=${LANGS-''}
 
-# make sure that we always have en_US
-if ! [[ $LANGS =~ 'en_US' ]]; then
-	# prepend en_US to the language list
-	LANGS="en_US $LANGS"
-fi
+# we don't need to process the default language
+LANGS=$(echo "$LANGS" | sed "s/\s?en_US\s?//")
 
 # Create template
-echo "Creating POT, removing previous file if found..."
+echo "Creating POT, updating previous file if found and there are actual changes..."
 find $SOURCES -name "*.php" 2>/dev/null | xargs \
 xgettext \
 	--copyright-holder="Khang Minh" \
@@ -37,27 +35,60 @@ xgettext \
 	--output=$POT_TEMP \
 	--default-domain=$DOMAIN \
 
-# Create languages
-for LANG in $LANGS
-do
-	# if it's the default language, only create a fake POT file
-	if [ $LANG == 'en_US' ]; then
-		echo "Creating language template file in $LWD"
-		msginit --no-translator --locale=$LANG.UTF-8 --output-file=$POT --input=$POT_TEMP
-		continue
+# whether we need to update our language files
+NEED_UPDATE=false
+
+# if it's the default language, only create a fake POT file
+echo "Creating language template file in $LWD"
+msginit --no-translator --locale=en_US.UTF-8 --output-file=$POT_MSG_TMP --input=$POT_TEMP
+
+# POT file does not exist yet, need to update
+if ! [ -f $POT ]; then
+	NEED_UPDATE=true
+else
+	# POT file exists, need to check if the just-created temp POT file have
+	# meaningful updates
+	DIFF=$(diff --unchanged-line-format="" --old-line-format="%L" --new-line-format="%L" "$POT" "$POT_MSG_TMP")
+	DIFF_COUNT=$(echo "$DIFF" | wc -l)
+
+	# more than 4 different lines, which means there are probably
+	# meaningful changes
+	if [ "$DIFF_COUNT" -gt 4 ]; then
+		NEED_UPDATE=true
+	elif [ "$DIFF_COUNT" -eq 4 ]; then
+		# only four changed lines, check if they are simply date changes
+		# try removing date lines and if they are removed then they are
+		# the changes
+		DIFF=$(echo "$DIFF" | sed "s/\"POT-Creation-Date:.*//")
+		DIFF=$(echo "$DIFF" | sed "s/\"PO-Revision-Date:.*//")
+		# there are still other changes
+		if ! [ -z "$DIFF" ]; then
+			NEED_UPDATE=true
+		fi
 	fi
+fi
 
-	if [ ! -e "$LANG_DIR/$DOMAIN-$LANG.po" ]; then
-		echo "Creating language file for $LANG in $LANG_DIR"
-		msginit --no-translator --locale=$LANG.UTF-8 --output-file=$LANG_DIR/$DOMAIN-$LANG.po --input=$POT_TEMP
-	fi
+if [ $NEED_UPDATE == true ]; then
+	mv $POT_MSG_TMP $POT
 
-	echo "Updating language file for $LANG in $LANG_DIR from $POT_TEMP"
-	msgmerge --sort-output --update --backup=off $LANG_DIR/$DOMAIN-$LANG.po $POT_TEMP
+	# Create/update language files
+	for LANG in $LANGS
+	do
+		if [ ! -e "$LANG_DIR/$DOMAIN-$LANG.po" ]; then
+			echo "Creating language file for $LANG in $LANG_DIR"
+			msginit --no-translator --locale=$LANG.UTF-8 --output-file=$LANG_DIR/$DOMAIN-$LANG.po --input=$POT_TEMP
+		fi
 
-	echo "Converting $LANG.po to $LANG.mo in $LANG_DIR"
-	msgfmt --check --verbose --output-file=$LANG_DIR/$DOMAIN-$LANG.mo $LANG_DIR/$DOMAIN-$LANG.po
-done
+		echo "Updating language file for $LANG in $LANG_DIR from $POT_TEMP"
+		msgmerge --sort-output --update --backup=off $LANG_DIR/$DOMAIN-$LANG.po $POT_TEMP
 
-# remove the temp template file
+		echo "Converting $LANG.po to $LANG.mo in $LANG_DIR"
+		msgfmt --check --verbose --output-file=$LANG_DIR/$DOMAIN-$LANG.mo $LANG_DIR/$DOMAIN-$LANG.po
+	done
+else
+	echo "No change in language template file, nothing to do."
+fi
+
+# remove the temp template files
+rm -f $POT_MSG_TMP
 rm -f $POT_TEMP
