@@ -95,8 +95,8 @@ var bwp_op = (function($) {
 		}
 
 		// load feeds
-		load_feed('http://bwp.net/wp-json/bwp/v1/news', 'bwp_populate_feed_news');
-		load_feed('http://bwp.net/wp-json/bwp/v1/gems', 'bwp_populate_feed_gems');
+		load_feed('http://betterwp.net/wp-json/bwp/v1/news', 'bwp_populate_feed_news');
+		load_feed('http://betterwp.net/wp-json/bwp/v1/gems', 'bwp_populate_feed_gems');
 	});
 
 	return {
