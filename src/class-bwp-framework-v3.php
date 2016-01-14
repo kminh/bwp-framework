@@ -383,8 +383,8 @@ abstract class BWP_Framework_V3
 			data-placement="auto right"
 			data-popover-class="bwp-popover-sm"
 			type="button">
-			<span class="via"><span class="dashicons dashicons-thumbs-up"></span> Send</span>
-			<span class="paypal-pal">Coffees</span>!
+			<span class="via"><span class="dashicons dashicons-thumbs-up"></span> <?php _e('Send', $this->domain); ?></span>
+			<span class="paypal-pal"><?php _e('Coffees', $this->domain); ?></span>!
 		</button>
 
 		<div id="bwp-donation">
@@ -402,7 +402,7 @@ abstract class BWP_Framework_V3
 				<!-- <input type="hidden" name="return" value="http://betterwp.net"> -->
 				<input type="hidden" name="currency_code" value="USD">
 				<input type="hidden" name="bn" value="PP-BuyNowBF:icon-paypal.gif:NonHosted">
-				<input type="hidden" name="item_name" value="<?php printf(__('Donate to %s', $this->domain), $this->plugin_title); ?>" />
+				<input type="hidden" name="item_name" value="<?php printf('Donate to %s', $this->plugin_title); ?>" />
 				<select name="amount">
 					<option value="5.00"><?php _e('One cup $5.00', $this->domain); ?></option>
 					<option value="10.00"><?php _e('Two cups $10.00', $this->domain); ?></option>
