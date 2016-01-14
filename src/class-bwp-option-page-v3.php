@@ -225,7 +225,8 @@ class BWP_Option_Page_V3
 	 */
 	public function generate_html_form()
 	{
-		$return_str = '<div class="wrap bwp-wrap" style="padding-bottom: 20px;">' . "\n";
+		$return_str  = '<div class="wrap bwp-wrap" style="padding-bottom: 20px;">' . "\n";
+		$return_str .= '<h1 style="display: none;">' . $this->plugin->plugin_title . '</h1>' . "\n";
 		echo $return_str;
 
 		do_action('bwp_option_action_before_main');
