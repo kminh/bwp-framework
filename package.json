@@ -1,6 +1,6 @@
 {
   "name": "BWP_Framework",
-  "version": "3.4.2",
+  "version": "3.4.3",
   "config": {
     "phpunit_suite": ""
   },
