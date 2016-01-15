@@ -10,6 +10,13 @@
  */
 abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_UnitTestCase
 {
+	/**
+	 * Should we test in admin environment?
+	 *
+	 * @since rev 166
+	 */
+	protected $is_admin = false;
+
 	public function setUp()
 	{
 		parent::setUp();
@@ -94,6 +101,23 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	}
 
 	/**
+	 * Filter `pre_option_active_plugins` hook.
+	 *
+	 * @return array
+	 * @since rev 166
+	 */
+	public function pre_option_active_plugins()
+	{
+		// This is a hack to run tests in admin environment. If we do this in
+		// setUp function it will break WordPress's codes in `wp-includes/vars.php`.
+		if ($this->is_admin && ! defined('WP_ADMIN')) {
+			define('WP_ADMIN', true);
+		}
+
+		return $this->get_all_plugins();
+	}
+
+	/**
 	 * This should be used explicitly by extending testcases
 	 */
 	protected function load_fixtures($file_name = null)
@@ -125,12 +149,11 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 		if (!function_exists('tests_add_filter')) {
 			require_once $_tests_dir . '/includes/functions.php';
 
-			// load all plugins to use within this process
 			// we need to do this here to make sure loaded plugins can make
 			// use of WordPress's init action. If a testcase needs a different
 			// set of plugins it should be run in a separate process because
 			// this is called only once.
-			tests_add_filter('pre_option_active_plugins', array($this, 'get_all_plugins'));
+			tests_add_filter('pre_option_active_plugins', array($this, 'pre_option_active_plugins'));
 
 			// bootstrap WordPress itself, this should provide the WP environment and
 			// drop/recreate tables

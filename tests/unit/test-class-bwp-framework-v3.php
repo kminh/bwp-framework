@@ -163,6 +163,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	public function test_init_priority_should_be_filterable_and_default_to_10()
 	{
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_default_options', array())->andReturn(array());
+		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_pre_init_priority', 10)->once();
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_init_priority', 10)->once();
 
 		$this->build_properties();
@@ -174,12 +175,8 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	 */
 	public function test_pre_init_actions_should_call_necessary_functions_when_build_properties()
 	{
-		$this->framework->shouldReceive('pre_init_build_constants')->ordered()->once();
-		$this->framework->shouldReceive('build_options')->ordered()->once();
-		$this->framework->shouldReceive('update_plugin')->with('pre_init')->ordered()->once();
-		$this->framework->shouldReceive('pre_init_properties')->ordered()->once();
-		$this->framework->shouldReceive('load_libraries')->ordered()->once();
-		$this->framework->shouldReceive('pre_init_hooks')->ordered()->once();
+		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_pre_init_priority', 10)->andReturn(10)->byDefault();
+		$this->bridge->shouldReceive('add_action')->with('plugins_loaded', array($this->framework, 'pre_init'), 10)->once();
 
 		// mock this to test pre_init_actions() only
 		$this->framework
@@ -190,15 +187,32 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_V3::pre_init
+	 */
+	public function test_pre_init_cases()
+	{
+		$this->framework->shouldReceive('pre_init_build_constants')->ordered()->once();
+		$this->framework->shouldReceive('build_options')->ordered()->once();
+		$this->framework->shouldReceive('update_plugin')->with('pre_init')->ordered()->once();
+		$this->framework->shouldReceive('pre_init_properties')->ordered()->once();
+		$this->framework->shouldReceive('load_libraries')->ordered()->once();
+		$this->framework->shouldReceive('pre_init_hooks')->ordered()->once();
+
+		$this->build_properties();
+		$this->framework->pre_init();
+	}
+
+	/**
 	 * @covers BWP_Framework_V3::build_properties
 	 * @covers BWP_Framework_V3::pre_init_actions
 	 */
-	public function test_pre_init_actions_should_register_activation_hook_when_build_properties()
+	public function test_pre_init_actions_should_register_activation_hook_in_pre_init()
 	{
 		$this->bridge->shouldReceive('register_activation_hook')->with($this->plugin_file, array($this->framework, 'install'))->once();
 		$this->bridge->shouldReceive('register_deactivation_hook')->with($this->plugin_file, array($this->framework, 'uninstall'))->once();
 
 		$this->build_properties();
+		$this->framework->pre_init();
 	}
 
 	/**

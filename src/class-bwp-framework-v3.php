@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 165;
+	public $revision = 166;
 
 	/**
 	 * Text domain
@@ -568,16 +568,14 @@ abstract class BWP_Framework_V3
 
 	protected function pre_init_actions()
 	{
-		$this->pre_init_build_constants();
-		$this->pre_init_build_options();
-		$this->pre_init_update_plugin();
-		$this->pre_init_properties();
-		$this->load_libraries();
-		$this->pre_init_hooks();
+		$pre_init_priority = $this->bridge->apply_filters($this->plugin_key . '_pre_init_priority', 10);
 
-		// support installation and uninstallation
-		$this->bridge->register_activation_hook($this->plugin_file, array($this, 'install'));
-		$this->bridge->register_deactivation_hook($this->plugin_file, array($this, 'uninstall'));
+		// @since rev 166 we start the early init process after all plugins
+		// are loadded, this is to make sure that:
+		// 1. Other plugins can hook to BWP hooks and can compete with BWP
+		//    plugins when using built-in WordPress hooks as well.
+		// 2. All pluggable functions are available and "plugged" when needed.
+		$this->bridge->add_action('plugins_loaded', array($this, 'pre_init'), $pre_init_priority);
 	}
 
 	protected function init_actions()
@@ -604,6 +602,20 @@ abstract class BWP_Framework_V3
 			// this should allow other package to include BWP plugins while
 			// retaining correct URLs pointing to assets
 			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugin_dir_url($this->plugin_file));
+	}
+
+	public function pre_init()
+	{
+		$this->pre_init_build_constants();
+		$this->pre_init_build_options();
+		$this->pre_init_update_plugin();
+		$this->pre_init_properties();
+		$this->load_libraries();
+		$this->pre_init_hooks();
+
+		// support installation and uninstallation
+		$this->bridge->register_activation_hook($this->plugin_file, array($this, 'install'));
+		$this->bridge->register_deactivation_hook($this->plugin_file, array($this, 'uninstall'));
 	}
 
 	public function init()
