@@ -9,7 +9,9 @@
 // functionality. For this to work multisite tests must be run in separate
 // processes, either by using PHPUnit's process isolation feature or using
 // separate testsuite.
-define('WP_TESTS_MULTISITE', 1);
+if (!defined('WP_TESTS_MULTISITE')) {
+	define('WP_TESTS_MULTISITE', 1);
+}
 
 /**
  * @author Khang Minh <contact@betterwp.net>
@@ -132,9 +134,29 @@ abstract class BWP_Framework_PHPUnit_WP_Multisite_Functional_TestCase extends BW
 	{
 		global $wpdb;
 
-		$wpdb->query("DELETE FROM $wpdb->blogs WHERE 1=1 AND path <> '/'");
+		// remove all blogs' tables, this will also remove all blogs' entries
+		// from the `wp_blogs` table (except for the main blog)
+		$blogs = wp_get_sites();
+		foreach ($blogs as $blog) {
+			if ($blog['path'] == '/') {
+				continue;
+			}
+			wpmu_delete_blog($blog['blog_id'], true);
+		}
+
+		// adjust the auto increment count so the fixture is predictable
 		$wpdb->query("ALTER TABLE $wpdb->blogs AUTO_INCREMENT = 2");
 
 		self::commit_transaction();
+	}
+
+	protected function bootstrap_plugin()
+	{
+		parent::bootstrap_plugin();
+
+		// need to define WP_SITEURL here to avoid an error with wp_guess_url()
+		if (!defined('WP_SITEURL')) {
+			define('WP_SITEURL', 'http://' . WP_TESTS_DOMAIN);
+		}
 	}
 }
