@@ -152,7 +152,10 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		global $_core_dir;
 
 		$dirs = array(
-			'/js', '/css'
+			'js',
+			'css',
+			'wp-content/assets/js',
+			'wp-content/assets/css'
 		);
 
 		foreach ($dirs as $dir) {
