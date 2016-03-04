@@ -160,7 +160,7 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 
 		foreach ($dirs as $dir) {
 			if (!file_exists($_core_dir . $dir)) {
-				mkdir($_core_dir . $dir);
+				exec('mkdir -p ' . escapeshellarg($_core_dir . $dir));
 			}
 		}
 	}
