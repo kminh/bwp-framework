@@ -95,14 +95,14 @@ class BWP_Framework_Util
 			return true;
 
 		// on a multisite installation, must be a super admin
-		if (self::is_multisite() && self::is_super_admin())
+		if (self::is_multisite_admin())
 			return true;
 
 		return false;
 	}
 
 	/**
-	 * Whether the currently logged in user is a site admin in a multisite
+	 * Whether the currently logged in user is a super admin in a multisite
 	 * installation
 	 *
 	 * @return bool

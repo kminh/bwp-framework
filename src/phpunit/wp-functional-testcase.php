@@ -138,7 +138,7 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	{
 		global $_core_dir;
 
-		self::$cache_dir = !$cache_dir ? $_core_dir . '/wp-content/cache' : $cache_dir;
+		self::$cache_dir = !$cache_dir ? $_core_dir . 'wp-content/cache' : $cache_dir;
 
 		exec('rm -rf ' . self::$cache_dir);
 		mkdir(self::$cache_dir);
