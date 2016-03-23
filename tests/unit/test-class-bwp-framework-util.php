@@ -38,6 +38,51 @@ class BWP_Framework_Util_Test extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_Util::is_subdirectory_install
+	 * @dataProvider is_subdirectory_install_cases
+	 */
+	public function test_is_subdirectory_install($is_multisite, $is_subdomain, $expected)
+	{
+		define('MULTISITE', $is_multisite);
+		define('SUBDOMAIN_INSTALL', $is_subdomain);
+
+		$this->assertSame($expected, BWP_Framework_Util::is_subdirectory_install());
+	}
+
+	public function is_subdirectory_install_cases()
+	{
+		return array(
+			array(false, false, false),
+			array(true, true, false),
+			array(true, false, true)
+		);
+	}
+
+	/**
+	 * @covers BWP_Framework_Util::is_on_sub_blog_of_subdirectory_install
+	 * @dataProvider is_on_sub_blog_of_subdirectory_install_cases
+	 */
+	public function test_is_on_sub_blog_of_subdirectory_install($is_subdirectory_install, $on_main_blog, $expected)
+	{
+		define('MULTISITE', true);
+		define('BWP_SUBDIRECTORY_INSTALL', $is_subdirectory_install);
+
+		global $blog_id;
+		$blog_id = $on_main_blog ? 1 : 2;
+
+		$this->assertSame($expected, BWP_Framework_Util::is_on_sub_blog_of_subdirectory_install());
+	}
+
+	public function is_on_sub_blog_of_subdirectory_install_cases()
+	{
+		return array(
+			array(false, false, false),
+			array(true, false, true),
+			array(true, true, false)
+		);
+	}
+
+	/**
 	 * @covers BWP_Framework_Util::is_site_admin
 	 * @dataProvider get_is_site_admin_cases
 	 */

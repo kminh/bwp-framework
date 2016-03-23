@@ -45,6 +45,19 @@ class BWP_Framework_Util
 		return false;
 	}
 
+	public static function is_subdirectory_install()
+	{
+		if (defined('BWP_SUBDIRECTORY_INSTALL'))
+			return BWP_SUBDIRECTORY_INSTALL;
+
+		return self::is_multisite() && !self::is_subdomain_install();
+	}
+
+	public static function is_on_sub_blog_of_subdirectory_install()
+	{
+		return self::is_subdirectory_install() && !self::is_on_main_blog();
+	}
+
 	public static function is_admin_user()
 	{
 		if (function_exists('current_user_can') && current_user_can('manage_options'))
