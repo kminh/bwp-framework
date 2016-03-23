@@ -58,11 +58,12 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		// mock all protected methods that are not related to testing
 		$this->framework->shouldReceive('pre_init_build_constants')->byDefault();
 		$this->framework->shouldReceive('pre_init_properties')->byDefault();
-		$this->framework->shouldReceive('load_libraries')->byDefault();
+		$this->framework->shouldReceive('pre_init_load_libraries')->byDefault();
 		$this->framework->shouldReceive('pre_init_hooks')->byDefault();
 		$this->framework->shouldReceive('build_constants')->byDefault();
 		$this->framework->shouldReceive('init_shared_properties')->byDefault();
 		$this->framework->shouldReceive('init_properties')->byDefault();
+		$this->framework->shouldReceive('init_load_libraries')->byDefault();
 		$this->framework->shouldReceive('init_hooks')->byDefault();
 		$this->framework->shouldReceive('register_framework_media')->byDefault();
 		$this->framework->shouldReceive('enqueue_media')->byDefault();
@@ -193,9 +194,9 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	{
 		$this->framework->shouldReceive('pre_init_build_constants')->ordered()->once();
 		$this->framework->shouldReceive('build_options')->ordered()->once();
-		$this->framework->shouldReceive('update_plugin')->with('pre_init')->ordered()->once();
 		$this->framework->shouldReceive('pre_init_properties')->ordered()->once();
-		$this->framework->shouldReceive('load_libraries')->ordered()->once();
+		$this->framework->shouldReceive('pre_init_load_libraries')->ordered()->once();
+		$this->framework->shouldReceive('update_plugin')->with('pre_init')->ordered()->once();
 		$this->framework->shouldReceive('pre_init_hooks')->ordered()->once();
 
 		$this->build_properties();
@@ -248,10 +249,12 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 		$this->bridge->shouldReceive('do_action')->with('bwp_plugin_pre_init')->globally()->ordered()->once();
 
 		$this->framework->shouldReceive('build_constants')->globally()->ordered()->once();
-		$this->framework->shouldReceive('update_plugin')->with('init')->globally()->ordered()->once();
-
 		$this->framework->shouldReceive('init_shared_properties')->globally()->ordered()->once();
 		$this->framework->shouldReceive('init_properties')->globally()->ordered()->once();
+		$this->framework->shouldReceive('init_load_libraries')->globally()->ordered()->once();
+
+		$this->framework->shouldReceive('update_plugin')->with('init')->globally()->ordered()->once();
+
 		$this->framework->shouldReceive('init_hooks')->globally()->ordered()->once();
 		$this->framework->shouldReceive('enqueue_media')->globally()->ordered()->once();
 
@@ -265,11 +268,6 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 
 		$this->build_properties();
 		$this->framework->init();
-
-		$this->assertTrue(
-			$this->framework->options == $this->framework->current_options,
-			'current options and options must always be the same after the init phase'
-		);
 	}
 
 	public function get_init_case()
@@ -281,7 +279,22 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_V3::init_build_options
+	 */
+	public function test_init_build_options_should_ensure_that_current_options_and_options_are_same()
+	{
+		$this->framework->options = array('value1', 'value2');
+		$this->framework->current_options = array('value3', 'value4');
+
+		$this->build_properties();
+		$this->call_protected_method('init_build_options');
+
+		$this->assertTrue($this->framework->options == $this->framework->current_options);
+	}
+
+	/**
 	 * @covers BWP_Framework_V3::update_plugin
+	 * @depends test_init_build_options_should_ensure_that_current_options_and_options_are_same
 	 * @dataProvider get_update_plugin_data
 	 */
 	public function test_update_plugin($when, $db_version, $do_update)
@@ -298,7 +311,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 					->with($db_version, $this->plugin_version)
 					->once()
 					->globally()
-					->ordered();
+					->ordered('update_plugin');
 			} else {
 				$action_hook = 'bwp_plugin_init_upgrade';
 
@@ -307,21 +320,26 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 					->with($db_version, $this->plugin_version)
 					->once()
 					->globally()
-					->ordered();
+					->ordered('update_plugin');
 			}
 
 			$this->bridge
 				->shouldReceive('do_action')
 				->with($action_hook, $db_version, $this->plugin_version)
-				->once();
+				->once()
+				->globally()
+				->ordered('update_plugin');
 
 			// update the version in db if it's 'init_upgrade'
 			if ('init' == $when) {
-				$this->bridge->shouldReceive('update_option')->with('bwp_plugin_version', $this->plugin_version)->once();
+				$this->bridge
+					->shouldReceive('update_option')
+					->with('bwp_plugin_version', $this->plugin_version)
+					->once()
+					->globally()
+					->ordered('update_plugin');
 			}
-		}
-		else
-		{
+		} else {
 			$this->bridge->shouldNotReceive('do_action')->with('bwp_plugin_upgrade', $db_version, $this->plugin_version);
 		}
 
@@ -343,6 +361,91 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 			array('pre_init', '1.1.9', true),
 			array('init', '1.1.9', true)
 		);
+	}
+
+	/**
+	 * @covers BWP_Framework_V3::init_upgrade_plugin
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @dataProvider get_legacy_setting
+	 */
+	public function test_init_upgrade_plugin_should_not_upgrade_if_invalid_from_version($invalid_from, $is_legacy)
+	{
+		$this->framework->is_legacy = $is_legacy;
+
+		$migration = Mockery::mock('alias:BWP_Framework_Migration_Factory');
+
+		if ($is_legacy) {
+			$migration->shouldReceive('create_migrations')->andReturnNull()->once();
+		} else {
+			$migration->shouldNotReceive('create_migrations');
+		}
+
+		$this->framework->init_upgrade_plugin($invalid_from, $this->plugin_version);
+	}
+
+	public function get_legacy_setting()
+	{
+		return array(
+			array(null, true),
+			array(false, false),
+			array(false, null)
+		);
+	}
+
+	/**
+	 * @covers BWP_Framework_V3::init_upgrade_plugin
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	public function test_init_upgrade_plugin()
+	{
+		$this->build_properties();
+
+		$migration_factory = Mockery::mock('alias:BWP_Framework_Migration_Factory');
+
+		// valid migration class, but already migrated
+		$migration1 = Mockery::namedMock('BWP_Framework_V3_Migration_10200');
+		$migration1->shouldNotReceive('up');
+		$migration1->shouldReceive('get_version')->andReturn('1.2.0-beta1')->byDefault();
+
+		// valid migration class, should migrate
+		$migration3 = Mockery::namedMock('BWP_Framework_V3_Migration_10200');
+		$migration3->shouldReceive('up')->once();
+		$migration3->shouldReceive('get_version')->andReturn('1.2.0')->byDefault();
+		$migration3->shouldReceive('get_previous_version')->andReturnNull()->byDefault();
+
+		// valid migration class, should migrate
+		$migration4 = Mockery::namedMock('BWP_Framework_V3_Migration_10400');
+		$migration4->shouldReceive('up')->once();
+		$migration4->shouldReceive('get_version')->andReturn('1.4.0')->byDefault();
+		$migration4->shouldReceive('get_previous_version')->andReturnNull()->byDefault();
+
+		// valid migration class, but previous version does not match
+		$migration2 = Mockery::namedMock('BWP_Framework_V3_Migration_10100_10400');
+		$migration2->shouldNotReceive('up');
+		$migration2->shouldReceive('get_version')->andReturn('1.4.0')->byDefault();
+		$migration2->shouldReceive('get_previous_version')->andReturn('1.1.0')->byDefault();
+
+		// valid migration class, previous version matches
+		$migration5 = Mockery::namedMock('BWP_Framework_V3_Migration_10200_beta1_10400');
+		$migration5->shouldReceive('up')->once();
+		$migration5->shouldReceive('get_version')->andReturn('1.4.0')->byDefault();
+		$migration5->shouldReceive('get_previous_version')->andReturn('1.2.0-beta1')->byDefault();
+
+		$migration_factory
+			->shouldReceive('create_migrations')
+			->with($this->framework)
+			->andReturn(array(
+				$migration1,
+				$migration2,
+				$migration3,
+				$migration4,
+				$migration5
+			))
+			->byDefault();
+
+		$this->framework->init_upgrade_plugin('1.2.0-beta1', $this->plugin_version);
 	}
 
 	/**

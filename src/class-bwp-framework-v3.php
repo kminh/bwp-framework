@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 166;
+	public $revision = 167;
 
 	/**
 	 * Text domain
@@ -604,13 +604,17 @@ abstract class BWP_Framework_V3
 			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugin_dir_url($this->plugin_file));
 	}
 
+	/**
+	 * Init parts of the plugin that require certain dependencies that are
+	 * available as soon as "plugins_loaded" action is fired.
+	 */
 	public function pre_init()
 	{
 		$this->pre_init_build_constants();
 		$this->pre_init_build_options();
-		$this->pre_init_update_plugin();
 		$this->pre_init_properties();
-		$this->load_libraries();
+		$this->pre_init_load_libraries();
+		$this->pre_init_update_plugin();
 		$this->pre_init_hooks();
 
 		// support installation and uninstallation
@@ -618,15 +622,20 @@ abstract class BWP_Framework_V3
 		$this->bridge->register_deactivation_hook($this->plugin_file, array($this, 'uninstall'));
 	}
 
+	/**
+	 * Init parts of the plugin that requires certain dependencies (such as
+	 * authenticated user) that are available only after WordPress fires the
+	 * "init" action.
+	 */
 	public function init()
 	{
 		$this->bridge->do_action($this->plugin_key . '_pre_init');
 
 		$this->build_constants();
-		$this->init_update_plugin();
-		$this->init_build_options();
 		$this->init_shared_properties();
 		$this->init_properties();
+		$this->init_load_libraries();
+		$this->init_update_plugin();
 		$this->init_hooks();
 		$this->register_framework_media();
 		$this->enqueue_media();
@@ -882,6 +891,23 @@ abstract class BWP_Framework_V3
 	}
 
 	/**
+	 * @since rev 167
+	 */
+	protected function pre_init_load_libraries()
+	{
+		// this is here to keep BC
+		$this->load_libraries();
+	}
+
+	/**
+	 * @deprecated rev 167, use self::pre_init_load_libraries instead.
+	 */
+	protected function load_libraries()
+	{
+		/* intentionally left blank */
+	}
+
+	/**
 	 * Init properties that are shared across different plugins
 	 */
 	protected function init_shared_properties()
@@ -894,7 +920,7 @@ abstract class BWP_Framework_V3
 		/* intentionally left blank */
 	}
 
-	protected function load_libraries()
+	protected function init_load_libraries()
 	{
 		/* intentionally left blank */
 	}
@@ -1255,6 +1281,7 @@ abstract class BWP_Framework_V3
 
 	/**
 	 * @since rev 157
+	 * @deprecated 3.5.0 We now upgrade the plugin only when "init" action is fired.
 	 */
 	public function upgrade_plugin($from, $to)
 	{
@@ -1263,10 +1290,38 @@ abstract class BWP_Framework_V3
 
 	/**
 	 * @since rev 157
+	 * @since 3.5.0 Load migration scripts automatically.
 	 */
 	public function init_upgrade_plugin($from, $to)
 	{
-		/* intentionally left blank */
+		// we do not allow upgrading from a non-existent $from version, except
+		// when migrating legacy plugins
+		if (! $from && empty($this->is_legacy)) {
+			return;
+		}
+
+		// no migrations to execute
+		if (! $migrations = BWP_Framework_Migration_Factory::create_migrations($this)) {
+			return;
+		}
+
+		foreach ($migrations as $migration) {
+			// do not migrate if the migrate-from version is already up-to-date
+			if (version_compare($from, $migration->get_version(), '>=')) {
+				continue;
+			}
+
+			// OR if the migrate-from version does not equal to the
+			// specified one if any.
+			if ($migration->get_previous_version()
+				&& $from !== $migration->get_previous_version()
+			) {
+				continue;
+			}
+
+			// migrate now
+			$migration->up();
+		}
 	}
 
 	protected function is_admin_page($page = '')
