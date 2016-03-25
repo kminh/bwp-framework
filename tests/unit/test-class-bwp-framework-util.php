@@ -135,6 +135,43 @@ class BWP_Framework_Util_Test extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_Util::is_on_main_blog
+	 * @dataProvider is_on_main_blog_cases
+	 */
+	public function test_is_on_main_blog($is_multisite, $_blog_id, $expected)
+	{
+		define('MULTISITE', $is_multisite);
+
+		global $blog_id;
+		$blog_id = $_blog_id;
+
+		$this->assertSame($expected, BWP_Framework_Util::is_on_main_blog());
+	}
+
+	/**
+	 * @covers BWP_Framework_Util::is_on_sub_blog
+	 * @dataProvider is_on_main_blog_cases
+	 */
+	public function test_is_on_sub_blog_standard($is_multisite, $_blog_id, $expected)
+	{
+		define('MULTISITE', $is_multisite);
+
+		global $blog_id;
+		$blog_id = $_blog_id;
+
+		$this->assertSame(! $expected, BWP_Framework_Util::is_on_sub_blog());
+	}
+
+	public function is_on_main_blog_cases()
+	{
+		return array(
+			array(false, 1, true),
+			array(true, 1, true),
+			array(true, 2, false)
+		);
+	}
+
+	/**
 	 * @covers BWP_Framework_Util::can_update_site_option
 	 * @dataProvider get_can_update_site_option_cases
 	 */

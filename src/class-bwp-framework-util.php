@@ -126,6 +126,15 @@ class BWP_Framework_Util
 		return intval($blog_id) === 1;
 	}
 
+	public static function is_on_sub_blog()
+	{
+		// not a multisite installation, no sub blog
+		if (!self::is_multisite())
+			return false;
+
+		return !self::is_on_main_blog();
+	}
+
 	public static function can_update_site_option()
 	{
 		return self::is_site_admin() && self::is_on_main_blog();

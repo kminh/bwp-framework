@@ -1155,7 +1155,7 @@ class BWP_Option_Page_V3
 		if (isset($this->form['env'])
 			&& array_key_exists($name, $this->form['env'])
 			&& $this->form['env'][$name] == 'multisite'
-			&& !BWP_Framework_V3::is_multisite()
+			&& !BWP_Framework_Util::is_multisite()
 		) {
 			// hide multisite field if not in multisite environment
 			return true;
@@ -1172,7 +1172,7 @@ class BWP_Option_Page_V3
 		if (isset($this->form['role'])
 			&& array_key_exists($name, $this->form['role'])
 			&& $this->form['role'][$name] == 'superadmin'
-			&& (!BWP_Framework_V3::is_site_admin() || !BWP_Framework_V3::is_on_main_blog())
+			&& (!BWP_Framework_Util::is_site_admin() || !BWP_Framework_Util::is_on_main_blog())
 		) {
 			// hide site-admin-only settings if not a site admin or not on
 			// main blog
@@ -1189,7 +1189,7 @@ class BWP_Option_Page_V3
 		/* } */
 
 		if (in_array($name, $this->site_options)
-			&& (!BWP_Framework_V3::is_site_admin() || !BWP_Framework_V3::is_on_main_blog())
+			&& (!BWP_Framework_Util::is_site_admin() || !BWP_Framework_Util::is_on_main_blog())
 		) {
 			// hide site-admin-only settings if not a site admin or not on
 			// main blog
@@ -1198,16 +1198,16 @@ class BWP_Option_Page_V3
 
 		if (isset($this->form['blog'])
 			&& array_key_exists($name, $this->form['blog'])
-			&& BWP_Framework_V3::is_multisite()
 		) {
-			if ($this->form['blog'][$name] == 'main' && !BWP_Framework_V3::is_on_main_blog())
+			// this field should be on main blog only, so hide it if not
+			if ($this->form['blog'][$name] == 'main' && !BWP_Framework_Util::is_on_main_blog())
 			{
-				// this field should be on main blog only
 				return true;
 			}
-			elseif ($this->form['blog'][$name] == 'sub' && BWP_Framework_V3::is_on_main_blog())
+			elseif ($this->form['blog'][$name] == 'sub' && BWP_Framework_Util::is_on_main_blog())
 			{
-				// this field should be on sub blogs only
+				// this field should be on sub blogs only, so hide it if on
+				// main blog
 				return true;
 			}
 		}

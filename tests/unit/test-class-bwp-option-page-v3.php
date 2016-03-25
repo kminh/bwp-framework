@@ -429,14 +429,11 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'is_php_version'  => false
 				)
 			),
-			array(
+
+			'should hide setting for main blog if on sub blog' => array(
 				$form,
-				array(
-					'input_main_blog',
-				),
-				array(
-					'input_main_blog'   => 'input_main_blog_value',
-				),
+				array('input_main_blog',),
+				array('input_main_blog'   => 'input_main_blog_value',),
 				array(
 					'is_multisite'    => true,
 					'is_site_admin'   => false,
@@ -444,14 +441,23 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'is_php_version'  => false
 				)
 			),
-			array(
+
+			'should hide setting for sub blog if not multisite' => array(
 				$form,
+				array('input_sub_blog'),
+				array('input_sub_blog' => 'input_sub_blog_value'),
 				array(
-					'input_sub_blog'
-				),
-				array(
-					'input_sub_blog' => 'input_sub_blog_value'
-				),
+					'is_multisite'    => false,
+					'is_site_admin'   => false,
+					'is_on_main_blog' => true,
+					'is_php_version'  => false
+				)
+			),
+
+			'should hide setting for sub blog if on main blog' => array(
+				$form,
+				array('input_sub_blog'),
+				array('input_sub_blog' => 'input_sub_blog_value'),
 				array(
 					'is_multisite'    => true,
 					'is_site_admin'   => false,
