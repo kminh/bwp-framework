@@ -119,14 +119,14 @@ abstract class BWP_Framework_PHPUnit_Unit_TestCase extends MockeryTestCase
 		$this->bridge
 			->shouldReceive('home_url')
 			->andReturnUsing(function($path = null) use ($home_url) {
-				return !empty($path) ? $home_url . '/' . $path : $home_url;
+				return !empty($path) ? $home_url . '/' . ltrim($path, '/') : $home_url;
 			})
 			->byDefault();
 
 		$this->bridge
 			->shouldReceive('site_url')
 			->andReturnUsing(function($path = null) use ($site_url) {
-				return !empty($path) ? $site_url . '/' . $path : $site_url;
+				return !empty($path) ? $site_url . '/' . ltrim($path, '/') : $site_url;
 			})
 			->byDefault();
 	}
