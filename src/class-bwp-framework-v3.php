@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 167;
+	public $revision = 168;
 
 	/**
 	 * Text domain
@@ -871,18 +871,20 @@ abstract class BWP_Framework_V3
 	 * Get current options by their keys
 	 *
 	 * @param array $option_keys
+	 * @param bool $default Get default options or not. Default to false.
 	 */
-	public function get_options_by_keys(array $option_keys)
+	public function get_options_by_keys(array $option_keys, $default = false)
 	{
-		$options = array();
+		$options = $default ? $this->options_default : $this->options;
+		$options_by_keys = array();
 
 		foreach ($option_keys as $key) {
-			if (array_key_exists($key, $this->options)) {
-				$options[$key] = $this->options[$key];
+			if (array_key_exists($key, $options)) {
+				$options_by_keys[$key] = $options[$key];
 			}
 		}
 
-		return $options;
+		return $options_by_keys;
 	}
 
 	protected function pre_init_properties()
