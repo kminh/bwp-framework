@@ -779,7 +779,9 @@ a.bg-danger:focus {
   margin-top: 10px;
 }
 #bwp-ads a {
-  line-height: 1;
+  display: block;
+  width: 250px;
+  height: 250px;
 }
 #bwp-news a {
   margin-right: 5px;

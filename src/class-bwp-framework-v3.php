@@ -500,12 +500,12 @@ abstract class BWP_Framework_V3
 
 	<div id="bwp-ads" class="postbox">
 		<<?php echo $heading_level; ?> class="hndle">
-			<span><?php _e('Need a highly customizable theme?', $this->domain); ?></span>
+			<span><?php _e('Need a smart and flexible theme?', $this->domain); ?></span>
 		</<?php echo $heading_level; ?>>
 		<div class="inside">
 			<div style="width: 250px; margin: 0 auto;">
-				<a href="http://bit.ly/bwp-optimizer-012016"
-					target="_blank"><img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/ad_lt_250x250.png'; ?>"
+				<a href="http://bit.ly/bwp-elegantthemes-042016"
+					target="_blank"><img src="<?php echo $this->plugin_wp_url . 'vendor/kminh/bwp-framework/assets/option-page/images/ad_lt_250x250.jpg'; ?>"
 				/></a>
 			</div>
 		</div>
