@@ -208,16 +208,31 @@ class BWP_Option_Page_V3
 		$types = array('checkbox', 'checkbox_multi', 'radio');
 		foreach ($types as $type)
 		{
-			if (!isset($this->form[$type]) || !is_array($this->form[$type]))
-				continue;
-
-			if (!isset($this->form[$type][$name]))
-				continue;
-
-			return true;
+			if ($this->is_field_of_type($name, $type))
+				return true;
 		}
 
 		return false;
+	}
+
+	/**
+	 * @param string $name
+	 * @since rev 169
+	 */
+	protected function is_field_textarea($name)
+	{
+		return $this->is_field_of_type($name, 'textarea');
+	}
+
+	private function is_field_of_type($name, $type)
+	{
+		if (!isset($this->form[$type]) || !is_array($this->form[$type]))
+			return false;
+
+		if (!isset($this->form[$type][$name]))
+			return false;
+
+		return true;
 	}
 
 	/**
@@ -369,9 +384,24 @@ class BWP_Option_Page_V3
 				// values are not array, if array all values will be sanitized
 				// but not formatted, plugin should take care of the formats
 				// explicitly
-				$option = !is_array($_POST[$name])
-					? $this->format_field($name, $_POST[$name])
-					: $this->sanitize($_POST[$name]);
+				if (!is_array($_POST[$name]))
+				{
+					// @since rev 169 support for array as textarea
+					// if option value is an array, and current field is a
+					// textarea, we convert the field's value to an array
+					if (is_array($option) && $this->is_field_textarea($name))
+					{
+						$option = explode("\n", $_POST[$name]);
+					}
+					else
+					{
+						$option = $this->format_field($name, $_POST[$name]);
+					}
+				}
+				else
+				{
+					$option = $this->sanitize($_POST[$name]);
+				}
 			}
 
 			if (!isset($_POST[$name]))
@@ -691,6 +721,12 @@ class BWP_Option_Page_V3
 		{
 			foreach ($value as &$v)
 				$v = is_array($v) ? array_map('esc_attr', $v) : esc_attr($v);
+
+			// @since rev 169 support for array as textarea
+			if ($type == 'textarea')
+			{
+				$value = implode("\n", $value);
+			}
 		}
 		else
 		{

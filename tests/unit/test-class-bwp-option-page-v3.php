@@ -211,8 +211,13 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 	 * @covers BWP_Option_Page_V3::submit_html_form
 	 * @dataProvider get_form_data
 	 */
-	public function test_submit_html_form_should_update_options_correctly($form, $form_option_keys, $form_options, $post_options, $merged_options)
-	{
+	public function test_submit_html_form_should_update_options_correctly(
+		$form,
+		$form_option_keys,
+		$form_options,
+		$post_options,
+		$merged_options
+	) {
 		$this->bridge->shouldReceive('check_admin_referer')->with($this->form_name)->once();
 
 		$this->plugin
@@ -278,6 +283,9 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'disabled' => true
 				)
 			),
+			'textarea' => array(
+				'textarea2' => array()
+			),
 			'formats' => array(
 				'input3_integer_blank_string' => 'int',
 				'input3_integer_negative'     => 'int',
@@ -300,6 +308,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input3_integer',
 					'input4_float',
 					'textarea1',
+					'textarea2',
 					'checkbox1',
 					'checkbox_multi1',
 					'select_multi1',
@@ -314,6 +323,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input3_integer'              => 40,
 					'input4_float'                => 1.0,
 					'textarea1'                   => 'textarea1_value',
+					'textarea2'                   => array(),
 					'checkbox1'                   => 'checkbox1_value',
 					'checkbox_multi1'             => 'checkbox_multi1_value',
 					'select_multi1'               => 'select_multi1_value',
@@ -327,6 +337,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input3_integer'              => 5,
 					'input4_float'                => 2,
 					'textarea1'                   => '<p class="class">textarea1_updated_value</p>', // tags should be preserved
+					'textarea2'                   => 'item1' . "\n" . 'item2' . "\n" . 'item3',
 					'select1'                     => 'select1_updated_value'
 				),
 				array(
@@ -338,6 +349,7 @@ class BWP_Option_Page_V3_Test extends MockeryTestCase
 					'input3_integer'              => 5,
 					'input4_float'                => 2.0,
 					'textarea1'                   => '<p class="class">textarea1_updated_value</p>',
+					'textarea2'                   => array('item1', 'item2', 'item3'),
 					'checkbox1'                   => '', // unchecked checkbox should be empty
 					'checkbox_multi1'             => array(), // unchecked multi-checkbox should be an empty array
 					'select_multi1'               => array(), // unchecked multi-select should be an empty array
