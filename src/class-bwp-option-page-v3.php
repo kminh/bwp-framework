@@ -574,7 +574,7 @@ class BWP_Option_Page_V3
 		$help_attributes = array(
 			'class'              => $help_class,
 			'title'              => $help_data['title'],
-			'data-content'       => $help_data['content'],
+			'data-content'       => $this->bridge->wpautop($help_data['content']),
 			'data-placement'     => $help_data['placement'],
 			'data-popover-class' => $size_map[$help_data['size']]
 		);
