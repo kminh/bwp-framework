@@ -709,6 +709,7 @@ class BWP_Option_Page_V3
 			'cols',
 			'rows',
 			'label',
+			'label_block',
 			'disabled',
 			'pre',
 			'post',
@@ -739,12 +740,17 @@ class BWP_Option_Page_V3
 			break;
 
 			case 'input':
-				$data['label'] = !empty($data['label']) ? ' <em>' . $data['label'] . '</em>' : '';
+				$data['label'] = !empty($data['label'])
+					? ' <em class="bwp-label-inline">' . $data['label'] . '</em>'
+					: '';
+				$data['label_block'] = !empty($data['label_block'])
+					? '<br /><em>' . $data['label_block'] . '</em>'
+					: '';
 				$html_field = !$in_section
 					? '%pre%<input %attributes%%disabled% size="%size%" type="text" '
 						. 'id="' . $name_attr . '" '
 						. 'name="' . $name_attr . '" '
-						. 'value="' . $value . '" />%label%'
+						. 'value="' . $value . '" />%label%%label_block%'
 					: '<label for="' . $name_attr . '">%pre%<input %attributes%%disabled% size="%size%" type="text" '
 						. 'id="' . $name_attr . '" '
 						. 'name="' . $name_attr . '" '
@@ -786,10 +792,16 @@ class BWP_Option_Page_V3
 			break;
 
 			case 'textarea':
+				$data['label'] = !empty($data['label'])
+					? ' <em class="bwp-label-inline">' . $data['label'] . '</em>'
+					: '';
+				$data['label_block'] = !empty($data['label_block'])
+					? '<br /><em>' . $data['label_block'] . '</em>'
+					: '';
 				$html_field = '%pre%<textarea %attributes%%disabled% '
 					. 'id="' . $name_attr . '" '
 					. 'name="' . $name_attr . '" cols="%cols%" rows="%rows%">'
-					. $value . '</textarea>';
+					. $value . '</textarea>%label%%label_block%';
 
 				$post_html_field = '%post%';
 			break;
@@ -1014,7 +1026,7 @@ class BWP_Option_Page_V3
 
 		$input_class = strpos($type, 'heading') === 0
 			? 'bwp-option-page-heading-desc'
-			: 'bwp-option-page-inputs';
+			: 'bwp-option-page-inputs bwp-option-page-inputs-type-' . $type;
 
 		// an inline item can hold any HTML markup, example is to display some
 		// kinds of button right be low the label

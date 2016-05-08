@@ -1081,6 +1081,13 @@ p.bwp-option-page-inputs {
 .bwp-option-page-inputs select {
   /* margin: 1px 0 0 0; */
 }
+.bwp-option-page-inputs .bwp-label-inline {
+  margin-left: 4px;
+}
+.bwp-option-page-inputs-type-textarea .bwp-label-inline,
+.bwp-option-page-inputs-type-textarea .bwp-field-help {
+  vertical-align: top;
+}
 .bwp-form-help-block {
   display: block;
   margin: -0.5em 0 1em 0;
@@ -1194,6 +1201,12 @@ textarea + .bwp-field-help-link span {
 }
 .bwp-popover.left {
   margin-left: -15px;
+}
+.bwp-popover p {
+  margin-bottom: 7px;
+}
+.bwp-popover p:last-child {
+  margin-bottom: 4px;
 }
 .bwp-popover-title {
   padding: 4px 14px;
