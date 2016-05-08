@@ -53,6 +53,8 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		parent::setUp();
 
 		// parent::setUp() must be called before this
+		$this->set_plugin();
+		$this->reset_plugin_options();
 		$this->prepare_default_values();
 	}
 
@@ -71,6 +73,8 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		parent::setUp();
 
 		// parent::setUp() must be called before this
+		$this->set_plugin();
+		$this->reset_plugin_options();
 		$this->prepare_default_values();
 	}
 
@@ -392,6 +396,19 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	{
 		return $client->getRequest()->getUri();
 	}
+
+	/**
+	 * Set plugin property.
+	 */
+	abstract protected function set_plugin();
+
+	/**
+	 * Reset plugin options to their default values.
+	 *
+	 * Implementing class can then use self::set_plugin_default_options to set
+	 * default options for the whole test class.
+	 */
+	abstract protected function reset_plugin_options();
 
 	/**
 	 * {@inheritDoc}
