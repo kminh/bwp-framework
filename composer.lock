@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b4917c54e66487557db2200659c5d907",
-    "content-hash": "33bf6f5b2809366e71c35fde14419c5d",
+    "hash": "412444d635c7f0bb44eba5ccd28a1586",
+    "content-hash": "8a0a73390b43f045a87a111bc0b0d019",
     "packages": [
         {
             "name": "ehough/filesystem",
