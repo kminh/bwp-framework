@@ -571,9 +571,12 @@ a.bg-danger:focus {
   margin-top: 1em;
   padding-bottom: 1em;
 }
+.bwp-option-page h3 {
+  margin: 0.4em 0;
+}
 .bwp-option-page h4 {
   font-size: 1.1em;
-  margin: 1em 0;
+  margin: 0;
 }
 .bwp-option-page p {
   margin-top: 0px;
@@ -583,14 +586,40 @@ a.bg-danger:focus {
 .bwp-option-page .bwp-paragraph {
   margin: 1em 0;
 }
+.bwp-option-page .bwp-option-page-heading-desc {
+  margin-top: 1.4em;
+}
 .bwp-option-page li.bwp-clear,
 .bwp-option-page div.bwp-clear {
   clear: left;
-  margin: 1em 0 0 0;
+  margin: 1.2em 0 0 0;
   zoom: 1;
 }
+.bwp-option-page li.bwp-clear:before,
+.bwp-option-page div.bwp-clear:before,
+.bwp-option-page li.bwp-clear:after,
+.bwp-option-page div.bwp-clear:after {
+  content: " ";
+  display: table;
+}
+.bwp-option-page li.bwp-clear:after,
+.bwp-option-page div.bwp-clear:after {
+  clear: both;
+}
+.bwp-option-page li.bwp-clear:before,
+.bwp-option-page div.bwp-clear:before,
+.bwp-option-page li.bwp-clear:after,
+.bwp-option-page div.bwp-clear:after {
+  content: " ";
+  display: table;
+}
+.bwp-option-page li.bwp-clear:after,
+.bwp-option-page div.bwp-clear:after {
+  clear: both;
+}
 .bwp-option-page div.bwp-clear {
-  margin-bottom: 1.7em;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
 }
 .bwp-no-display {
   display: none;
@@ -618,6 +647,9 @@ a.bg-danger:focus {
   line-height: 1.4;
   margin: 0;
   padding: 8px 12px;
+}
+.bwp-clear .bwp-promotion {
+  margin-bottom: 0;
 }
 /*--- End Common ---*/
 /*--- Main ---*/
@@ -981,6 +1013,9 @@ table.dataTable td {
 .bwp-form-group-first {
   margin-top: 1em;
 }
+.bwp-form-group-last {
+  margin-bottom: 0;
+}
 .bwp-form-group {
   position: relative;
 }
@@ -1055,11 +1090,11 @@ table.dataTable td {
   display: block;
   float: left;
   width: 200px;
-  margin: 3px 0 1em 0;
+  margin: 3px 0 0 0;
 }
 .type-checkbox {
   margin-top: 3px;
-  margin-bottom: 1.5em;
+  margin-bottom: 0.5em;
 }
 .type-input {
   margin-top: 5px;
@@ -1237,7 +1272,7 @@ textarea + .bwp-field-help-link span {
 }
 .bwp-option-page-inputs .CodeMirror,
 .bwp-option-page-inputs .bwp-code-editor {
-  margin: 1.3em 0 1.7em 0;
+  margin: 1.3em 0 0.5em 0;
 }
 .CodeMirror + .bwp-form-help-block,
 .bwp-code-editor + .bwp-form-help-block {
