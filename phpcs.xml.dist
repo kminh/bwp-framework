@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="BWP Framework">
+    <description>BWP Framework coding standard</description>
+
+    <file>./src</file>
+
+    <exclude-pattern>./phpunit</exclude-pattern>
+
+    <config name="runtime-set" value="testVersion 5.2-5.5"/>
+
+    <arg name="colors"/>
+    <arg value="n"/>
+
+    <rule ref="PHPCompatibility"/>
+</ruleset>
