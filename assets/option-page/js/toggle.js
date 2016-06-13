@@ -3,7 +3,7 @@ jQuery(function($) {
 	'use strict';
 
 	function toggle_field($t) {
-		var target_id     = $t.data('target');
+		var target        = $t.data('target');
 		var toggle_value  = $t.data('toggleValue');
 		var current_value = $.trim($t.val());
 		var toggled_label = $t.data('toggledLabel');
@@ -16,10 +16,15 @@ jQuery(function($) {
 			$t.text(toggled_label);
 		}
 
+		// different prefix for different type of target
+		var target_selector_prefix = target.indexOf('.') === 0 ? '' : '#';
+
 		// the target of this toggling can be a standalone element, or an element
 		// contained in a standard BWP form item
-		var $target = ! $('#' + target_id).is(':input') && ! $('#' + target_id).is('h3')
-			? $('#' + target_id) : $('#' + target_id).parents('.bwp-clear');
+		var $target = ! $(target_selector_prefix + target).is(':input')
+			&& ! $(target_selector_prefix + target).is('h3')
+				? $(target_selector_prefix + target)
+				: $(target_selector_prefix + target).parents('.bwp-clear');
 
 		// no toggle value, just show the target immediately when the selected
 		// value is not blank
