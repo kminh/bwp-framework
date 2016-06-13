@@ -13,7 +13,7 @@ jQuery(function($) {
 
 		// no ajax action needed, open the modal immediately
 		if (typeof ajax_action === 'undefined') {
-			$(target_id).modal();
+			$(target_id).modal('show', this);
 		} else {
 			var loader_id = $t.data('loader');
 			var callback  = $t.data('ajaxCallback');
@@ -39,7 +39,7 @@ jQuery(function($) {
 					$('#' + loader_id).hide();
 				}
 
-				$(target_id).modal();
+				$(target_id).modal('show', this);
 			});
 		}
 	});
