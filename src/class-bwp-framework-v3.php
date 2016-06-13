@@ -1556,8 +1556,9 @@ abstract class BWP_Framework_V3
 	 *
 	 * @param string $field the field that owns the container
 	 * @param string $message
+	 * @param bool   $append
 	 */
-	public function add_container_flash($field, $message)
+	public function add_container_flash($field, $message, $append = true)
 	{
 		if (!isset($_SESSION))
 			return;
@@ -1567,7 +1568,13 @@ abstract class BWP_Framework_V3
 		if (!isset($_SESSION[$flash_key]) || !is_array($_SESSION[$flash_key]))
 			$_SESSION[$flash_key] = array();
 
-		$_SESSION[$flash_key][$field] = $message;
+		if (!isset($_SESSION[$flash_key][$field]) || !is_array($_SESSION[$flash_key][$field]))
+			$_SESSION[$flash_key][$field] = array();
+
+		if ($append)
+			$_SESSION[$flash_key][$field][] = $message;
+		else
+			$_SESSION[$flash_key][$field] = array($message);
 	}
 
 	/**
@@ -1669,7 +1676,7 @@ abstract class BWP_Framework_V3
 		{
 			foreach ($this->errors as $error)
 			{
-				$first = !isset($first) ? ' first ' : '';
+				$first = !isset($first) && ! $this->notice_shown ? ' first ' : '';
 ?>
 <div class="error notice is-dismissible below-h2<?php echo $first ?>">
 	<p><?php echo $error; ?></p>
