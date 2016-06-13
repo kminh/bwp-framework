@@ -689,6 +689,63 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	}
 
 	/**
+	 * @covers BWP_Framework_V3::remove_some_options
+	 * @dataProvider get_remove_some_options_data
+	 */
+	public function test_remove_some_options($db_options, $options_to_remove, $db_options_after)
+	{
+		$option_key = 'bwp_plugin_general';
+
+		$this->bridge
+			->shouldReceive('get_option')
+			->with($option_key)
+			->andReturn($db_options)
+			->byDefault();
+
+		$this->framework
+			->shouldReceive('update_options')
+			->with($option_key, $db_options_after)
+			->once();
+
+		$this->framework
+			->shouldReceive('update_site_options')
+			->with($option_key, $db_options_after)
+			->once();
+
+		$this->call_protected_method('remove_some_options', array($option_key, $options_to_remove));
+	}
+
+	public function get_remove_some_options_data()
+	{
+		return array(
+			'invalid db options' => array(
+				false,
+				array(
+					'option1'
+				),
+				array()
+			),
+
+			'update both blog and site options' => array(
+				array(
+					'option1'      => 'value1',
+					'option2'      => 'value2',
+					'site_option1' => 'site_value1',
+					'site_option2' => 'site_value2'
+				),
+				array(
+					'option1',
+					'site_option1'
+				),
+				array(
+					'option2'      => 'value2',
+					'site_option2' => 'site_value2'
+				)
+			)
+		);
+	}
+
+	/**
 	 * @covers BWP_Framework_V3::update_options
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled

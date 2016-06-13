@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 169;
+	public $revision = 170;
 
 	/**
 	 * Text domain
@@ -865,6 +865,25 @@ abstract class BWP_Framework_V3
 	protected function update_plugin_options($option_key, array $new_options)
 	{
 		$this->update_some_options($option_key, $new_options);
+	}
+
+	public function remove_some_options($option_key, array $options_to_remove)
+	{
+		$db_options = $this->bridge->get_option($option_key);
+
+		$db_options = !$db_options || !is_array($db_options)
+			? array() : $db_options;
+
+		foreach ($options_to_remove as $key) {
+			if (!array_key_exists($key, $db_options)) {
+				continue;
+			}
+
+			unset($db_options[$key]);
+		}
+
+		$this->update_options($option_key, $db_options);
+		$this->update_site_options($option_key, $db_options);
 	}
 
 	/**
