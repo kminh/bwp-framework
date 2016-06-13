@@ -1826,6 +1826,11 @@ abstract class BWP_Framework_V3
 		return BWP_Framework_Util::is_on_main_blog();
 	}
 
+	public static function is_on_sub_blog()
+	{
+		return BWP_Framework_Util::is_on_sub_blog();
+	}
+
 	public static function can_update_site_option()
 	{
 		return BWP_Framework_Util::can_update_site_option();

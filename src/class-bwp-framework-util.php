@@ -128,10 +128,6 @@ class BWP_Framework_Util
 
 	public static function is_on_sub_blog()
 	{
-		// not a multisite installation, no sub blog
-		if (!self::is_multisite())
-			return false;
-
 		return !self::is_on_main_blog();
 	}
 
