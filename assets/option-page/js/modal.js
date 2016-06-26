@@ -77,8 +77,10 @@ jQuery(function($) {
 				window[callback]($, r, $btn, $form);
 			}
 
-			// reset the form if there's no reset button
-			if ($btn.parents('.bwp-modal-footer').find('.bwp-button-modal-reset').length === 0) {
+			// reset the form if the current form needs that and there's no reset button
+			if ($form.hasClass('bwp-form-need-reset')
+				&& $btn.parents('.bwp-modal-footer').find('.bwp-button-modal-reset').length === 0
+			) {
 				$form.trigger('reset');
 			}
 
