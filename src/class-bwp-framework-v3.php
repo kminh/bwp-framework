@@ -1876,7 +1876,7 @@ abstract class BWP_Framework_V3
 	{
 		ob_start();
 
-		include_once constant($this->plugin_ckey . '_PLUGIN_SRC') . '/' . ltrim($template_file_path, '/');
+		include constant($this->plugin_ckey . '_PLUGIN_SRC') . '/' . ltrim($template_file_path, '/');
 
 		$output = ob_get_clean();
 
