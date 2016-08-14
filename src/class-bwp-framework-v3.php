@@ -325,6 +325,8 @@ abstract class BWP_Framework_V3
 	 * Get or check if the current WP version is greater than a specified version
 	 *
 	 * @param string $version optional
+	 * @return string|bool The current WP version or true|false if a $version
+	 *                     parameter is provided.
 	 */
 	public function get_current_wp_version($version = null)
 	{
@@ -595,13 +597,22 @@ abstract class BWP_Framework_V3
 	public function build_wp_properties()
 	{
 		// set the plugin WP url here so it can be filtered
-		if (defined('BWP_USE_SYMLINKS'))
-			// make use of symlinks on development environment
+		if (defined('BWP_USE_SYMLINKS') && ! $this->get_current_wp_version('3.9'))
+		{
+			// we need to use a different way to determine url to our plugin
+			// because we make use of symlinks on development environment, but
+			// since this is handled by WordPress already since version 3.9
+			// (@see commit 5f0981788d7adbd25b71addbc415f700eb1c71b5 in
+			// WordPress git repository), this is only needed when current WP
+			// version is lower than 3.9.
 			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugins_url($this->plugin_folder));
+		}
 		else
+		{
 			// this should allow other package to include BWP plugins while
 			// retaining correct URLs pointing to assets
 			$this->plugin_wp_url = $this->bridge->trailingslashit($this->bridge->plugin_dir_url($this->plugin_file));
+		}
 	}
 
 	/**
