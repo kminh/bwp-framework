@@ -1079,6 +1079,9 @@ table.dataTable.empty-message-center td.dataTables_empty {
 .bwp-button-group .button-secondary {
   vertical-align: baseline;
 }
+.bwp-button-group-last {
+  margin-bottom: 0;
+}
 .bwp-inline-form-wrapper .select2-container input,
 .bwp-inline-form-wrapper .select2-container input:focus {
   box-shadow: none;
