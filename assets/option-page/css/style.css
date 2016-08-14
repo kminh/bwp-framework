@@ -627,6 +627,36 @@ a.bg-danger:focus {
 .bwp-hidden {
   visibility: hidden;
 }
+.bwp-wrapper-with-overlay {
+  position: relative;
+}
+.bwp-overlay {
+  display: none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #f2f2f2;
+  background-color: rgba(242, 242, 242, 0.5);
+  z-index: 9;
+}
+.bwp-overlay-message {
+  position: absolute;
+  width: 10%;
+  height: 3em;
+  top: 50%;
+  left: 0;
+  right: 0;
+  margin: auto;
+  margin-top: -1.5em;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  text-align: center;
+  font-weight: bold;
+  line-height: 3em;
+  z-index: 10;
+}
 .bwp-meta {
   color: #999;
 }
