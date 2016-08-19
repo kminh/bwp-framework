@@ -391,7 +391,9 @@ class BWP_Option_Page_V3
 					// textarea, we convert the field's value to an array
 					if (is_array($option) && $this->is_field_textarea($name))
 					{
-						$option = explode("\n", $_POST[$name]);
+						// @since rev 172 use preg_split to support all kinds
+						// of new line characters
+						$option = preg_split('/\n|\r\n?/', $_POST[$name]);
 					}
 					else
 					{
