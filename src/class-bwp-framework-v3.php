@@ -155,7 +155,7 @@ abstract class BWP_Framework_V3
 	/**
 	 * Number of framework revisions
 	 */
-	public $revision = 171;
+	public $revision = 172;
 
 	/**
 	 * Text domain
@@ -572,12 +572,13 @@ abstract class BWP_Framework_V3
 	{
 		$pre_init_priority = $this->bridge->apply_filters($this->plugin_key . '_pre_init_priority', 10);
 
-		// @since rev 166 we start the early init process after all plugins
-		// are loadded, this is to make sure that:
+		// @since rev 172 we start the early init process just before the
+		// active theme is setup. At this stage, all plugins should have been
+		// loadded, this is to make sure that:
 		// 1. Other plugins can hook to BWP hooks and can compete with BWP
 		//    plugins when using built-in WordPress hooks as well.
 		// 2. All pluggable functions are available and "plugged" when needed.
-		$this->bridge->add_action('plugins_loaded', array($this, 'pre_init'), $pre_init_priority);
+		$this->bridge->add_action('setup_theme', array($this, 'pre_init'), $pre_init_priority);
 	}
 
 	protected function init_actions()

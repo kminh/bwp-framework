@@ -177,7 +177,7 @@ class BWP_Framework_V3_Test extends MockeryTestCase
 	public function test_pre_init_actions_should_call_necessary_functions_when_build_properties()
 	{
 		$this->bridge->shouldReceive('apply_filters')->with('bwp_plugin_pre_init_priority', 10)->andReturn(10)->byDefault();
-		$this->bridge->shouldReceive('add_action')->with('plugins_loaded', array($this->framework, 'pre_init'), 10)->once();
+		$this->bridge->shouldReceive('add_action')->with('setup_theme', array($this->framework, 'pre_init'), 10)->once();
 
 		// mock this to test pre_init_actions() only
 		$this->framework
