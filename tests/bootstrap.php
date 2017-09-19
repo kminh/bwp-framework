@@ -49,7 +49,7 @@ function _bwp_framework_test_autoloader($class_name)
 	}
 
 	// each functional test requires a doc root
-	$_tests_doc_root = getenv('WP_TESTS_DOCROOT') ? getenv('WP_TESTS_DOCROOT') : '/srv/http/sites/wptest';
+	$_tests_doc_root = getenv('WP_TESTS_DOCROOT') ? getenv('WP_TESTS_DOCROOT') : '/srv/http/sites/wptest.net';
 
 	// copy WordPress core dir to use it as the test docroot, we need to use
 	// actual files to avoid symlink's caching issue, @link

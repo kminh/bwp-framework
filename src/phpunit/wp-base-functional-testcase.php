@@ -17,6 +17,56 @@ abstract class BWP_Framework_PHPUnit_WP_Base_Functional_TestCase extends WP_Unit
 	 */
 	protected $is_admin = false;
 
+	/**
+	 * WordPress version.
+	 *
+	 * @since rev 173
+	 */
+	protected static $wp_version;
+
+	public static function setUpBeforeClass()
+	{
+		// Include the
+		global $_core_dir;
+		$wp_version_file = $_core_dir . 'wp-includes/version.php';
+		if (!file_exists($wp_version_file)) {
+			throw new Exception('WordPress\'s version.php file cannot be found, '
+				. 'unable to set up properly before any test.');
+		}
+
+		// If WordPress's version is 4.4 or higher, we need to treat the setup
+		// and tear down function differently to avoid fatal errors. Because
+		// this function can be called several times (for tests that are run in
+		// separate processes), we use `include` and not `include_once`. Since
+		// only some variables are expected in the `version.php` file, it
+		// should be safe to use `include`.
+		include $wp_version_file;
+		self::$wp_version = $wp_version;
+		if (version_compare(self::$wp_version, '4.4', '>=')) {
+		} else {
+			// Otherwise, simply cascade the call.
+			parent::setUpBeforeClass();
+		}
+	}
+
+	public static function tearDownAfterClass()
+	{
+		// Since WordPress 4.7, the `tearDownAfterClass` method of WordPress's
+		// test libs will call some methods such as `_delete_all_data`. If we
+		// have tests run in separate processes, the first process might not
+		// have bootstrapped plugin, meaning the test libs' utility methods
+		// will not exist, which results in a fatal error. Therefore, we can
+		// only call WordPress's `tearDownAfterClass` if WordPress version is
+		// smaller than 4.7, or the `_delete_all_data` method exists.
+		if (version_compare(self::$wp_version, '4.7', '<') || function_exists('_delete_all_data')) {
+			// It's OK to call WordPress's `tearDownAfterClass` method.
+			parent::tearDownAfterClass();
+		} else {
+			// Do not call WordPress's `tearDownAfterClass` method because
+			// doing so will result in a fatal error.
+		}
+	}
+
 	public function setUp()
 	{
 		parent::setUp();
