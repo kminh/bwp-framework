@@ -157,7 +157,12 @@ jQuery(function($) {
 		var $dialog = $(this).find('.bwp-modal-dialog');
 
 		$dialog.css({
+			position: 'absolute',
 			top: '50%',
+			left: '50%',
+			'margin-left': function() {
+				return -($dialog.width() / 2);
+			},
 			'margin-top': function() {
 				return -($dialog.height() / 2);
 			}
