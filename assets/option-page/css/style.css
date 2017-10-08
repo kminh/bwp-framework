@@ -35,14 +35,14 @@ tbody.bwp-collapse.in {
   font-size: 19.5px;
   font-weight: bold;
   line-height: 1;
-  color: #000000;
-  text-shadow: 0 1px 0 #ffffff;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
   opacity: 0.2;
   filter: alpha(opacity=20);
 }
 .bwp-close:hover,
 .bwp-close:focus {
-  color: #000000;
+  color: #000;
   text-decoration: none;
   cursor: pointer;
   opacity: 0.5;
@@ -97,8 +97,8 @@ button.bwp-close {
 }
 .bwp-modal-content {
   position: relative;
-  background-color: #ffffff;
-  border: 1px solid #999999;
+  background-color: #fff;
+  border: 1px solid #999;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 0px;
   -webkit-box-shadow: 0 3px 9px rgba(0, 0, 0, 0.5);
@@ -225,9 +225,9 @@ button.bwp-close {
 .bwp-tooltip-inner {
   max-width: 200px;
   padding: 3px 8px;
-  color: #ffffff;
+  color: #fff;
   text-align: center;
-  background-color: #000000;
+  background-color: #000;
   border-radius: 0px;
 }
 .bwp-tooltip-arrow {
@@ -242,56 +242,56 @@ button.bwp-close {
   left: 50%;
   margin-left: -5px;
   border-width: 5px 5px 0;
-  border-top-color: #000000;
+  border-top-color: #000;
 }
 .bwp-tooltip.top-left .bwp-tooltip-arrow {
   bottom: 0;
   right: 5px;
   margin-bottom: -5px;
   border-width: 5px 5px 0;
-  border-top-color: #000000;
+  border-top-color: #000;
 }
 .bwp-tooltip.top-right .bwp-tooltip-arrow {
   bottom: 0;
   left: 5px;
   margin-bottom: -5px;
   border-width: 5px 5px 0;
-  border-top-color: #000000;
+  border-top-color: #000;
 }
 .bwp-tooltip.right .bwp-tooltip-arrow {
   top: 50%;
   left: 0;
   margin-top: -5px;
   border-width: 5px 5px 5px 0;
-  border-right-color: #000000;
+  border-right-color: #000;
 }
 .bwp-tooltip.left .bwp-tooltip-arrow {
   top: 50%;
   right: 0;
   margin-top: -5px;
   border-width: 5px 0 5px 5px;
-  border-left-color: #000000;
+  border-left-color: #000;
 }
 .bwp-tooltip.bottom .bwp-tooltip-arrow {
   top: 0;
   left: 50%;
   margin-left: -5px;
   border-width: 0 5px 5px;
-  border-bottom-color: #000000;
+  border-bottom-color: #000;
 }
 .bwp-tooltip.bottom-left .bwp-tooltip-arrow {
   top: 0;
   right: 5px;
   margin-top: -5px;
   border-width: 0 5px 5px;
-  border-bottom-color: #000000;
+  border-bottom-color: #000;
 }
 .bwp-tooltip.bottom-right .bwp-tooltip-arrow {
   top: 0;
   left: 5px;
   margin-top: -5px;
   border-width: 0 5px 5px;
-  border-bottom-color: #000000;
+  border-bottom-color: #000;
 }
 .bwp-popover {
   position: absolute;
@@ -317,9 +317,9 @@ button.bwp-close {
   word-spacing: normal;
   word-wrap: normal;
   font-size: 13px;
-  background-color: #ffffff;
+  background-color: #fff;
   background-clip: padding-box;
-  border: 1px solid #cccccc;
+  border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 0px;
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
@@ -377,7 +377,7 @@ button.bwp-close {
   bottom: 1px;
   margin-left: -10px;
   border-bottom-width: 0;
-  border-top-color: #ffffff;
+  border-top-color: #fff;
 }
 .bwp-popover.right > .bwp-arrow {
   top: 50%;
@@ -392,7 +392,7 @@ button.bwp-close {
   left: 1px;
   bottom: -10px;
   border-left-width: 0;
-  border-right-color: #ffffff;
+  border-right-color: #fff;
 }
 .bwp-popover.bottom > .bwp-arrow {
   left: 50%;
@@ -407,7 +407,7 @@ button.bwp-close {
   top: 1px;
   margin-left: -10px;
   border-top-width: 0;
-  border-bottom-color: #ffffff;
+  border-bottom-color: #fff;
 }
 .bwp-popover.left > .bwp-arrow {
   top: 50%;
@@ -421,7 +421,7 @@ button.bwp-close {
   content: " ";
   right: 1px;
   border-right-width: 0;
-  border-left-color: #ffffff;
+  border-left-color: #fff;
   bottom: -10px;
 }
 .clearfix:before,
@@ -804,7 +804,7 @@ a.bg-danger:focus {
   color: #009DD8;
 }
 .bwp-button-maxcdn {
-  color: #ffffff !important;
+  color: #fff !important;
   text-shadow: 0px 1px 1px #ce4800 !important;
   background: #ff5b02 none repeat scroll 0 0 !important;
   border-color: #ce4800 !important;
@@ -849,7 +849,7 @@ a.bg-danger:focus {
   margin-right: 5px;
 }
 .bwp-button-rss {
-  color: #ffffff !important;
+  color: #fff !important;
   text-shadow: 0px 1px 1px #d44d0d !important;
   background: #f26522 none repeat scroll 0 0 !important;
   border-color: #d44d0d !important;
@@ -864,7 +864,7 @@ a.bg-danger:focus {
   box-shadow: 0 2px 5px -3px rgba(20, 7, 1, 0.5) inset !important;
 }
 .bwp-button-twitter {
-  color: #ffffff !important;
+  color: #fff !important;
   text-shadow: 0px 1px 1px #2795e9 !important;
   background: #55acee none repeat scroll 0 0 !important;
   border-color: #2795e9 !important;
@@ -906,6 +906,7 @@ a.bg-danger:focus {
   margin-left: 5px;
   width: 36px;
 }
+/*--- End Icons ---*/
 .bwp-table-md {
   width: 50%;
 }
@@ -1189,6 +1190,12 @@ textarea + .bwp-field-help-link span {
 .bwp-code-editor {
   display: block;
   max-height: 200px;
+}
+.bwp-modal {
+  z-index: 10001;
+}
+.bwp-modal-backdrop {
+  z-index: 9991;
 }
 .bwp-modal-header h4 {
   margin: 0;
