@@ -35,6 +35,16 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	protected static $wp_options = array();
 
 	/**
+	 * @var int
+	 */
+	protected $post_count = 0;
+
+	/**
+	 * @var int
+	 */
+	protected $term_count = 0;
+
+	/**
 	 * Prepare the WP environment
 	 *
 	 * This will prepare the environment for the current session as well as any
@@ -56,6 +66,10 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 		$this->set_plugin();
 		$this->reset_plugin_options();
 		$this->prepare_default_values();
+
+		// reset dummy data count
+		$this->post_count = 0;
+		$this->term_count = 0;
 	}
 
 	/**
@@ -395,6 +409,89 @@ abstract class BWP_Framework_PHPUnit_WP_Functional_TestCase extends BWP_Framewor
 	protected static function get_uri_from_client(Client $client)
 	{
 		return $client->getRequest()->getUri();
+	}
+
+	/**
+	 * Create a dummy term for testing.
+	 */
+	protected function create_term_and_get($taxonomy = 'category')
+	{
+		$next_term_count = ++$this->term_count;
+
+		return $this->factory->term->create_and_get(array(
+			'taxonomy'    => $taxonomy,
+			'name'        => sprintf('Term %d', $next_term_count),
+			'description' => sprintf('Term description %d', $next_term_count)
+		));
+	}
+
+	/**
+	 * Create many dummy terms for testing.
+	 *
+	 * Since WordPress 4.4 the `WP_UnitTest_Generator_Sequence` has been using
+	 * a static counter, which makes the data of created dummy items
+	 * unpredictable. This method is used to create dummy items in a
+	 * predictable manner. This is mostly the same as
+	 * `WP_UnitTest_Factory::create_many()`.
+	 *
+	 * @param int        $count
+	 * @param array      $args
+	 * @param array|null $generation_definitions
+	 *
+	 * @see WP_UnitTest_Generator_Sequence
+	 * @see WP_UnitTest_Factory::create_many()
+	 */
+	protected function create_many_terms($count, $args = array(), $generation_definitions = null)
+	{
+		$results = array();
+		for ($i = 0; $i < $count; $i++) {
+			$next_term_count     = ++$this->term_count;
+			$args['name']        = sprintf('Term %d', $next_term_count);
+			$args['description'] = sprintf('Term description %d', $next_term_count);
+
+			$results[] = $this->factory->term->create($args, $generation_definitions);
+		}
+		return $results;
+	}
+
+	/**
+	 * Create a dummy post for testing.
+	 *
+	 * @param string $post_type
+	 */
+	protected function create_post_and_get($post_type = 'post')
+	{
+		$next_post_count = ++$this->post_count;
+
+		return $this->factory->post->create_and_get(array(
+			'post_type'    => $post_type,
+			'post_title'   => sprintf('Post title %d', $next_post_count),
+			'post_content' => sprintf('Post content %d', $next_post_count),
+			'post_excerpt' => sprintf('Post excerpt %d', $next_post_count)
+		));
+	}
+
+	/**
+	 * Create many dummy posts for testing.
+	 *
+	 * @param int        $count
+	 * @param array      $args
+	 * @param array|null $generation_definitions
+	 *
+	 * @see self::create_many_terms()
+	 */
+	protected function create_many_posts($count, $args = array(), $generation_definitions = null)
+	{
+		$results = array();
+		for ($i = 0; $i < $count; $i++) {
+			$next_post_count      = ++$this->post_count;
+			$args['post_title']   = sprintf('Post title %d', $next_post_count);
+			$args['post_content'] = sprintf('Post content %d', $next_post_count);
+			$args['post_excerpt'] = sprintf('Post excerpt %d', $next_post_count);
+
+			$results[] = $this->factory->post->create($args, $generation_definitions);
+		}
+		return $results;
 	}
 
 	/**
